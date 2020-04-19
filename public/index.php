@@ -1,4 +1,8 @@
 <?php
+if ($_SERVER['REQUEST_URI'] == '/') {
+  include_once("panel.html");
+} else {
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +30,4 @@ $app = require __DIR__.'/../bootstrap/app.php';
 */
 
 $app->run();
+}
