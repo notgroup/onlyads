@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <title>Login | RoketMedia</title>
+    <meta content="RoketMedia" name="description" />
+    <meta content="GokhanCelik" name="author" />
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/metismenu.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/style.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .logo-light{
+            line-height: 70px;
+            color: #384ec5;
+            font-size: 24px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Begin page -->
+    <div class="accountbg"></div>
+    <div class="home-btn d-none d-sm-block">
+        <a href="/" class="text-white"><i class="fas fa-home h2"></i></a>
+    </div>
+    <div class="wrapper-page">
+        <div class="card card-pages shadow-none">
+
+            <div class="card-body">
+                <div class="text-center m-t-0 m-b-15">
+                    <a href="index.html" class="logo logo-admin">
+                        <span class="logo-light"><i class="mdi mdi-camera-control"></i> RoketMedia
+                        </span>
+                        <img style="display:none;" src="assets/images/logo-dark.png" alt="" height="24">
+                    </a>
+                </div>
+                <h5 class="font-18 text-center">Sign in to continue to RoketMedia.</h5>
+
+                <form class="form-horizontal m-t-30" action="javascript:;" onsubmit="getLogin()">
+
+                    <div class="form-group">
+                        <div class="col-12">
+                            <label>Email</label>
+                            <input name="email" class="form-control" type="email" required="" placeholder="Email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-12">
+                            <label>Password</label>
+                            <input name="password" class="form-control" type="password" required="" placeholder="Password">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-12">
+                            <div class="checkbox checkbox-primary">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1"> Remember me</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center m-t-20">
+                        <div class="col-12">
+                            <button class="btn btn-primary btn-block btn-lg waves-effect waves-light" type="submit">Log In</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group row m-t-30 m-b-0">
+                        <div class="col-sm-7">
+                            <a href="javascript:;" class="text-muted"><i class="fa fa-lock m-r-5"></i> Forgot your password?</a>
+                        </div>
+                        <div class="col-sm-5 text-right">
+                            <a href="javascript:;" class="text-muted">Create an account</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <!-- END wrapper -->
+
+    <!-- jQuery  -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/metismenu.min.js"></script>
+    <script src="assets/js/jquery.slimscroll.js"></script>
+    <script src="assets/js/waves.min.js"></script>
+
+    <!-- App js -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        function getLogin () {
+            var email = $("input[name=email]").val();
+            var password = $("input[name=password]").val();
+            post('/getLogin', JSON.stringify({
+                email: email,
+                password: password
+            }), (res) => {
+                localStorage.setItem('userData', JSON.stringify(res))
+                setTimeout(()=>{
+                   window.location.href = '/'
+               }, 1000)
+            })
+
+        }
+
+
+        function postHeader(data = {}) {
+            return {
+                headers: {
+                    //"Authorization": this.getToken(),
+                    Accept: 'application/json, application/xml, text/plain, text/html, *.*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'omit',
+                method: 'POST',
+                body: data
+            };
+        }
+        function post(url, pdata, cb) {
+            fetch(url, this.postHeader(pdata))
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                cb(data);
+            });
+        }
+
+
+    </script>
+
+</body>
+
+</html>
