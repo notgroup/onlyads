@@ -51,7 +51,7 @@
     },
 
     MainApp.prototype.initEnlarge = function () {
-        if ($(window).width() < 1025) {
+        if ($(window).width() < 2000) {
             $('body').addClass('enlarged');
         } else {
             if ($('body').data('keep-enlarged') != true)

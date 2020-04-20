@@ -73,11 +73,12 @@ Vue.mixin({
             return {
                 headers: {
                     //"Authorization": this.getToken(),
-                    Accept: 'application/json, application/xml, text/plain, text/html, *.*'
+                    Accept: 'application/json, application/xml, text/plain, text/html, *.*',
+                    'Content-Type': 'application/json'
                 },
                 credentials: 'omit',
                 method: 'POST',
-                body: data
+                body: JSON.stringify(data)
             };
         },
         getToken() {

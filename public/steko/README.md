@@ -1,2 +1,0 @@
-# vue-crm
-test dev

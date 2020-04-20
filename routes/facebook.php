@@ -38,7 +38,7 @@ $router->get('/adAccounts', function () use ($router, $fb) {
     $fbData = getFacebookData($fb);
     if ($fbData) {
 
-      Cache::put('adAccounts', $fbData, \Carbon\Carbon::now()->addMinutes(7200));
+      Cache::put('adAccounts', $fbData, \Carbon\Carbon::now()->addMinutes(7200222));
       $response =  Cache::get('adAccounts');
       $response =  array_merge([], $response['client_ad_accounts'], $response['owned_ad_accounts']);
 
@@ -79,6 +79,21 @@ foreach (array_merge([], ...array_column($response,'adsets')) as $askey => $adse
 }
 */
 
-  return response()->json($response);
+return response()->json($response);
+
+});
+
+
+$router->post('/addNote', function () use ($router) {
+  $requestAll = request()->all();
+  $requestAll['updateTime'] = \Carbon\Carbon::now();
+  DB::connection('facebook')->table('notes')->insert($requestAll);
+  return response()->json(DB::connection('facebook')->table('notes')->where('objectId', request()->get('objectId'))->get()->toArray());
+
+});
+
+$router->get('/getNotes/{objectId}', function ($objectId) use ($router) {
+
+  return response()->json(DB::connection('facebook')->table('notes')->where('objectId', $objectId)->get()->toArray());
 
 });

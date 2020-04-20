@@ -1,6 +1,6 @@
 <?php
 if ($_SERVER['REQUEST_URI'] == '/') {
-  include_once("panel.html");
+  include_once("index.html");
 } else {
 
 
