@@ -3,6 +3,7 @@ use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 require_once('config.php');
 
@@ -84,11 +85,11 @@ return response()->json($response);
 });
 
 
-$router->post('/addNote', function () use ($router) {
-  $requestAll = request()->all();
+$router->post('/addNote', function (Request $request) use ($router) {
+  $requestAll = $request->all();
   $requestAll['updateTime'] = \Carbon\Carbon::now();
   DB::connection('facebook')->table('notes')->insert($requestAll);
-  return response()->json(DB::connection('facebook')->table('notes')->where('objectId', request()->get('objectId'))->get()->toArray());
+  return response()->json(DB::connection('facebook')->table('notes')->where('objectId', $request->get('objectId'))->get()->toArray());
 
 });
 
