@@ -4,6 +4,7 @@ var BusinessAccounts = httpVueLoader('./vue/page/BusinessAccounts.vue');
 var AdAccounts = httpVueLoader('./vue/page/AdAccounts.vue');
 var RefPrefix = httpVueLoader('./vue/page/RefPrefix.vue');
 var Category = httpVueLoader('./vue/page/category.vue');
+var Settings = httpVueLoader('./vue/page/Settings.vue');
 var Single = httpVueLoader('./vue/page/single.vue');
 var Compare = httpVueLoader('./vue/page/compare.vue');
 var Classified = httpVueLoader('./vue/page/classified.vue');
@@ -90,8 +91,8 @@ Vue.mixin({
 var routes = [
     {
         path: '/',
-        name: 'Blank',
-        component: Blank
+        name: 'Dashboard',
+        component: BusinessAccounts
     },
     {
         path: '/category',
@@ -101,11 +102,17 @@ var routes = [
     {
         path: '/business-accounts',
         name: 'BusinessAccounts',
-        component: BusinessAccounts
-    },    {
+        component: Blank
+    },
+    {
         path: '/ref-prefix',
         name: 'RefPrefix',
         component: RefPrefix
+    },
+    {
+        path: '/settings',
+        name: 'Settings',
+        component: Settings
     },
     {
         path: '/ad-accounts',

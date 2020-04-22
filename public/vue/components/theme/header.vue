@@ -4,7 +4,7 @@
 
             <!-- LOGO -->
             <div class="topbar-left">
-                <a href="index.html" class="logo">
+                <a href="#/" class="logo">
                     <span class="logo-light">
                             <i class="mdi mdi-camera-control"></i> RoketMedia
                         </span>
@@ -162,5 +162,10 @@ input[type="text"]::-webkit-input-placeholder {
 .topbar .topbar-left .logo {
 
     margin-left: -30px;
+}
+.enlarged #wrapper .topbar .topbar-left .logo .logo-sm {
+
+    display: inline-block !important;
+    margin-left: 27px;
 }
 </style>

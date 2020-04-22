@@ -1,6 +1,7 @@
 <?php
 
-$access_token = 'EAACJK9kkvmYBAEJUPq81yaFGWJfOD1mkiU5UVN4c6Y2kUPRvsOarBbguDktfGtUw9IZBYymlpbSdnkwFazbSkXKJdxPxThrmCEujMpZCwjmvvtgRP9wMZBZCLFjNXW2S6wZBcelxsAimlb4ZAHvrtux4YOMU5unubMjUkaYXJpNYwEO84QtBef';
+$access_token = 'EAACJK9kkvmYBAEBEszq1SWoDCb9nGiZCPuC8fZAVP5ck6cl5uxtzyiWj3oI8dOACLaGcmDW5O4p1mXB0cvZA7s4QJltNib1bwxxIytZAAwgN8sQ7dAZAu9NREaUoCbB2iPoCQK8AauLRdTEZCBUwykE89rdSX6YgprjQTcgBxSVgZDZD';
+$access_tokenBm01 = 'EAACJK9kkvmYBAEJUPq81yaFGWJfOD1mkiU5UVN4c6Y2kUPRvsOarBbguDktfGtUw9IZBYymlpbSdnkwFazbSkXKJdxPxThrmCEujMpZCwjmvvtgRP9wMZBZCLFjNXW2S6wZBcelxsAimlb4ZAHvrtux4YOMU5unubMjUkaYXJpNYwEO84QtBef';
 $ad_account_id = 'act_866786040461786';
 $app_secret = '61dc8d2dbe452894981432eb7ec02ac6';
 $app_id = '150821419662950';
@@ -10,6 +11,13 @@ $fb = new \Facebook\Facebook([
   'default_graph_version' => 'v6.0',
   'default_access_token' => $access_token, // optional
 ]);
+
+
+/*
+https://developers.facebook.com/docs/facebook-login/access-tokens/refreshing
+
+https://graph.facebook.com/v6.0/oauth/access_token?grant_type=fb_exchange_token&client_id=150821419662950&client_secret=61dc8d2dbe452894981432eb7ec02ac6&fb_exchange_token=EAACJK9kkvmYBAI57kqRyXjFcIuG2Jmom0QzYs1VMYlKWs64dT4Kt2vwOu5ZAWRV8cZBjMPbBmDOQBZBLwaV78Mjn4cGEZCAyj73fpVsJWJcurLmDkMBZBhULHLSetVqavoLKMmbk8Hx50sBTtlE0Jhpc9Y6KZBZAGc55qMUikC7uZABYy9YAc019cf6JgIjZCdC8ZD
+*/
 
 
 /*
@@ -27,8 +35,13 @@ level, summary
 
 insights_prefix_variants=
 insights.level(account).default_summary(0).summary(conversions,unique_ctr).time_range({'since':'2020-04-14','until':'2020-04-19'}).date_preset(last_14d).time_increment(1)
-insights.level(account).default_summary(1).time_range({'since':'2020-04-14','until':'2020-04-19'}).date_preset(last_14d).time_increment(1)
+insights.level(account).default_summary(1).time_range({'since':'2020-04-14','until':'2020-04-19'}).date_preset(last_14d).time_increment(all_days)
+insights.level(account).default_summary(0).time_range({'since':'2020-04-14','until':'2020-04-19'}).time_increment(all_days)
 
 
 
  */
+
+/*
+156479078851727?fields=client_ad_accounts.limit(100){amount_spent,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'2020-04-14','until':'2020-04-19'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,unique_ctr,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal},owned_ad_accounts.limit(100){amount_spent,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'2020-04-14','until':'2020-04-19'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,unique_ctr,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal}
+*/
