@@ -12,7 +12,6 @@ WHMAPI.txt
 /backup
 .env
 ftpsync.settings
-database/database.sqlite
 /**/*.xls
 /public/*.txt
 /public/*.json
