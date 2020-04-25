@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 
 ini_set('error_reporting', E_ALL);
-ini_set('display_errors', true);
+ini_set('display_errors', false);
 
 function adminer_object() {
 
@@ -58,6 +58,7 @@ function adminer_object() {
 
 return new AdminerSoftware;
 }
+
 
 
 include './adminer.4.6.2.php';

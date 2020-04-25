@@ -54,9 +54,11 @@
                                 ></span> </span
                         ></a>
                         <ul class="submenu">
-                            <li><a href="#/">Landing Builder</a></li>
+                            <li><a href="#/LandingBuilder">Landing Builder</a></li>
                             <li><a href="#/DomainManagment">Domain Yönetimi</a></li>
-                            <li><a href="#/">Sunucu Yönetimi</a></li>
+                            <li><a href="#/ServerManagment">Sunucu Yönetimi</a></li>
+                            <li><a href="#/BlogManagment">Blog Yönetimi</a></li>
+                            <li><a href="#/DbManagment">DB Yönetimi</a></li>
                         </ul>
                     </li>
                     <li>

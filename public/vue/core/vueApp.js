@@ -7,7 +7,10 @@ var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
 
 /* LIST */
 var ProductList = httpVueLoader('./vue/page/ProductList.vue');
+var BlogManagment = httpVueLoader('./vue/page/BlogManagment.vue');
+var CargoTracking = httpVueLoader('./vue/page/CargoTracking.vue');
 var DomainManagment = httpVueLoader('./vue/page/DomainManagment.vue');
+var ServerManagment = httpVueLoader('./vue/page/ServerManagment.vue');
 var ProductGroupList = httpVueLoader('./vue/page/ProductGroupList.vue');
 var OrderList = httpVueLoader('./vue/page/OrderList.vue');
 var CustomerList = httpVueLoader('./vue/page/CustomerList.vue');
@@ -24,6 +27,7 @@ var ContenDetail = httpVueLoader('./vue/page/ContenDetail.vue');
 
 
 
+var DbManagment = httpVueLoader('./vue/page/DbManagment.vue');
 var LandingBuilder = httpVueLoader('./vue/page/LandingBuilder.vue');
 var RefPrefix = httpVueLoader('./vue/page/RefPrefix.vue');
 var Category = httpVueLoader('./vue/page/category.vue');
@@ -124,7 +128,7 @@ var routes = [
         component: BusinessAccounts
     },
     {
-        path: '/landing-builder',
+        path: '/LandingBuilder',
         name: 'LandingBuilder',
         component: LandingBuilder
     },
@@ -152,6 +156,27 @@ var routes = [
         path: '/DomainManagment',
         name: 'DomainManagment',
         component: DomainManagment
+    },
+    {
+        path: '/CargoTracking',
+        name: 'CargoTracking',
+        component: CargoTracking
+    },
+    {
+        path: '/BlogManagment',
+        name: 'BlogManagment',
+        component: BlogManagment
+    },
+    {
+        path: '/DbManagment',
+        name: 'DbManagment',
+        component: DbManagment
+    },
+    {
+        path: '/ServerManagment',
+        name: 'ServerManagment',
+        props: true,
+        component: ServerManagment
     },
     {
         path: '/ad-accounts',

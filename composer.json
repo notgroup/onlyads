@@ -6,15 +6,16 @@
     "type": "project",
     "require": {
         "php": "^7.2.5",
-        "doctrine/dbal": "^2.10",
         "ext-exif": "*",
         "ext-gd": "*",
         "ext-pdo_sqlite": "*",
         "ext-sqlite3": "*",
-        "laravel/helpers": "^1.1",
+        "doctrine/dbal": "^2.10",
+        "facebook/graph-sdk": "^5.7",
         "facebook/php-business-sdk": "^6.0",
+        "laravel/helpers": "^1.1",
         "laravel/lumen-framework": "^7.0",
-        "facebook/graph-sdk": "^5.7"
+        "phpoffice/phpspreadsheet": "^1.11"
     },
     "require-dev": {
         "ybr-nx/laravel-mariadb": "^1.0",
