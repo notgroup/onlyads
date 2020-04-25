@@ -18,4 +18,6 @@ database/database.sqlite
 /**/*.xls
 /public/*.txt
 /public/*.json
-database/db/
+database/
+database/*.sqlite
+/database/database.sqlite
