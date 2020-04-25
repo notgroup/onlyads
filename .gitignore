@@ -10,3 +10,7 @@ WHMAPI.txt
 /.vscode
 /.env
 .env
+/backup
+*.env
+.env
+ftpsync.settings

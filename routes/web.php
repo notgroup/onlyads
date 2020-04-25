@@ -47,8 +47,7 @@ $router->get('/domains', function (Request $request) {
       'X-Auth-Key: 283cbb4f336b00ca9f8ac9f607188b333094f',
       'Accept: application/json, application/xml, text/plain, text/html, *.*'
   ];
-echo slugify('asd fokla');
-exit;
+
   $cacheKey = 'cloudflareDomains';
   if (Cache::has($cacheKey)) {
     $response =  Cache::get($cacheKey);

@@ -71,7 +71,7 @@ module.exports = {
     }
   },
   mounted() {
-    this.getData()
+
   },
   beforeCreate() {},
   created() {},
