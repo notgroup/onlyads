@@ -21,3 +21,4 @@ database/database.sqlite
 database/
 database/*.sqlite
 /database/database.sqlite
+database/database.sqlite
