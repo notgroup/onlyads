@@ -2,43 +2,50 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-    <title>Roket Media</title>
-    <meta content="RoketMedia Crm aplication." name="description" />
-    <meta content="Gokhan Celik" name="author" />
-    <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+  <title>Roket Media</title>
+  <meta content="RoketMedia Crm aplication." name="description" />
+  <meta content="Gokhan Celik" name="author" />
+  <link rel="shortcut icon" href="assets/images/favicon.ico">
 
-    <!--Morris Chart CSS -->
-    <link rel="stylesheet" href="assets/plugins/morris/morris.css">
+  <!--Morris Chart CSS -->
+  <link rel="stylesheet" href="assets/plugins/morris/morris.css">
 
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="assets/css/metismenu.min.css" rel="stylesheet" type="text/css">
-    <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
-    <link href="assets/css/style.css" rel="stylesheet" type="text/css">
-    <base href="./">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/metismenu.min.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/style.css" rel="stylesheet" type="text/css">
+      <link href="https://nightly.datatables.net/rowreorder/css/rowReorder.dataTables.css?_=6e799325be6f763b41c5c21989f76ec9.css" rel="stylesheet" type="text/css" />
 
-    <script>
-      window.apiUrl = location.origin.replace('test.','') + '';
+  <base href="./">
+
+  <script>
+    function resizeIframe(obj) {
+      obj.style.height =
+        obj.contentWindow.document.documentElement.scrollHeight + "px";
+    }
+    window.apiUrl = location.origin.replace('test.', '') + '';
   </script>
   <style>
     .hide {
-        display: none;
+      display: none;
     }
 
     .m-b-0 {
-        margin-bottom: 0;
+      margin-bottom: 0;
     }
+
     @media (max-width: 768px) {
 
-        .enlarged #wrapper .topbar .topbar-left .logo .logo-sm {
-            display: inline-block !important;
-            line-height: 70px !important;
-            font-size: 28px !important;
-            margin-left: 20px !important;
+      .enlarged #wrapper .topbar .topbar-left .logo .logo-sm {
+        display: inline-block !important;
+        line-height: 70px !important;
+        font-size: 28px !important;
+        margin-left: 20px !important;
 
-        }
+      }
     }
 
     @media (max-width: 768px) {
@@ -47,11 +54,9 @@
         line-height: 70px !important;
         font-size: 28px !important;
         margin-left: 20px !important;
+      }
     }
-}
-
-
-</style>
+  </style>
 </head>
 
 <body class="">
@@ -73,11 +78,13 @@
   <script src='vue/core/vue.min.js'></script>
   <script src='vue/core/httpVueLoader.js'></script>
   <script src='vue/core/vue-router.min.js'></script>
-  <script async defer src="vue/core/vueApp.js?v=1"></script>
+  <script async defer src="vue/core/vueApp.js?v=2"></script>
   <script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
   <script src="assets/plugins/datatables/dataTables.bootstrap4.min.js"></script>
   <script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
   <script src="assets/plugins/datatables/responsive.bootstrap4.min.js"></script>
+      <script src="https://nightly.datatables.net/rowreorder/js/dataTables.rowReorder.js?_=6e799325be6f763b41c5c21989f76ec9"></script>
+
   <script src="//cdn.datatables.net/plug-ins/1.10.20/api/sum().js"></script>
   <script type="text/javascript">
 

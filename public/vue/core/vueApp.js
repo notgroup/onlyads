@@ -2,12 +2,34 @@ var App = httpVueLoader('./vue/container/app.vue');
 var Blank = httpVueLoader('./vue/page/blank.vue');
 var BusinessAccounts = httpVueLoader('./vue/page/BusinessAccounts.vue');
 var AdAccounts = httpVueLoader('./vue/page/AdAccounts.vue');
+var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
+
+
+/* LIST */
+var ProductList = httpVueLoader('./vue/page/ProductList.vue');
+var DomainManagment = httpVueLoader('./vue/page/DomainManagment.vue');
+var ProductGroupList = httpVueLoader('./vue/page/ProductGroupList.vue');
+var OrderList = httpVueLoader('./vue/page/OrderList.vue');
+var CustomerList = httpVueLoader('./vue/page/CustomerList.vue');
+var ContentTypeList = httpVueLoader('./vue/page/ContentTypeList.vue');
+
+
+
+
+/* DETAILS */
+var ProductDetail = httpVueLoader('./vue/page/ProductDetail.vue');
+var OrderDetail = httpVueLoader('./vue/page/OrderDetail.vue');
+var CustomerDetail = httpVueLoader('./vue/page/CustomerDetail.vue');
+var ContenDetail = httpVueLoader('./vue/page/ContenDetail.vue');
+
+
+
+var LandingBuilder = httpVueLoader('./vue/page/LandingBuilder.vue');
 var RefPrefix = httpVueLoader('./vue/page/RefPrefix.vue');
 var Category = httpVueLoader('./vue/page/category.vue');
 var Settings = httpVueLoader('./vue/page/Settings.vue');
 var Single = httpVueLoader('./vue/page/single.vue');
-var Compare = httpVueLoader('./vue/page/compare.vue');
-var Classified = httpVueLoader('./vue/page/classified.vue');
+
 
 var Header = httpVueLoader('./vue/components/theme/header.vue')
 var Sidebar = httpVueLoader('./vue/components/theme/sidebar.vue')
@@ -21,7 +43,14 @@ Vue.mixin({
         "sidebar-comp": Sidebar
     },
     data() {
-        return {};
+        return {
+            entityTypes:{
+                "4" : "Ürünler",
+                "33" : "Siparişler",
+                "34" : "Müşteriler",
+                "32" : "Ürün Grupları",
+            }
+        };
     },
     computed: {
         compTest() {
@@ -51,8 +80,8 @@ Vue.mixin({
                     cb(data);
                 });
         },
-        get(url, cb) {
-            fetch(url, this.getHeader())
+        get(url, cb, header = {}) {
+            fetch(url, Object.assign(header, this.getHeader()))
                 .then((response) => {
                     return response.json();
                 })
@@ -95,6 +124,11 @@ var routes = [
         component: BusinessAccounts
     },
     {
+        path: '/landing-builder',
+        name: 'LandingBuilder',
+        component: LandingBuilder
+    },
+    {
         path: '/category',
         name: 'category',
         component: Category
@@ -115,19 +149,74 @@ var routes = [
         component: Settings
     },
     {
+        path: '/DomainManagment',
+        name: 'DomainManagment',
+        component: DomainManagment
+    },
+    {
         path: '/ad-accounts',
         name: 'AdAccounts',
         component: AdAccounts
     },
     {
-        path: '/compare/:itemId?',
-        name: 'Compare',
-        component: Compare
+        path: '/ad-account-detail/:accountId',
+        name: 'AdAccountDetail',
+        props: true,
+        component: AdAccountDetail
     },
     {
-        path: '/classified/:itemId?',
-        name: 'Classified',
-        component: Classified
+        path: '/ProductList',
+        name: 'ProductList',
+        props: true,
+        component: ProductList
+    },
+    {
+        path: '/ProductGroupList',
+        name: 'ProductGroupList',
+        props: true,
+        component: ProductGroupList
+    },
+    {
+        path: '/OrderList',
+        name: 'OrderList',
+        props: true,
+        component: OrderList
+    },
+    {
+        path: '/CustomerList',
+        name: 'CustomerList',
+        props: true,
+        component: CustomerList
+    },
+    {
+        path: '/ProductDetail/:primaryId',
+        name: 'ProductDetail',
+        props: true,
+        component: ProductDetail
+    },
+    {
+        path: '/OrderDetail/:primaryId',
+        name: 'OrderDetail',
+        props: true,
+        component: OrderDetail
+    },
+    {
+        path: '/CustomerDetail/:primaryId',
+        name: 'CustomerDetail',
+        props: true,
+        component: CustomerDetail
+    },
+    {
+        path: '/ContentTypeList/:typeId',
+        name: 'ContentTypeList',
+        props: true,
+        component: ContentTypeList
+    },
+    {
+        path: '/ContenDetail/:primaryId',
+        name: 'ContenDetail',
+        props: true,
+        component: ContenDetail
     }
 ];
 

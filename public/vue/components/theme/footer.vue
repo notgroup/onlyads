@@ -12,7 +12,7 @@ module.exports = {
         setTimeout(() => {
 
   $.MainApp.init();
-    }, 1800)
+    }, 700)
   }
 }
 </script>

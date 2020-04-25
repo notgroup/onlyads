@@ -10,7 +10,27 @@ require_once('config.php');
 function getFacebookData($fb, $startDate, $endDate){
   $response = false;
   try {
-    $response = $fb->get("156479078851727?fields=client_ad_accounts.limit(100){amount_spent,business_name,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal},owned_ad_accounts.limit(100){amount_spent,business_name,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal}");
+    $response = $fb->get("156479078851727?fields=client_ad_accounts.limit(100){funding_source_details,amount_spent,business_name,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal},owned_ad_accounts.limit(100){funding_source_details,amount_spent,business_name,balance,name,adspixels{name,id},insights.level(account).default_summary(0).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days){account_id,date_start,date_stop,spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type,account_currency},ads{id,creative,account_id,campaign_id,adset_id,configured_status,effective_status,name,recommendations,status,updated_time,issues_info,ad_review_feedback},disable_reason,account_status,created_time,id,currency,business,account_id,is_prepay_account,is_personal}");
+    $response = $response->getGraphNode()->asArray();
+  //$response = $fb->get('me?fields=businesses{id,name,client_ad_accounts{business,id,balance,name}}');
+  } catch(FacebookResponseException $e) {
+  // When Graph returns an error
+    $error =  'Graph returned an error: ' . $e->getMessage();
+
+  } catch(FacebookSDKException $e) {
+  // When validation fails or other local issues
+    $error =  'Facebook SDK returned an error: ' . $e->getMessage();
+
+  }
+
+
+  return $response;
+}
+
+function getAccountDetail($fb, $accountId){
+  $response = false;
+  try {
+    $response = $fb->get("act_".$accountId."?fields=account_id,id,is_prepay_account,name,business_name,business,disable_reason,account_status,ads{effective_status,status,configured_status,ad_review_feedback,recommendations,issues_info},activities{actor_name,application_name,date_time_in_timezone,event_time,event_type,extra_data,object_id,object_name,object_type,translated_event_type}");
     $response = $response->getGraphNode()->asArray();
   //$response = $fb->get('me?fields=businesses{id,name,client_ad_accounts{business,id,balance,name}}');
   } catch(FacebookResponseException $e) {
@@ -35,7 +55,7 @@ $router->get('/adAccounts', function (Request $request) use ($router, $fb) {
 
 
   $cacheKey = 'adAccounts'. $startDate.$endDate;
-  Cache::forget($cacheKey);
+  //Cache::forget($cacheKey);
 //Cache::flush();
   if (Cache::has($cacheKey)) {
     $response =  Cache::get($cacheKey);
@@ -47,7 +67,7 @@ $router->get('/adAccounts', function (Request $request) use ($router, $fb) {
       Cache::put($cacheKey, $fbData, 600);
       $response =  Cache::get($cacheKey);
       $response =  array_merge([], $response['client_ad_accounts'], $response['owned_ad_accounts']);
-      file_put_contents('graphLogs/fbgraphql_'.date('Y_m_d_H_i').'.json', json_encode($response));
+      file_put_contents('logs/fbgraphql_'.date('Y_m_d_H_i').'.json', json_encode($response));
 
     } else {
       $response = ['message' => 'bir hata var'];
@@ -90,6 +110,23 @@ return response()->json($response);
 });
 
 
+$router->get('/adAccountDetail/{accountId}', function (Request $request, $accountId) use ($router, $fb) {
+  $startDate = date("Y-m-d");
+  $endDate = date("Y-m-d");
+  $cacheKey = 'adAccounts'. $startDate.$endDate;
+  $response = [];
+  /*if (Cache::has($cacheKey)) {
+    $response =  Cache::get($cacheKey);
+  }*/
+
+  $response = getAccountDetail($fb, $accountId) ?: [];
+  return response()->json($response);
+
+});
+
+
+
+
 $router->post('/addNote', function (Request $request) use ($router) {
   $requestAll = $request->all();
   $requestAll['updateTime'] = \Carbon\Carbon::now();
@@ -103,6 +140,9 @@ $router->get('/getNotes/{objectId}', function ($objectId) use ($router) {
   return response()->json(DB::connection('facebook')->table('notes')->where('objectId', $objectId)->get()->toArray());
 
 });
+
+
+
 $router->get('/deleteNote/{notId}', function ($notId) use ($router) {
   $not = DB::connection('facebook')->table('notes')->where('id', $notId)->get()->toArray();
   $nots = $not ? DB::connection('facebook')->table('notes')->where('id', '!=', $notId)->where('objectId', $not[0]->objectId)->get()->toArray() : [];

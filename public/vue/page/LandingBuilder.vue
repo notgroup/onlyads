@@ -19,14 +19,21 @@
                 <!-- end row -->
             </div>
 
-
+            <iframe
+            style="padding-top: 20px;"
+                src="http://builders.test/flatpack-511/flatpack-511/main-5-1-1/builder/"
+                frameborder="0"
+                height="1600px"
+                scrolling="yes"
+                width="100%"
+            ></iframe>
         </div>
     </div>
 </template>
 <script>
 
 module.exports = {
-    name: "home",
+    name: "landingBuilder",
     data() {
         return {};
     },

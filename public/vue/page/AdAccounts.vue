@@ -87,10 +87,10 @@
             <div class="card-body">
 
               <div class="table-responsive">
-                <table id="datatable" class="table table-striped table-bordered  mb-0 table-hover nowrap display" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                <table id="datatable" class="table table-striped table-bordered  mb-0 table-hover nowrap display row-reorder" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                   <thead class="thead-default">
                    <tr>
-                    <th width="0">#</th>
+                    <th width="0" row-reordered class="row-reordered reordered reorder row-reorder">#</th>
                     <th width="0">Hes.İs.</th>
                     <th width="0">BM</th>
                     <th width="0" class="hide"></th>
@@ -109,11 +109,11 @@
                 <tbody>
                   <template v-for="(bs, bkey) in adAccounts">
                     <tr :class="[bs.account_status > 1 ? 'bg-danger-table' : 'bg-success-table']">
-                      <td>{{bkey}}</td>
-                      <td :class="[bs.is_prepay_account ? 'bg-success' : '']">{{bs.name}}</td>
-                      <td>{{(bs.business_name || bs.business.name).toLowerCase()}}</td>
+                      <td class="keyi"></td>
+                      <td :class="[bs.is_prepay_account ? 'bg-success' : '']">{{bs.name.substr(0,15).toLowerCase()}}</td>
+                      <td>{{(bs.business_name || bs.business.name).substr(0,10).toLowerCase()}}</td>
                       <td style="display:none;"></td>
-                      <td>{{reasons[bs.disable_reason]}}</td>
+                      <td>{{bs.disable_reason ? reasons[bs.disable_reason] + '/' : ''}}{{accountLang[bs.account_status]}} </td>
                       <td>{{bs.insights ? bs.insights[0].spend : 0}}</td>
                       <td>{{bs.insights ? bs.insights[0].unique_clicks : 0}}</td>
                       <td>{{bs.insights ? parseFloat(bs.insights[0].cost_per_unique_click).toFixed(2) : 0}}</td>
@@ -140,8 +140,8 @@
                           <label class="btn btn-default waves-effect waves-light" :class="[]">
                            <i class="far fa-credit-card"></i>
                          </label>
-                         <label class="btn btn-default waves-effect waves-light">
-                           <i class="fas fa-bell"></i>
+                         <label class="btn btn-default waves-effect waves-light" @click="$router.push('ad-account-detail/'+bs.account_id)">
+                           <i class="fas fa-cog"></i>
                          </label>
                        </div>
                      </td>
@@ -178,6 +178,7 @@
   <!-- END ROW -->
 
 </div>
+<div id="result"></div>
 <!-- container-fluid -->
 <button type="button" class="btn btn-primary waves-effect waves-light hide" data-toggle="modal" data-target=".modal01">Large modal</button>
 <div class="modal fade bs-example-modal-lg modal01" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -208,9 +209,9 @@
                   <td>{{not.updateTime}}</td>
                   <td>
                     <button class="btn btn-primary waves-effect waves-light" @click="deleteNote(not.id)">
-                   <i class="far fa-trash-alt"></i>
-                 </button>
-               </td>
+                     <i class="far fa-trash-alt"></i>
+                   </button>
+                 </td>
                </tr>
              </tbody>
            </table>
@@ -257,29 +258,37 @@
 <script>
 function sortColumn(api, page = 'all', columnId = 0, init = 0){
   if (init) {
-let totalHarcam = parseFloat(api.column( 5, {page:page} ).data().sum()).toFixed(2);
-let totalClick = api.column( 6, {page:page} ).data().sum();
-let totalDonusum = api.column( 8, {page:page} ).data().sum();
+    let totalHarcam = parseFloat(api.column( 5, {page:page} ).data().sum()).toFixed(2);
+    let totalClick = api.column( 6, {page:page} ).data().sum();
+    let totalDonusum = api.column( 8, {page:page} ).data().sum();
     $( '.harcama').html(
       totalHarcam
       );
 
     $( '.clicks').html(
-totalClick
+      totalClick
       );
     $( '.donusumOrtalamasi').html(
-totalDonusum ? parseFloat(totalHarcam/(totalDonusum || 1)).toFixed(2) : totalHarcam
+      totalDonusum ? parseFloat(totalHarcam/(totalDonusum || 1)).toFixed(2) : totalHarcam
       );
 
     $( '.donusum').html(
       totalDonusum
       );
+    $('.keyi').each( function ( d, j) {
+      $(j).html(d+1);
+
+
+
+
+    } );
   } else {
     if (columnId == 2) {
       api.column( 1, {page:'all'} ).search( '', false, false )
       .draw();
       api.column( 4, {page:'all'} ).search( '', false, false )
       .draw();
+
 
     }
 
@@ -308,14 +317,77 @@ totalDonusum ? parseFloat(totalHarcam/(totalDonusum || 1)).toFixed(2) : totalHar
         d = d ? d : 'Yok'
         select2.append( '<option value="'+d+'">'+d+'</option>' )
       } );
+
+
+
     }
 
   }
 
 
+
+
+
+
 }
+
 var todayDate = new Date().toLocaleDateString().split('.').reverse().join('-');
 
+
+/*
+
+//account_status
+1 = ACTIVE
+2 = DISABLED
+3 = UNSETTLED
+7 = PENDING_RISK_REVIEW
+8 = PENDING_SETTLEMENT
+9 = IN_GRACE_PERIOD
+100 = PENDING_CLOSURE
+101 = CLOSED
+201 = ANY_ACTIVE
+202 = ANY_CLOSED
+
+
+
+//disable_reason
+0 = NONE
+1 = ADS_INTEGRITY_POLICY
+2 = ADS_IP_REVIEW
+3 = RISK_PAYMENT
+4 = GRAY_ACCOUNT_SHUT_DOWN
+5 = ADS_AFC_REVIEW
+6 = BUSINESS_INTEGRITY_RAR
+7 = PERMANENT_CLOSE
+8 = UNUSED_RESELLER_ACCOUNT
+9 = UNUSED_ACCOUNT
+
+
+
+//funding_source_details
+0 = UNSET
+1 = CREDIT_CARD
+2 = FACEBOOK_WALLET
+3 = FACEBOOK_PAID_CREDIT
+4 = FACEBOOK_EXTENDED_CREDIT
+5 = ORDER
+6 = INVOICE
+7 = FACEBOOK_TOKEN
+8 = EXTERNAL_FUNDING
+9 = FEE
+10 = FX
+11 = DISCOUNT
+12 = PAYPAL_TOKEN
+13 = PAYPAL_BILLING_AGREEMENT
+14 = FS_NULL
+15 = EXTERNAL_DEPOSIT
+16 = TAX
+17 = DIRECT_DEBIT
+18 = DUMMY
+19 = ALTPAY
+20 = STORED_BALANCE
+
+*/
 
 //:href="'https://business.facebook.com/adsmanager/manage/campaigns?act=' + bs.account_id + '&business_id='+ bs.business.id +'&tool=MANAGE_ADS'"
 module.exports = {
@@ -442,14 +514,28 @@ module.exports = {
 
 
           this.table = $('#datatable').DataTable( {
+            pageLength: 100,
             destroy: true,
-
-            "pageLength": 50,
-            "columnDefs": [ {
+            ordering: true,
+            colReorder: {
+              enable: true,
+              realtime: true
+            },
+            "processing": true,
+            rowReorder: true,
+            columnDefs: [
+            {
+              searchable: false,
+              orderable: true,
+              visible: true,
+              targets: 0,
+            }, {
               "targets": 'no-sort',
               "orderable": false,
             } ],
+            "lengthMenu": [ 100, 200, 500, 1000 ],
             drawCallback: function (settings) {
+
               var api = this.api();
               sortColumn(api, 'current',2, 1);
             },
@@ -478,7 +564,6 @@ module.exports = {
                 var column = this;
                 var select = $('.account-selector')
                 .on( 'change', function () {
-                  console.log($(this).val())
                   var val = $(this).val().join('|');
 
 
@@ -513,12 +598,7 @@ module.exports = {
 
             }
           } );
-
-
-
-
-
-        },100);
+        },0);
 
       }
 
@@ -529,13 +609,13 @@ module.exports = {
   mounted() {
 
     this.getAdAccounts()
-    $('body').addClass('enlarged');
+
     this.getAllNotes();
   },
   beforeCreate() {},
   created() {},
   destroyed() {
-    $('body').removeClass('enlarged');
+
   }
 }
 </script>
@@ -544,17 +624,17 @@ module.exports = {
 @import "/assets/plugins/datatables/buttons.bootstrap4.min.css";
 @import "/assets/plugins/datatables/responsive.bootstrap4.min.css";
 .bg-danger-table{
-background-color: #fc54544f !important;
+  background-color: #fc54544f !important;
 }
 .bg-warning-table{
-      background-color: #fc545478 !important;
+  background-color: #fc545478 !important;
 }
 
 .bg-success-table{
-background-color: #37bc955e !important;
+  background-color: #37bc955e !important;
 }
 #datatable tr td {
-    padding: 0px 5px!important;
+  padding: 0px 5px!important;
 }
 </style>
 

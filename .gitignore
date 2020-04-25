@@ -3,3 +3,7 @@
 Homestead.json
 Homestead.yaml
 .phpunit.result.cache
+**/logs
+WHMAPI.txt
+.vscode/sftp.json
+/.vscode
