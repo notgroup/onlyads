@@ -7,3 +7,5 @@ Homestead.yaml
 WHMAPI.txt
 .vscode/sftp.json
 /.vscode
+/.env
+.env

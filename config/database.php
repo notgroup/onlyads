@@ -40,7 +40,7 @@ return [
         ],
         'facebook' => [
             'driver' => 'sqlite',
-            'database' => env('DB_DATABASE', database_path('db/facebook.sqlite')),
+            'database' => database_path(env('FB_DB_DATABASE' , 'db/facebook.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
 
