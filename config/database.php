@@ -38,6 +38,16 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
+        'local_sqlite' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/local_database.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
+        'test_sqlite' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/rtopless.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
         'facebook' => [
             'driver' => 'sqlite',
             'database' => database_path(env('FB_DB_DATABASE' , 'db/facebook.sqlite')),

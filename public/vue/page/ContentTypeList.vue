@@ -7,12 +7,9 @@
           <div class="col-sm-6">
             <h4 class="page-title">{{$root.entityTypes[contentTypeId]}}</h4>
           </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-right">
-              <li class="breadcrumb-item"><a href="javascript:void(0);">AnaSayfa</a></li>
-              <li class="breadcrumb-item active">ContentTypeList</li>
-            </ol>
-          </div>
+                <div class="col-sm-6">
+                    <a :href="'#/AddContent/' + contentTypeId" class="btn btn-primary rounded btn-custom waves-effect waves-light float-right"><i class="fa fa-plus" style="margin-right:10px;"></i> Ekle</a>
+                </div>
         </div>
         <!-- end row -->
       </div>
@@ -28,14 +25,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, itemi) in items">
+              <tr v-for="(item, itemi) in items" v-if="item.meta">
                 <td>{{itemi}}</td>
-                <td>{{item.meta.title}}</td>
+                <td>{{(item.meta.title) || (item.meta.fullname) || (item.meta.name)}}</td>
 
                 <td>
                   <div class="btn-group btn-group">
 
-                   <button @click="$router.push('/ContenDetail/' + item.content_id)" class="btn btn-primary waves-effect waves-light">
+                   <button @click="$router.push('/ContenDetail/' + item.entity_type_id + '/' +item.content_id)" class="btn btn-primary waves-effect waves-light">
                      <i class="far fa-eye"></i>
                    </button>
                  </div>

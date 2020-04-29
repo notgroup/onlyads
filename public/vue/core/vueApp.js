@@ -7,6 +7,7 @@ var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
 
 /* LIST */
 var ProductList = httpVueLoader('./vue/page/ProductList.vue');
+var UserList = httpVueLoader('./vue/page/UserList.vue');
 var BlogManagment = httpVueLoader('./vue/page/BlogManagment.vue');
 var CargoTracking = httpVueLoader('./vue/page/CargoTracking.vue');
 var DomainManagment = httpVueLoader('./vue/page/DomainManagment.vue');
@@ -15,6 +16,7 @@ var ProductGroupList = httpVueLoader('./vue/page/ProductGroupList.vue');
 var OrderList = httpVueLoader('./vue/page/OrderList.vue');
 var CustomerList = httpVueLoader('./vue/page/CustomerList.vue');
 var ContentTypeList = httpVueLoader('./vue/page/ContentTypeList.vue');
+var RoleList = httpVueLoader('./vue/page/RoleList.vue');
 
 
 
@@ -24,6 +26,19 @@ var ProductDetail = httpVueLoader('./vue/page/ProductDetail.vue');
 var OrderDetail = httpVueLoader('./vue/page/OrderDetail.vue');
 var CustomerDetail = httpVueLoader('./vue/page/CustomerDetail.vue');
 var ContenDetail = httpVueLoader('./vue/page/ContenDetail.vue');
+
+
+
+
+/* Forms for Add */
+var AddRole = httpVueLoader('./vue/page/AddRole.vue');
+var AddUser = httpVueLoader('./vue/page/AddUser.vue');
+var AddPayment = httpVueLoader('./vue/page/AddPayment.vue');
+var AddContent = httpVueLoader('./vue/page/AddContent.vue');
+var AddProduct = httpVueLoader('./vue/page/AddProduct.vue');
+var AddProductGroup = httpVueLoader('./vue/page/AddProductGroup.vue');
+var AddCustomer = httpVueLoader('./vue/page/AddCustomer.vue');
+var AddOrder = httpVueLoader('./vue/page/AddOrder.vue');
 
 
 
@@ -48,11 +63,15 @@ Vue.mixin({
     },
     data() {
         return {
-            entityTypes:{
-                "4" : "Ürünler",
-                "33" : "Siparişler",
-                "34" : "Müşteriler",
-                "32" : "Ürün Grupları",
+            entityTypes: {
+                "4": "Ürünler",
+                "33": "Siparişler",
+                "34": "Müşteriler",
+                "32": "Ürün Grupları",
+            },
+            showLog: 0,
+            userData: {
+
             }
         };
     },
@@ -66,14 +85,15 @@ Vue.mixin({
             this.get('//' + apiUrl + '/last10', (response) => {
             });
         },
-                checkLogin() {
-            let data = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : {}
-            if (data.api_token) {
+        checkLogin() {
+            let userData = localStorage.getItem('api_token') ? JSON.parse(localStorage.getItem('userData') || {}) : {}
+            if (userData.api_token && localStorage.getItem('api_token')) {
+                this.userData = userData
                 return true;
             } else {
-                    window.location = '/login.html'
-         }
-     },
+                window.location = '/login.html'
+            }
+        },
         /* API AREA */
         post(url, pdata, cb) {
             fetch(url, this.postHeader(pdata))
@@ -98,7 +118,7 @@ Vue.mixin({
                 credentials: 'omit',
                 method: 'GET',
                 headers: {
-                    //"Authorization": this.getToken(),
+                    "Authorization": this.getTokenBearer(),
                     Accept: 'application/json, application/xml, text/plain, text/html, *.*'
                 }
             };
@@ -106,7 +126,7 @@ Vue.mixin({
         postHeader(data = {}) {
             return {
                 headers: {
-                    //"Authorization": this.getToken(),
+                    "Authorization": this.getTokenBearer(),
                     Accept: 'application/json, application/xml, text/plain, text/html, *.*',
                     'Content-Type': 'application/json'
                 },
@@ -115,8 +135,11 @@ Vue.mixin({
                 body: JSON.stringify(data)
             };
         },
+        getTokenBearer() {
+            return 'Bearer ' + localStorage.getItem('api_token') || 0;
+        },
         getToken() {
-            return 'Bearer ' + JSON.parse(localStorage.getItem('api_token'));
+            return '' + localStorage.getItem('api_token') || '0';
         }
     }
 });
@@ -126,6 +149,71 @@ var routes = [
         path: '/',
         name: 'Dashboard',
         component: BusinessAccounts
+    },
+    {
+        path: '/AddProduct',
+        name: 'AddProduct',
+        component: AddProduct
+    },
+    {
+        path: '/AddContent/:contentTypeId',
+        props: true,
+        name: 'AddContent',
+        component: AddContent
+    },
+    {
+        path: '/AddUser/:userId?',
+        props: true,
+        name: 'AddUser',
+        component: AddUser
+    },
+    {
+        path: '/UserDetail/:userId?',
+        props: true,
+        name: 'UserDetail',
+        component: AddUser
+    },
+    {
+        path: '/AddContent/:contentTypeId/:primaryId',
+        props: true,
+        name: 'AddContent',
+        component: AddContent
+    },
+    {
+        path: '/AddProductGroup',
+        props:true,
+        name: 'AddProductGroup',
+        component: AddProductGroup
+    },
+    {
+        path: '/AddCustomer',
+        props:true,
+        name: 'AddCustomer',
+        component: AddCustomer
+    },
+    {
+        path: '/AddPayment',
+        props:true,
+        name: 'AddPayment',
+        component: AddPayment
+    },
+    {
+        path: '/AddOrder',
+        props:true,
+        name: 'AddOrder',
+        component: AddOrder
+    },
+    {
+        path: '/AddRole/:primaryId',
+        props:true,
+        name: 'AddRole',
+        component: AddRole
+    },
+    {
+        path: '/RoleList',
+        props:true,
+        name: 'RoleList',
+        component: RoleList
     },
     {
         path: '/LandingBuilder',
@@ -148,7 +236,7 @@ var routes = [
         component: RefPrefix
     },
     {
-        path: '/settings',
+        path: '/Settings',
         name: 'Settings',
         component: Settings
     },
@@ -238,10 +326,16 @@ var routes = [
         component: ContentTypeList
     },
     {
-        path: '/ContenDetail/:primaryId',
+        path: '/UserList',
+        name: 'UserList',
+        props: true,
+        component: UserList
+    },
+    {
+        path: '/ContenDetail/:contentTypeId/:primaryId',
         name: 'ContenDetail',
         props: true,
-        component: ContenDetail
+        component: AddContent
     }
 ];
 
@@ -274,12 +368,12 @@ var vueApp = new Vue({
     },
     beforeCreate() { },
     created() {
-    this.$root.checkLogin();
-     },
+        this.$root.checkLogin();
+    },
     mounted() {
 
 
 
-     },
+    },
     methods: {}
 });

@@ -14,6 +14,8 @@ $fb = new \Facebook\Facebook([
 
 
 /*
+http://www.tulane.edu/~howard/CompCultES/facebook.html
+https://developers.facebook.com/docs/php/howto/example_pagination_basic/
 https://developers.facebook.com/docs/facebook-login/access-tokens/refreshing
 
 https://graph.facebook.com/v6.0/oauth/access_token?grant_type=fb_exchange_token&client_id=150821419662950&client_secret=61dc8d2dbe452894981432eb7ec02ac6&fb_exchange_token=EAACJK9kkvmYBAI57kqRyXjFcIuG2Jmom0QzYs1VMYlKWs64dT4Kt2vwOu5ZAWRV8cZBjMPbBmDOQBZBLwaV78Mjn4cGEZCAyj73fpVsJWJcurLmDkMBZBhULHLSetVqavoLKMmbk8Hx50sBTtlE0Jhpc9Y6KZBZAGc55qMUikC7uZABYy9YAc019cf6JgIjZCdC8ZD

@@ -23,19 +23,12 @@
         <div class="col-xl-12">
           <div class="email-leftbar card">
 
+<button class="btn btn-primary btn-block" @click="getAdAccounts()" :disabled="refreshing">
+ <i class="fas fa-sync mr-2" :class="[refreshing ? 'fa-spin' : '']"></i> 
+  Yenile</button>
+           
 
-            <h6 class="">Dönüşümler</h6>
-
-
-            <div class="mail-list m-t-10">
-              <a href="#"><span class="tarih float-right">{{filterDate}}</span>Tarih: </a>
-              <a href="#"><span class="harcama float-right">0</span>Harcama: </a>
-              <a href="#"><span class="clicks float-right">0</span>Clicks: </a>
-              <a href="#"><span class="donusum float-right">0</span>Donusum: </a>
-              <a href="#"><span class="donusumOrtalamasi float-right">0</span>D.Ort: </a>
-            </div>
-
-            <h6 class="m-t-20">Filtreler</h6>
+            <h6 class="m-t-20 hide">Filtreler</h6>
             <div class="form-group row">
               <label for="example-date-input" class="col-12 col-form-label">Tarih</label>
               <label for="example-date-input" class="col-2 col-form-label"><i class="fas fa-calendar-alt"></i></label>
@@ -49,7 +42,46 @@
                 <input class="form-control" type="date" id="example-date-input" :min="filterDate" v-model="filterDateEnd" @change="newDateRequest()" />
               </div>
             </div>
+
+
             <div class="form-group row">
+              <label class="col-sm-12 col-form-label">Hesap Durumu</label>
+              <div class="col-sm-12">
+                <select class="form-control status-selector multiselector" multiple>
+                  <option value="">Hepsi</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-12 col-form-label">Reklam Durumu</label>
+              <div class="col-sm-12">
+                <select class="form-control adstatus-selector multiselector" multiple>
+                  <option value="">Hepsi</option>
+                  <option value="ACTIVE">Aktif</option>
+                  <option value="PAUSED">Durdu</option>
+                  <option value="Yok">Yok</option>
+                  <option value="DISAPPROVED">Reddedildi</option>
+                  <option value="WITH_ISSUES">Sorun Var</option>
+                  <option value="ADSET_PAUSED">Set Durdu</option>
+                </select>
+              </div>
+            </div>
+
+ <h6 class="">Dönüşümler</h6>
+
+
+            <div class="mail-list m-t-10">
+              <a href="#"><span class="tarih float-right">{{filterDate}}</span>Tarih: </a>
+              <a href="#"><span class="harcama float-right">0</span>Harcama: </a>
+              <a href="#"><span class="clicks float-right">0</span>Clicks: </a>
+              <a href="#"><span class="donusum float-right">0</span>Donusum: </a>
+              <a href="#"><span class="donusumOrtalamasi float-right">0</span>D.Ort: </a>
+            </div>
+
+
+
+
+            <div class="form-group row hide">
               <label class="col-sm-12 col-form-label">BM Hesabı</label>
               <div class="col-sm-12">
                 <select class="form-control bm-selector" multiple>
@@ -58,7 +90,7 @@
               </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row hide">
               <label class="col-sm-12 col-form-label">Reklam Hesabı</label>
               <div class="col-sm-12">
                 <select class="form-control account-selector" multiple>
@@ -67,14 +99,6 @@
               </div>
             </div>
 
-            <div class="form-group row">
-              <label class="col-sm-12 col-form-label">Hesap Durumu</label>
-              <div class="col-sm-12">
-                <select class="form-control status-selector" multiple>
-                  <option value="">Hepsi</option>
-                </select>
-              </div>
-            </div>
             <div class="mail-list m-t-10 hide">
               <a href="#"><span class="mdi mdi-label-outline text-danger mr-2"></span>Freelance</a>
               <a href="#"><span class="mdi mdi-label-outline text-info mr-2"></span>Social</a>
@@ -93,44 +117,38 @@
                     <th width="0" row-reordered class="row-reordered reordered reorder row-reorder">#</th>
                     <th width="0">Hes.İs.</th>
                     <th width="0">BM</th>
-                    <th width="0" class="hide"></th>
-                    <th class="">Durumu</th>
-                    <th>Harc.</th>
+                    <th width="0" class="">Bütçe</th>
+                    <th width="0">Durumu</th>
+                    <th width="0">Harc.</th>
                     <th width="0">Click</th>
                     <th width="0">Cpc</th>
                     <th width="0">Dön.</th>
-                    <th>D.Mal.</th>
-                    <th>H.Büt</th>
-                    <th>Not</th>
-                    <th class="">R.Det.</th>
-                    <th class="no-sort">Tools</th>
+                    <th width="0">D.Mal.</th>
+                    <th class="hide">H.Büt</th>
+                    <th width="0">R.Det.</th>
+                    <th width="0">Not</th>
+                    <th  width="0" class="no-sort">Tools</th>
                   </tr>
                 </thead>
                 <tbody>
                   <template v-for="(bs, bkey) in adAccounts">
                     <tr :class="[bs.account_status > 1 ? 'bg-danger-table' : 'bg-success-table']">
                       <td class="keyi"></td>
-                      <td :class="[bs.is_prepay_account ? 'bg-success' : '']">{{bs.name.substr(0,15).toLowerCase()}}</td>
-                      <td>{{(bs.business_name || bs.business.name).substr(0,10).toLowerCase()}}</td>
-                      <td style="display:none;"></td>
+                      <td :class="[bs.is_prepay_account ? 'bg-success' : '']">{{bs.name.toLocaleLowerCase('tr')}}</td>
+                      <td>{{(bs.business_name || bs.business.name).toLocaleLowerCase('tr')}}</td>
+                      <td>{{bs.campaigns ? (bs.campaigns[0].daily_budget/100) : '0'}} </td>
                       <td>{{bs.disable_reason ? reasons[bs.disable_reason] + '/' : ''}}{{accountLang[bs.account_status]}} </td>
-                      <td>{{bs.insights ? bs.insights[0].spend : 0}}</td>
+                      <td>{{bs.insights ? parseFloat(bs.insights[0].spend).toFixed(2) : 0}}</td>
                       <td>{{bs.insights ? bs.insights[0].unique_clicks : 0}}</td>
                       <td>{{bs.insights ? parseFloat(bs.insights[0].cost_per_unique_click).toFixed(2) : 0}}</td>
                       <td>{{bs.insights ? (_.indexBy(bs.insights[0].unique_actions, 'action_type').omni_purchase? _.indexBy(bs.insights[0].unique_actions, 'action_type').omni_purchase.value : 0) : 0}}</td>
                       <td>{{bs.insights ? (_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase? parseFloat(_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase.value).toFixed(2) : 0) : 0}}</td>
-                      <td>{{bs.balance}}</td>
-                      <td>{{allNotes[bs.account_id] ? allNotes[bs.account_id].type == 'Diğer' ? allNotes[bs.account_id].note : allNotes[bs.account_id].type : ''}}</td>
+                      <td class="hide">0</td>
                       <td :class="[!(_.pluck(bs.ads, 'effective_status').includes('ACTIVE')) ? 'bg-warning' : '']">
+                        {{(bs.ads ? _.pluck(bs.ads, 'effective_status').join(',') : 'Yok')}}
+                        </td>
+                                              <td>{{(allNotes[bs.account_id] ? (allNotes[bs.account_id].note ? allNotes[bs.account_id].note : allNotes[bs.account_id].type) : 'Yok')}}</td>
 
-                        {{bs.ads && bs.ads[0].ad_review_feedback ? adLangs[_.keys(bs.ads[0].ad_review_feedback.global)[0]] : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').PENDING_REVIEW ? 'Bek.: ' + _.countBy(bs.ads, 'effective_status').PENDING_REVIEW : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').ACTIVE ? 'Akt.: ' + _.countBy(bs.ads, 'effective_status').ACTIVE : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').PAUSED ? 'Dur.: ' + _.countBy(bs.ads, 'effective_status').PAUSED : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').ADSET_PAUSED ? 'Dur.: ' + _.countBy(bs.ads, 'effective_status').ADSET_PAUSED : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').DISAPPROVED ? 'Red: ' + _.countBy(bs.ads, 'effective_status').DISAPPROVED : ''}}
-                        {{_.countBy(bs.ads, 'effective_status').WITH_ISSUES ? 'Sor.: ' + _.countBy(bs.ads, 'effective_status').WITH_ISSUES : ''}}
-                      </td>
                       <td>
                         <div class="btn-group btn-group">
                           <label class="btn btn-default waves-effect waves-light"   @click="addModal(bs.account_id, bs.name, bs.business_name || bs.business.name)">
@@ -149,24 +167,6 @@
                  </template>
 
                </tbody>
-               <tfoot>
-                <tr>
-                  <th width="0">#</th>
-                  <th width="0">Hes.İs.</th>
-                  <th width="0">BM</th>
-                  <th width="0" class="hide"></th>
-                  <th class="">Durumu</th>
-                  <th>Harc.</th>
-                  <th width="0">Click</th>
-                  <th width="0">Cpc</th>
-                  <th width="0">Dön.</th>
-                  <th>D.Mal.</th>
-                  <th>H.Büt</th>
-                  <th>Not.</th>
-                  <th class="">R.Det.</th>
-                  <th class="no-sort">Tools</th>
-                </tr>
-              </tfoot>
             </table>
           </div>
 
@@ -226,6 +226,8 @@
               <select class="form-control" v-model="currentNote.type">
                 <option>Select</option>
                 <option>Diğer</option>
+                <option>PLANLANDI</option>
+                <option>5Lİ HAZIR</option>
                 <option>Kampanya Aktif</option>
                 <option>Kampanya Revize </option>
                 <option>Değerlendirme Talebi</option>
@@ -258,6 +260,7 @@
 <script>
 function sortColumn(api, page = 'all', columnId = 0, init = 0){
   if (init) {
+
     let totalHarcam = parseFloat(api.column( 5, {page:page} ).data().sum()).toFixed(2);
     let totalClick = api.column( 6, {page:page} ).data().sum();
     let totalDonusum = api.column( 8, {page:page} ).data().sum();
@@ -277,10 +280,6 @@ function sortColumn(api, page = 'all', columnId = 0, init = 0){
       );
     $('.keyi').each( function ( d, j) {
       $(j).html(d+1);
-
-
-
-
     } );
   } else {
     if (columnId == 2) {
@@ -318,7 +317,9 @@ function sortColumn(api, page = 'all', columnId = 0, init = 0){
         select2.append( '<option value="'+d+'">'+d+'</option>' )
       } );
 
-
+    api.column( 5, {page:'all'} )
+    .order( 'desc' )
+    .draw();
 
     }
 
@@ -335,7 +336,12 @@ var todayDate = new Date().toLocaleDateString().split('.').reverse().join('-');
 
 
 /*
-
+ {{bs.ads && bs.ads[0].ad_review_feedback ? adLangs[_.keys(bs.ads[0].ad_review_feedback.global)[0]] : ''}}
+                         {{_.countBy(bs.ads, 'effective_status').ACTIVE ? 'Akt.: ' + _.countBy(bs.ads, 'effective_status').ACTIVE : ''}}
+                        {{_.countBy(bs.ads, 'effective_status').PAUSED ? 'Dur.: ' + _.countBy(bs.ads, 'effective_status').PAUSED : ''}}
+                        {{_.countBy(bs.ads, 'effective_status').ADSET_PAUSED ? 'Dur.: ' + _.countBy(bs.ads, 'effective_status').ADSET_PAUSED : ''}}
+                        {{_.countBy(bs.ads, 'effective_status').DISAPPROVED ? 'Red: ' + _.countBy(bs.ads, 'effective_status').DISAPPROVED : ''}}
+                        {{_.countBy(bs.ads, 'effective_status').WITH_ISSUES ? 'Sor.: ' + _.countBy(bs.ads, 'effective_status').WITH_ISSUES : ''}}
 //account_status
 1 = ACTIVE
 2 = DISABLED
@@ -398,6 +404,7 @@ module.exports = {
       filterDate: todayDate,
       filterDateEnd: todayDate,
       addNoteModal: 1,
+      refreshing: true,
       notes: [],
       allNotes: [],
       currentNote:{},
@@ -449,7 +456,7 @@ module.exports = {
     },
     addNote(){
       this.post(window.apiUrl + "/addNote", this.currentNote, (res) => {
-        console.log(res);
+        //console.log(res);
         delete this.currentNote.note
         delete this.currentNote.type
         this.notes = res
@@ -463,17 +470,18 @@ module.exports = {
     },
     getNotes(objectId){
       this.get(window.apiUrl + "/getNotes/" + objectId, (res) => {
-        console.log(res);
+        //console.log(res);
         this.notes = res.reverse();
       })
     },
     getAllNotes(){
       this.get(window.apiUrl + "/getAllNotes", (res) => {
-        console.log(res);
+        //console.log(res);
         this.allNotes = _.indexBy(res, 'objectId')
       })
     },
     getAdAccounts(filterDate = this.filterDate, filterDateEnd = this.filterDateEnd){
+      this.refreshing = true;
       this.get('/adAccounts?startDate=' + filterDate+'&endDate='+filterDateEnd, (res) => {
         if (res) {
        // console.log(res.client_ad_accounts.length, res.owned_ad_accounts);
@@ -514,7 +522,7 @@ module.exports = {
 
 
           this.table = $('#datatable').DataTable( {
-            pageLength: 100,
+            pageLength: 300,
             destroy: true,
             ordering: true,
             colReorder: {
@@ -533,7 +541,7 @@ module.exports = {
               "targets": 'no-sort',
               "orderable": false,
             } ],
-            "lengthMenu": [ 100, 200, 500, 1000 ],
+            "lengthMenu": [ 100, 200, 300, 500, 1000 ],
             drawCallback: function (settings) {
 
               var api = this.api();
@@ -548,13 +556,28 @@ module.exports = {
                 var column = this;
                 var select = $('.bm-selector')
                 .on( 'change', function () {
-                  console.log($(this).val())
+                  //console.log($(this).val())
                   var val = $(this).val().join('|');
 
                   column
                   .search( val ? '^'+val+'$' : '', true, false )
                   .draw();
                   sortColumn(api, val ? 'current' : 'all',2);
+                } );
+
+
+              } );
+              api.column( 11, {page:'all'} ).every( function () {
+                var column = this;
+                var select = $('.adstatus-selector')
+                .on( 'change', function () {
+                  //console.log($(this).val())
+                  var val = $(this).val().join('|');
+
+                  column
+                  .search(val, true, false )
+                  .draw();
+             sortColumn(api, val ? 'current' : 'all',2);
                 } );
 
 
@@ -582,7 +605,7 @@ module.exports = {
                 var column = this;
                 var select = $('.status-selector')
                 .on( 'change', function () {
-                  console.log($(this).val())
+                 // console.log($(this).val())
                   var val = $(this).val().join('|');
 
                   column
@@ -596,8 +619,10 @@ module.exports = {
               sortColumn(api, 'all', 0);
 
 
+
             }
           } );
+                this.refreshing = false;
         },0);
 
       }
@@ -635,6 +660,15 @@ module.exports = {
 }
 #datatable tr td {
   padding: 0px 5px!important;
+}
+.multiselector{
+  min-height: 150px;
+}
+table td {
+  text-transform: lowercase!important;
+}
+option {
+    text-transform: uppercase;
 }
 </style>
 

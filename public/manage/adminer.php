@@ -16,7 +16,16 @@ function adminer_object() {
       // key used for permanent login
       return '26ddbfebb2eb6f439cdb698e0154796a';
     }*/
+    function credentials() {
+      // server, username and password for connecting to database
+      if (isset($_GET['sqlite'])) {
+        # code...
+        return array('localhost', 'ODBC', '');
+      } else {
+        return array('localhost', 'root', '123456');
 
+      }
+    }
 
 
 
@@ -61,4 +70,4 @@ return new AdminerSoftware;
 
 
 
-include './adminer.4.6.2.php';
+include './adminer-4.7.6-en.php';

@@ -16,7 +16,7 @@ class ContentController extends Controller
     public function getContents(Request $request, $entity_type_id)
     {
         $contents = Content::where('entity_type_id', $entity_type_id)
-            //->where('entity_status', 'draft')
+        //->where('entity_status', 'draft')
         // ->latest()
             ->orderBy('content_id', 'desc')
             ->limit(10)->get()->toArray();
@@ -31,6 +31,30 @@ class ContentController extends Controller
     }
 
     public function addContent(Request $request, $type_id)
+    {
+        if ($request->has('content_id')) {
+            $request->merge(['creator_id' => $request->user()->id]);
+            Content::where(['content_id' => $request->input('content_id')])->update($request->all());
+            //ContentMeta::where(['content_id' => $request->input('content_id')])->update(['content_id' => $request->input('content_id'), 'attributes' => $request->input('meta')]);
+            $content = Content::find($request->input('content_id'));
+        } else {
+            $contentAttr = [
+                'entity_type_id' => $type_id,
+                'entity_status'  => 1,
+                'creator_id'     => $request->user()->id,
+                'parent_id'      => 0,
+            ];
+            $request->merge($contentAttr);
+          $content = Content::create($request->all());
+           // $entityContent   = ContentMeta::create(['content_id' => $entityContentId, 'attributes' => $request->all()]);
+           // $content         = Content::find($entityContentId);
+
+        }
+        return response()->json($content);
+
+    }
+
+    public function addContent2(Request $request, $type_id)
     {
 
         /*

@@ -3,14 +3,20 @@
 namespace App;
 
 use Illuminate\Auth\Authenticatable;
-use Laravel\Lumen\Auth\Authorizable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Lumen\Auth\Authorizable;
+use App\Traits\Trackable;
+use App\Traits\ModelEvents;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
-    use Authenticatable, Authorizable;
+    use Authenticatable, Authorizable, ModelEvents;
+
+
+
+
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +24,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','username','status','role',
     ];
 
     /**
@@ -39,18 +45,26 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'email_verified_at' => 'datetime',
     ];
 
-  protected $table = 'users';
+    protected $table = 'users';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
 
-
+    public $timestamps = true;
+    protected $appends = [
+        'permissions',
+    ];
     public function roles()
-{
-    return $this->belongsToMany("App\Models\Role", 'role_users');
-}
+    {
+        return $this->belongsToMany("App\Models\Role", 'role_users');
+    }
+
+    public function roleDetail()
+    {
+        return $this->hasOne("App\Models\Role", 'slug', 'role');
+    }
 
     /**
      * Checks if User has access to $permissions.
@@ -73,6 +87,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return $this->roles()->where('slug', $roleSlug)->count() == 1;
     }
-
-
+    public function getPermissionsAttribute()
+    {
+        return $this->roleDetail()->first()->permissions;
+    }
 }

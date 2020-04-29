@@ -5,7 +5,8 @@ use Illuminate\Http\Request;
 
 
 $router->get('/', function () use ($router) {
-  return $router->app->version();
+  return '<a href="http://notgroupgithubio.test/yuz-kalkani-siperlik2/index.html?pixel=123456&ref=asd_12">Test</a>';
+  return [];
 });
 
 
@@ -74,7 +75,7 @@ $response['cargoStatusTypes'] = $cargoStatusTypes;
 
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
-
+  $router->post('/addUser', 'UserController@addUser');
   $router->get('/getSettings', function (Request $request) use ($router) {
 
     return response()->json(DB::connection('facebook')->table('settings')->get()->toArray());
@@ -83,6 +84,12 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
 });
 
+
+$router->get('/getMyDetail', 'UserController@getMyDetail');
+$router->get('/getUsers', 'UserController@getUsers');
+$router->get('/getRoles', 'UserController@getRoles');
+$router->get('/getRole/{roleId}', 'UserController@getRole');
+$router->get('/getUser/{userId}', 'UserController@getUser');
 
 $router->get('/contents/{entity_type_id}', 'ContentController@getContents');
 $router->get('/content/{content_id}', 'ContentController@getContent');
@@ -94,6 +101,9 @@ $router->get('/frontcontent/{content_id}', function (Request $request, $content_
 
 
 
+$router->get('/test01', function (Request $request) {
+  echo $request->input('status') ?: 0;
+});
 $router->get('/domains', function (Request $request) {
   $url = "https://api.cloudflare.com/client/v4/zones?per_page=100";
   $headers = [
@@ -157,6 +167,7 @@ $router->get('/whmpanel', function (Request $request) {
 
 
 
+require_once('additems.php');
 require_once('facebook.php');
 
 

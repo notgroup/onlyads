@@ -22,21 +22,15 @@ class Cors
 
     public function handle($request, Closure $next) {
         $allowedOrigins = [
-            "http://liberyen.test",
-            "http://karsilastirma01.test",
+            "http://notgroupgithubio.test",
             "http://127.0.0.1",
-            "http://127.0.0.1:5500",
-            "https://www.fiyat360.com",
-            "https://fiyat360.com",
-            "http://fiyat360.test",
-            "http://alis.test",
         ];
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-       // print_r(123456);
-     //   die();
-        if (in_array($origin, $allowedOrigins)) {
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : 0;
+        
+        //if (in_array($origin, $allowedOrigins)) {
+        if ($origin) {
             return $next($request)
-                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Origin', $origin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
                 ->header('Access-Control-Allow-Headers', $request->header('Access-Control-Request-Headers'))
                 ->header('Access-Control-Allow-Credentials',' true');
