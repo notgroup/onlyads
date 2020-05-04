@@ -11,6 +11,7 @@
 </template>
 
 <script>
+
 var AddProduct = httpVueLoader('/vue/page/AddProduct.vue');
 var AddProductGroup = httpVueLoader('/vue/page/AddProductGroup.vue');
 var AddCustomer = httpVueLoader('/vue/page/AddCustomer.vue');

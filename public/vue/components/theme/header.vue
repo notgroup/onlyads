@@ -18,7 +18,7 @@
                 <ul class="navbar-right list-inline float-right mb-0">
 
                     <!-- language-->
-                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block" v-if="1 == 0">
                         <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                             <img src="assets/images/flags/us_flag.jpg" class="mr-2" height="12" alt="" /> English <span class="mdi mdi-chevron-down"></span>
                         </a>
@@ -42,18 +42,18 @@
                     <li class="dropdown notification-list list-inline-item">
                         <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                             <i class="mdi mdi-bell-outline noti-icon"></i>
-                            <span class="badge badge-pill badge-danger noti-icon-badge">3</span>
+                            <span class="badge badge-pill badge-danger noti-icon-badge">0</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated dropdown-menu-lg px-1">
                             <!-- item-->
                             <h6 class="dropdown-item-text">
                                     Notifications
                                 </h6>
-                            <div class="slimscroll notification-item-list">
+                            <div class="slimscroll notification-item-list hide">
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item active">
                                     <div class="notify-icon bg-success"><i class="mdi mdi-cart-outline"></i></div>
-                                    <p class="notify-details"><b>Your order is placed</b><span class="text-muted">Dummy text of the printing and typesetting industry.</span></p>
+                                    <p class="notify-details"><b>Test Tile 01</b><span class="text-muted">Test Description.</span></p>
                                 </a>
 
                                 <!-- item-->
@@ -100,7 +100,7 @@
                                 <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
                                 <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline"></i> Lock screen</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#"><i class="mdi mdi-power text-danger"></i> Logout</a>
+                                <a @click="$root.logoutPanel()" class="dropdown-item text-danger" href="#"><i class="mdi mdi-power text-danger"></i> Logout</a>
                             </div>
                         </div>
                     </li>

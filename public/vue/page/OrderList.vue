@@ -1,90 +1,292 @@
 <template>
-  <div class="content">
-    <div class="container-fluid">
-      <!-- Page-Title -->
-      <div class="page-title-box">
-        <div class="row align-items-center">
-          <div class="col-sm-6">
-            <h4 class="page-title">OrderList</h4>
-          </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-right">
-              <li class="breadcrumb-item"><a href="javascript:void(0);">AnaSayfa</a></li>
-              <li class="breadcrumb-item active">OrderList</li>
-            </ol>
-          </div>
+<div class="row">
+
+    <div class="col-xl-12" v-if="contentTypeId">
+        <div class="email-leftbar card" @click="filter.page = 1">
+
+            <div class="form-group row ">
+                <label class="col-sm-12 col-form-label">Sipariş Durumu</label>
+                <div class="col-sm-12">
+                    <div class="mail-list m-t-10" style="max-height: 280px;overflow-y: auto;">
+
+                        <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
+                            <a @click="filter.status = item.option" :key="itemi" v-if="facets[item.option]" href="javascript:;">
+                                <span class="mdi mdi-label-outline text-danger mr-2" :class="['text-'+statusColors[item.option]]"></span>
+                                {{item.value}} (<b>{{facets[item.option] || 0}}</b>)</a>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row hide">
+                <label class="col-sm-12 col-form-label">Sipariş Durumu</label>
+                <div class="col-sm-12">
+                    <select class="form-control status-selector multiselector" multiple v-model="filter.status">
+                        <option value="0" selected>Hepsi</option>
+                        <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
+                            <option :key="itemi" :value="item.option">{{item.value}}</option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-12 col-form-label">Ödeme Metodu</label>
+                <div class="col-sm-12">
+                    <select class="form-control adstatus-selector multiselector" v-model="filter.payment_method">
+                        <option value="0" selected>Hepsi</option>
+                        <template v-for="(item, itemi) in $root.clientInit.paymentMethods">
+                            <option :key="itemi" :value="item.content_id">{{item.meta.name}} </option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-12 col-form-label">Sehir</label>
+                <div class="col-sm-12">
+                    <select class="form-control adstatus-selector multiselector" v-model="filter.city">
+                        <option value="0" selected>Hepsi</option>
+                        <template v-for="(item, itemi) in _.groupBy(this.$root.clientInit.cities,'country_id')[215]">
+                            <option :key="itemi" :value="item.zone_id">{{item.name}} </option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="example-date-input" class="col-12 col-form-label">Tarih</label>
+                <label for="example-date-input" class="col-2 col-form-label"><i class="fas fa-calendar-alt"></i></label>
+                <div class="col-10">
+                    <input class="form-control" type="date" id="example-date-input" :max="filter.endDate" v-model="filter.startDate" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="example-date-input" class="col-2 col-form-label"><i class="fas fa-calendar-alt"></i></label>
+                <div class="col-10">
+                    <input class="form-control" type="date" id="example-date-input" :min="filter.startDate" v-model="filter.endDate" />
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block" :disabled="refreshing">
+                <i class="fas fa-sync mr-2" :class="[refreshing ? 'fa-spin' : '']"></i>
+                Göster</button>
         </div>
-        <!-- end row -->
-      </div>
+        <div class="email-rightbar mb-3 card m-b-30">
+            <div class="row p-3">
+                <div class="col-lg-6">
+                    <div class="btn-group">
 
-      <div class="row">
-        <div class="col-md-12">
-          <table class="table table-striped table-bordered  mb-0 table-hover nowrap display" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-            <thead class="thead-default">
-              <tr>
-                <th width="1%">ID</th>
-                <th>Başlık</th>
-                <th width="1%">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, itemi) in items">
-                <td>{{itemi}}</td>
-                <td>{{item.meta.title}}</td>
+                        <button class="btn btn-primary" @click="selecteds = Array.from(_.pluck(items, 'content_id')).map(item => Number(item))">Hepsini Seç</button>
+                        <button v-if="selecteds.length" class="btn btn-primary" @click="selecteds = []">Kaldır </button>
+                    </div>
+                    <div v-if="selecteds.length" class="btn-group ml-1 mo-mb-2">
+                        <button type="button" class="btn btn-primary waves-light waves-effect dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            İşlemler
+                        </button>
 
-                <td>
-                  <div class="btn-group btn-group">
+                        <div class="dropdown-menu" style="z-index: 100;">
+                            <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
+                                <a :key="itemi" class="dropdown-item" href="javascript:;" @click="setChangeStatus(selecteds, item.option)">{{item.value}}</a>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="btn-group"> 
+                        <select class="btn btn-primary form-control multiselector text-white">
+                            <option value="0" selected="selected">Toplu İşlemler</option>
+                            <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
+                                <option :key="itemi" :value="item.option">{{item.value}}</option>
+                            </template>
+                        </select>
+                        </div>
+                    <div class="btn-group ml-1 mo-mb-2">
+                        <button type="button" class="btn btn-primary waves-light waves-effect dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-download"></i> Dışa Aktar
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="javascript:;" @click="getExcell()">Depose XLSX</a>
+                            <a class="dropdown-item" href="#">Aras Kargo CSV</a>
+                            <a class="dropdown-item" href="#">MNG XML</a>
+                        </div>
+                    </div>
+                    <label v-if="selecteds.length" style="
+    padding-top: 7px;
+    padding-left: 10px;
+"> {{selecteds.length}} seçilen</label>
 
-                   <button @click="$router.push('/OrderDetail/' + item.content_id)" class="btn btn-primary waves-effect waves-light">
-                     <i class="far fa-eye"></i>
-                   </button>
-                 </div>
-               </td>
-             </tr>
-           </tbody>
-         </table>
-         <hr class="m-t-10 m-b-20" />
-       </div>
+                    <form role="search" class="email-inbox hide">
+                        <div class="form-group mb-0">
+                            <input type="text" class="form-control rounded" placeholder="Search Your mail..">
+                            <button type="submit"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </div>
 
+                <div class="col-lg-6">
+                    <div class="btn-toolbar float-lg-right" role="toolbar">
+                        <div class="btn-group mo-mb-2">
+                            <button v-if="rawData.prev_page_url" @click="filter.page = filter.page - 1" type="button" class="btn btn-primary waves-light waves-effect"><i class="fas fa-chevron-left"></i></button>
+                            <button type="button" class="btn btn-primary waves-light waves-effect">{{filter.page}}</button>
+                            <button v-if="rawData.next_page_url" @click="filter.page =  filter.page + 1" type="button" class="btn btn-primary waves-light waves-effect"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="btn-group ml-1 mo-mb-2 hide">
+                            <button type="button" class="btn btn-primary waves-light waves-effect dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-folder"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#">Updates</a>
+                                <a class="dropdown-item" href="#">Social</a>
+                                <a class="dropdown-item" href="#">Team Manage</a>
+                            </div>
+                        </div>
 
-     </div>
+                    </div>
+                </div>
 
-   </div>
- </div>
+            </div>
+            <div id="tablebody" class="card-body p-0" style="max-height: 75vh;overflow-y: auto;">
+                <table class="table table-striped table-bordered  mb-0 table-hover nowrap display" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <thead class="thead-default">
+                        <tr>
+                            <th width="1%">ID</th>
+                            <th>İsim</th>
+                            <th>Durum</th>
+                            <th>Telefon</th>
+                            <th>Tutar</th>
+                            <th>Ö.Metodu</th>
+                            <th>Şehir/İlçe</th>
+                            <th width="1%">tarih</th>
+                            <th width="1%">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, itemi) in items" v-if="item.meta">
+                            <td :key="itemi">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="selected" :id="'customCheck'+itemi" @click="selecteds.includes(item.content_id) ? selecteds = _.without(selecteds, item.content_id) : selecteds.push(item.content_id)" :checked="selecteds.includes(item.content_id)">
+                                    <label class="custom-control-label" :for="'customCheck'+itemi">{{item.content_id}}</label>
+                                </div>
+                            </td>
+                            <td>{{(item.meta.fullname || item.meta.firstname || item.meta.title)}}</td>
+                            <td>{{(item.entity_status)}}</td>
+                            <td>{{(item.meta.phone_number ? '*****.' + item.meta.phone_number.substr(item.meta.phone_number.length -4) : '')}}</td>
+                            <td>{{(item.meta.finalPrice)}} .TL</td>
+                            <td>{{(_.indexBy($root.clientInit.paymentMethods, 'content_id')[item.meta.payment_method].meta.name || item.meta.payment_method)}}</td>
+                            <td>{{(_.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city] ? _.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city].name : item.meta.city)}}/{{(_.indexBy($root.clientInit.towns, 'town_id')[item.meta.town] ? _.indexBy($root.clientInit.towns, 'town_id')[item.meta.town].name : item.meta.town)}}</td>
+                            <td>{{new Date(item.created_at).toLocaleString()}}</td>
+
+                            <td>
+                                <div class="btn-group btn-group">
+
+                                    <button @click="$router.push('/ContenDetail/' + item.entity_type_id + '/' +item.content_id)" class="btn btn-primary waves-effect waves-light">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
 </template>
-<script>
-module.exports = {
-  name: "OrderList",
-  data() {
-    return {
-      items: [],
-      currentSettings: {
-        autoload: ''
-      }
-    };
-  },
-  computed: {},
-  mounted() {
-    this.getData()
-  },
-  beforeCreate() {},
-  created() {},
-  methods: {
-    addSetting(){
-      this.post(window.apiUrl + "/addSetting", this.currentSettings, (res) => {
-        this.currentSettings = {}
-        this.settings = res
-      })
-    },
-    getData(){
-      this.get(window.apiUrl + "/contents/4?api_token=gokhan", (res) => {
 
-        this.items = res
-      })
+<script>
+var todayDate = new Date().toLocaleDateString().split('.').reverse().join('-');
+module.exports = {
+    name: "ContentTypeList",
+    props: ['typeId'],
+    data() {
+        return {
+            rawData: {},
+            statusColors: {
+                "confirmed": "success",
+                "pending": "warning",
+            },
+            filter: {
+                content_type: this.typeId,
+                status: 0,
+                payment_method: 0,
+                city: 0,
+                endDate: todayDate,
+                page: 1
+            },
+            facets: [],
+            refreshing: false,
+            items: [],
+            selecteds: [],
+            currentSettings: {
+                autoload: ''
+            }
+        };
+    },
+    computed: {
+        contentTypeId() {
+            this.filter.content_type = this.typeId
+            this.selecteds = []
+            this.getData(this.typeId)
+            return this.typeId
+        }
+    },
+    mounted() {},
+    beforeCreate() {},
+    created() {},
+    methods: {
+        setChangeStatus(selecteds, status) {
+            this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
+                selecteds: selecteds,
+                status: status
+            }, (res) => {
+
+                this.selecteds = []
+                this.getData()
+
+            })
+        },
+        addSetting() {
+            this.post(window.apiUrl + "/addSetting", this.currentSettings, (res) => {
+                this.currentSettings = {}
+                this.settings = res
+            })
+        },
+        getData() {
+            this.get(window.apiUrl + "/contents" + this.$root.getString({
+                page: this.filter.page,
+                filter: this.filter
+            }), (res) => {
+
+                this.items = res.data
+                this.facets = res.facets
+                this.rawData = res
+                document.getElementById("tablebody").scrollTop = 0
+            })
+        },
+        getExcell() {
+            this.get(window.apiUrl + "/contents" + this.$root.getString({
+                page: this.filter.page,
+                filter: Object.assign({
+                    download: 1
+                }, this.filter)
+            }), (res) => {
+                this.$root.linkDownload(res.url, 'dosya.xlsx')
+                console.log(res);
+
+            })
+        }
     }
-  }
 }
 </script>
-<style>
-</style>
 
+<style scoped>
+thead th {
+    /* border-bottom-width: 2px; */
+    /* background: white; */
+    z-index: 99;
+    border: 0;
+    margin: 0;
+    position: sticky;
+    margin-top: -2px;
+    top: -2px;
+    /* border-top: 1px solid; */
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+}
+</style>

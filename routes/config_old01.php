@@ -1,54 +1,20 @@
 <?php
 
-
+$access_token = 'EAACJK9kkvmYBAEBEszq1SWoDCb9nGiZCPuC8fZAVP5ck6cl5uxtzyiWj3oI8dOACLaGcmDW5O4p1mXB0cvZA7s4QJltNib1bwxxIytZAAwgN8sQ7dAZAu9NREaUoCbB2iPoCQK8AauLRdTEZCBUwykE89rdSX6YgprjQTcgBxSVgZDZD';
+$access_token_A9 = 'EAADRZCzvfHBoBAG70fSUL6xcJXAPrtZAXYo3Nf18HGFJ5uPIyZB8AAJZB2A3YgsJJLclVwR8dkbh9lHNw7fjxJhfxOOI9mUpNnnI8HIBr9qVPUoKa9pUZBbfZC8fWGr6RMcJmCJenQFZCKzZBvtHhl7yuPd3SyuTffaXWVYtvsusfgZDZD';
+$ad_account_id = 'act_866786040461786';
+$app_secret = '61dc8d2dbe452894981432eb7ec02ac6';
+$app_secret_A9 = 'fb45edc174cc3c4aed65f6a6b3d4d9e5';
+$app_id = '150821419662950';
+$app_id_A9 = '230894151343130';
 $bm_id_A9 = '3191402807537654';
-
-$bmId = isset($_GET['bmId']) ? $_GET['bmId'] : '156479078851727';
-/*
-$tokens = [
-  "156479078851727" => [
-    "app_secret" => "61dc8d2dbe452894981432eb7ec02ac6",
-    "app_id" => "150821419662950",
-    "access_token" => "EAACJK9kkvmYBAEBEszq1SWoDCb9nGiZCPuC8fZAVP5ck6cl5uxtzyiWj3oI8dOACLaGcmDW5O4p1mXB0cvZA7s4QJltNib1bwxxIytZAAwgN8sQ7dAZAu9NREaUoCbB2iPoCQK8AauLRdTEZCBUwykE89rdSX6YgprjQTcgBxSVgZDZD"
-  ],
-  "3191402807537654" => [
-    "app_secret" => "fb45edc174cc3c4aed65f6a6b3d4d9e5",
-    "app_id" => "230894151343130",
-    "access_token" => "EAADRZCzvfHBoBAG70fSUL6xcJXAPrtZAXYo3Nf18HGFJ5uPIyZB8AAJZB2A3YgsJJLclVwR8dkbh9lHNw7fjxJhfxOOI9mUpNnnI8HIBr9qVPUoKa9pUZBbfZC8fWGr6RMcJmCJenQFZCKzZBvtHhl7yuPd3SyuTffaXWVYtvsusfgZDZD"
-  ]
-];
-
-print_r($tokens[$bmId]['app_secret']);
-die();
-$fb = new \Facebook\Facebook([
-  'app_id' => $tokens[$bmId]['app_secret'],
-  'app_secret' => $tokens[$bmId]['app_id'],
-  'default_graph_version' => 'v6.0',
-  'default_access_token' => $tokens[$bmId]['access_token'], // optional
-]);
-*/
-$tokens = [
-  "156479078851727" => [
-    "app_secret" => "61dc8d2dbe452894981432eb7ec02ac6",
-    "app_id" => "150821419662950",
-    "access_token" => "EAACJK9kkvmYBAEBEszq1SWoDCb9nGiZCPuC8fZAVP5ck6cl5uxtzyiWj3oI8dOACLaGcmDW5O4p1mXB0cvZA7s4QJltNib1bwxxIytZAAwgN8sQ7dAZAu9NREaUoCbB2iPoCQK8AauLRdTEZCBUwykE89rdSX6YgprjQTcgBxSVgZDZD"
-  ],
-  "3191402807537654" => [
-    "app_secret" => "fb45edc174cc3c4aed65f6a6b3d4d9e5",
-    "app_id" => "230894151343130",
-    "access_token" => "EAADRZCzvfHBoBAG70fSUL6xcJXAPrtZAXYo3Nf18HGFJ5uPIyZB8AAJZB2A3YgsJJLclVwR8dkbh9lHNw7fjxJhfxOOI9mUpNnnI8HIBr9qVPUoKa9pUZBbfZC8fWGr6RMcJmCJenQFZCKzZBvtHhl7yuPd3SyuTffaXWVYtvsusfgZDZD"
-  ]
-];
-
-$access_token = $tokens[$bmId]['access_token'];
-$app_secret = $tokens[$bmId]['app_secret'];
-$app_id = $tokens[$bmId]['app_id'];
 $fb = new \Facebook\Facebook([
   'app_id' => $app_id,
   'app_secret' => $app_secret,
   'default_graph_version' => 'v6.0',
   'default_access_token' => $access_token, // optional
 ]);
+
 
 /*
 http://www.tulane.edu/~howard/CompCultES/facebook.html

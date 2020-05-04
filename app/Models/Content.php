@@ -21,7 +21,7 @@ class Content extends Model
         //'meta',
        // 'terms'
     ];
-    protected $dateFormat = 'U';
+    //protected $dateFormat = 'U';
     public $timestamps = true;
     protected $hidden  = [];
   /*  public function scopeSetJoinMeta($query)

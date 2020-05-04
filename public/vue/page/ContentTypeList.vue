@@ -13,44 +13,23 @@
         </div>
         <!-- end row -->
       </div>
+      <template v-if="contentTypeId">
 
-      <div class="row">
-        <div class="col-md-12">
-          <table class="table table-striped table-bordered  mb-0 table-hover nowrap display" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-            <thead class="thead-default">
-              <tr>
-                <th width="1%">ID</th>
-                <th>Başlık</th>
-                <th width="1%">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, itemi) in items" v-if="item.meta">
-                <td>{{itemi}}</td>
-                <td>{{(item.meta.title) || (item.meta.fullname) || (item.meta.name)}}</td>
-
-                <td>
-                  <div class="btn-group btn-group">
-
-                   <button @click="$router.push('/ContenDetail/' + item.entity_type_id + '/' +item.content_id)" class="btn btn-primary waves-effect waves-light">
-                     <i class="far fa-eye"></i>
-                   </button>
-                 </div>
-               </td>
-             </tr>
-           </tbody>
-         </table>
-         <hr class="m-t-10 m-b-20" />
-       </div>
-
-
-     </div>
-
-   </div>
+   <order-list v-if="contentTypeId == 33" :type-id="contentTypeId"></order-list>
+   <product-list v-else-if="contentTypeId == 4" :type-id="contentTypeId"></product-list>
+   <product-group-list v-else-if="contentTypeId == 32" :type-id="contentTypeId"></product-group-list>
+   <content-list v-else :type-id="contentTypeId"></content-list>
+      </template>
+ </div>
  </div>
 </template>
 <script>
+var OrderList = httpVueLoader('/vue/page/OrderList.vue');
+var ContentList = httpVueLoader('/vue/page/ContentList.vue');
+var ProductList = httpVueLoader('/vue/page/ProductList.vue');
+var ProductGroupList = httpVueLoader('/vue/page/ProductGroupList.vue');
 module.exports = {
+    components: {OrderList, ProductList, ProductGroupList, ContentList},
   name: "ContentTypeList",
   props:  ['typeId'],
   data() {
@@ -63,7 +42,6 @@ module.exports = {
   },
   computed: {
     contentTypeId(){
-      this.getData(this.typeId)
       return this.typeId
     }
   },

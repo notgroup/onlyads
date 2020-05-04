@@ -1,6 +1,6 @@
 <template>
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" v-if="contentTypeId">
         <table class="table table-striped table-bordered  mb-0 table-hover nowrap display" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
             <thead class="thead-default">
                 <tr>
@@ -12,7 +12,7 @@
             <tbody>
                 <tr v-for="(item, itemi) in items">
                     <td>{{itemi}}</td>
-                    <td>{{item.meta.title}}</td>
+                    <td>{{item.meta.title || item.meta.name || item.meta.fullname}}</td>
 
                     <td>
                         <div class="btn-group btn-group">
@@ -43,9 +43,14 @@ module.exports = {
             }
         };
     },
-    computed: {},
+    computed: {
+        contentTypeId() {
+            this.getData(this.typeId)
+            return this.typeId
+        }
+    },
     mounted() {
-        this.getData(this.typeId)
+
     },
     beforeCreate() {},
     created() {},

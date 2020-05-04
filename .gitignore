@@ -13,5 +13,8 @@ WHMAPI.txt
 .env
 ftpsync.settings
 /**/*.xls
+/**/*error_log
+/**/*.xlsx
 /public/*.txt
+/public/*.csv
 /public/*.json

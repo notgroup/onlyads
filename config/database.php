@@ -43,6 +43,16 @@ return [
             'database' => env('DB_DATABASE', database_path('db/local_database.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
+        'tracker' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/tracker.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
+        'cargo' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/cargo.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
         'test_sqlite' => [
             'driver' => 'sqlite',
             'database' => env('DB_DATABASE', database_path('db/rtopless.sqlite')),

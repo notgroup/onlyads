@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-class ContentController extends Controller
+class CargoController extends Controller
 {
     public function getSearchEntity(Request $request)
     {

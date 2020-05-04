@@ -1,19 +1,62 @@
 <?php
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Routing\UrlGenerator;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpFoundation\Cookie;
-use Illuminate\Contracts\Validation\Factory as ValidationFactory;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Contracts\Auth\Access\Gate;
 
+if (!function_exists('generateCsv')) {
+    function generateCsv($fileName, $data = [], $delimiter = ',', $enclosure = '"')
+    {
 
-if (! function_exists('public_path')) {
+        $handle = fopen($fileName, 'w');
+        foreach ($data as $lkey => $line) {
+            if ($lkey < 100) {
+                fputcsv($handle, array_values($line), $delimiter, $enclosure);
+            }
+        }
+        fclose($handle);
+
+    }
+}
+if (!function_exists('get_web_page_header')) {
+    function get_web_page_header( $url ) {
+        $res = array();
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,     // return web page
+            CURLOPT_HEADER         => false,    // do not return headers
+            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+            CURLOPT_USERAGENT      => "spider", // who am i
+            CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+            CURLOPT_TIMEOUT        => 120,      // timeout on response
+            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+        );
+        $ch      = curl_init( $url );
+        curl_setopt_array( $ch, $options );
+        $content = curl_exec( $ch );
+        $err     = curl_errno( $ch );
+        $errmsg  = curl_error( $ch );
+        $header  = curl_getinfo( $ch );
+        curl_close( $ch );
+    
+        //$res['content'] = $content;
+        $res['url'] = $header['url'];
+        $res['redirect_count'] = $header['redirect_count'];
+        $res['errmsg'] = $errmsg;
+        $res['err'] = $err;
+        return $res;
+    }
+}
+
+if (!function_exists('public_path')) {
     /**
      * Get the path to the public folder.
      *
@@ -22,10 +65,10 @@ if (! function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return rtrim(app()->basePath('public/'.$path), DIRECTORY_SEPARATOR);
+        return rtrim(app()->basePath('public/' . $path), DIRECTORY_SEPARATOR);
     }
 }
-if (! function_exists('config_path')) {
+if (!function_exists('config_path')) {
     /**
      * Get the configuration path.
      *
@@ -34,10 +77,10 @@ if (! function_exists('config_path')) {
      */
     function config_path($path = '')
     {
-        return rtrim(app()->basePath('config/'.$path), DIRECTORY_SEPARATOR);
+        return rtrim(app()->basePath('config/' . $path), DIRECTORY_SEPARATOR);
     }
 }
-if (! function_exists('mix')) {
+if (!function_exists('mix')) {
     /**
      * Get the path to a versioned Mix file.
      *
@@ -50,36 +93,36 @@ if (! function_exists('mix')) {
     function mix($path, $manifestDirectory = '')
     {
         static $manifests = [];
-        if (! starts_with($path, '/')) {
+        if (!starts_with($path, '/')) {
             $path = "/{$path}";
         }
-        if ($manifestDirectory && ! starts_with($manifestDirectory, '/')) {
+        if ($manifestDirectory && !starts_with($manifestDirectory, '/')) {
             $manifestDirectory = "/{$manifestDirectory}";
         }
         $manifestKey = $manifestDirectory ? $manifestDirectory : '/';
-        if (file_exists(public_path($manifestDirectory.'hot'))) {
+        if (file_exists(public_path($manifestDirectory . 'hot'))) {
             return new HtmlString("//localhost:8080{$path}");
         }
         if (in_array($manifestKey, $manifests)) {
             $manifest = $manifests[$manifestKey];
         } else {
-            if (! file_exists($manifestPath = public_path($manifestDirectory.'/mix-manifest.json'))) {
+            if (!file_exists($manifestPath = public_path($manifestDirectory . '/mix-manifest.json'))) {
                 throw new Exception('The Mix manifest does not exist.');
             }
             $manifests[$manifestKey] = $manifest = json_decode(
                 file_get_contents($manifestPath), true
             );
         }
-        if (! array_key_exists($path, $manifest)) {
+        if (!array_key_exists($path, $manifest)) {
             throw new Exception(
-                "Unable to locate Mix file: {$path}. Please check your ".
+                "Unable to locate Mix file: {$path}. Please check your " .
                 'webpack.mix.js output paths and try again.'
             );
         }
-        return new HtmlString($manifestDirectory.$manifest[$path]);
+        return new HtmlString($manifestDirectory . $manifest[$path]);
     }
 }
-if (! function_exists('auth')) {
+if (!function_exists('auth')) {
     /**
      * Get the available auth instance.
      *
@@ -94,7 +137,7 @@ if (! function_exists('auth')) {
         return app(AuthFactory::class)->guard($guard);
     }
 }
-if (! function_exists('abort_if')) {
+if (!function_exists('abort_if')) {
     /**
      * Throw an HttpException with the given data if the given condition is true.
      *
@@ -114,7 +157,7 @@ if (! function_exists('abort_if')) {
         }
     }
 }
-if (! function_exists('abort_unless')) {
+if (!function_exists('abort_unless')) {
     /**
      * Throw an HttpException with the given data unless the given condition is true.
      *
@@ -129,12 +172,12 @@ if (! function_exists('abort_unless')) {
      */
     function abort_unless($boolean, $code, $message = '', array $headers = [])
     {
-        if (! $boolean) {
+        if (!$boolean) {
             abort($code, $message, $headers);
         }
     }
 }
-if (! function_exists('bcrypt')) {
+if (!function_exists('bcrypt')) {
     /**
      * Hash the given value.
      *
@@ -147,7 +190,7 @@ if (! function_exists('bcrypt')) {
         return app('hash')->make($value, $options);
     }
 }
-if (! function_exists('cookie')) {
+if (!function_exists('cookie')) {
     /**
      * Create a new cookie instance.
      *
@@ -165,7 +208,7 @@ if (! function_exists('cookie')) {
     function cookie($name = null, $value = null, $minutes = 0, $path = null, $domain = null, $secure = false, $httpOnly = true, $raw = false, $sameSite = null)
     {
         list($path, $domain, $secure, $sameSite) = [$path, $domain, $secure, $sameSite];
-        $time = ($minutes == 0) ? 0 : Carbon::now()->addSeconds($minutes * 60)->getTimestamp();
+        $time                                    = ($minutes == 0) ? 0 : Carbon::now()->addSeconds($minutes * 60)->getTimestamp();
         return new Cookie($name, $value, $time, $path, $domain, $secure, $httpOnly, $raw, $sameSite);
     }
 }
@@ -214,7 +257,7 @@ if (!function_exists('action')) {
     function action($name, $parameters = [], $absolute = true)
     {
         /** @var Application $app */
-        $app = app();
+        $app     = app();
         $matches = [];
         if (preg_match('/Lumen \(([0-9\.]+)\)/', $app->version(), $matches)) {
             $version = floatval(trim($matches[1]));
@@ -227,7 +270,7 @@ if (!function_exists('action')) {
             $routes = $app->getRoutes();
         }
         foreach ($routes as $route) {
-            $uri = $route['uri'];
+            $uri    = $route['uri'];
             $action = $route['action'];
             if (isset($action['uses'])) {
                 if ($action['uses'] === $name) {
@@ -393,7 +436,7 @@ if (!function_exists('validator')) {
         return $factory->make($data, $rules, $messages, $customAttributes);
     }
 }
-if (! function_exists('request')) {
+if (!function_exists('request')) {
     /**
      * Get an instance of the current request or an input item from the request.
      *
@@ -414,20 +457,18 @@ if (! function_exists('request')) {
     }
 }
 
-
 function convert($size)
 {
     //convert(memory_get_usage())
-    $unit=array('b','kb','mb','gb','tb','pb');
-    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+    $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+    return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 }
-
 
 function slug_create($text = "", $separator = '-')
 {
 
     //değiştirelecek türkçe karakterler
-    $find = array('ç', 'Ç', 'ı', 'İ', 'ş', 'Ş', 'ğ', 'Ğ', 'ö', 'Ö', 'ü', 'Ü');
+    $find    = array('ç', 'Ç', 'ı', 'İ', 'ş', 'Ş', 'ğ', 'Ğ', 'ö', 'Ö', 'ü', 'Ü');
     $replace = array('c', 'c', 'i', 'i', 's', 's', 'g', 'g', 'o', 'o', 'u', 'u');
     //türkçe karakterleri değiştirir
     $text = str_replace($find, $replace, $text);
@@ -464,41 +505,62 @@ function custom_carbon_calculate_age($date)
     return false;
 }
 
-function getCurl($url = '', $headers = [], $post = 0, $filepath = 'content.txt'){
-/*
-var_dump($headers);
-exit();
-*/
-  $curl = curl_init();
-  curl_setopt($curl, CURLOPT_URL,$url);
-  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-  if ($post) {
-  curl_setopt($curl, CURLOPT_POST, $post);
-  curl_setopt($curl, CURLOPT_POSTFIELDS,[]);
-  }
-curl_setopt($curl, CURLOPT_USERAGENT, 'SeanPeterson');
-  curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+function getCurl($url = '', $headers = [], $post = 0, $filepath = 'content.txt')
+{
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+    if ($post) {
+        curl_setopt($curl, CURLOPT_POST, $post);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, []);
+    }
+    curl_setopt($curl, CURLOPT_USERAGENT, 'SeanPeterson');
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
 
+    $headers1 = [];
 
-  $headers1 = [];
+    $content = curl_exec($curl);
 
+    $err = curl_error($curl);
 
-  $content = curl_exec ($curl);
+    curl_close($curl);
 
-  $err = curl_error($curl);
+    if ($err) {
+        echo "cURL Error #:" . $err;
+    }
 
-  curl_close($curl);
+    $filepath = date('Y_m_d_H_i') . '_' . $filepath;
 
-  if ($err) {
-    echo "cURL Error #:" . $err;
+    //file_put_contents('logs/'.$filepath, $content);
+
+    return $content;
 }
 
-$filepath = date('Y_m_d_H_i'). '_'.  $filepath;
+if (!function_exists('file_post_contents')) {
+    function file_post_contents($url, $data, $contentType = 'json')
+    {
 
-file_put_contents($filepath, $content);
+        if ($contentType == 'x-www-form-urlencoded') {
+            $content = http_build_query($data, '', '&');
+        } else {
+            $content = json_encode($data);
+        }
 
-return $content;
+        $header = array(
+            "Content-Type: application/json",
+            "Content-Length: " . strlen($content),
+        );
+        $options = array(
+            'http' => array(
+                'method'  => 'POST',
+                'content' => $content,
+                'header'  => implode("\r\n", $header),
+            ),
+
+        );
+        return file_get_contents($url, false, stream_context_create($options));
+    }
 }

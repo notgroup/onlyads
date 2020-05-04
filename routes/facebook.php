@@ -6,16 +6,18 @@ use Illuminate\Support\Facades\Cache;
 
 require_once 'config.php';
 
-function getFacebookData($fb, $startDate, $endDate)
+function getFacebookData($fb, $startDate, $endDate, $bmId)
 {
+
     $response = false;
+    $error = false;
     try {
 
         $clientAdAccountFields  = "disable_reason,account_status,id,business,account_id,is_prepay_account,name";
         $clientAdAdsFields      = "ads.limit(1){effective_status,name,status}";
         $clientAdInsightsFields = "insights.level(campaign).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days)"
             . "{spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type}";
-        $response = $fb->get("156479078851727?fields=client_ad_accounts.limit(400){campaigns.limit(1){daily_budget},$clientAdInsightsFields,$clientAdAdsFields,$clientAdAccountFields}");
+        $response = $fb->get($bmId."?fields=client_ad_accounts.limit(400){campaigns.limit(1){daily_budget},$clientAdInsightsFields,$clientAdAdsFields,$clientAdAccountFields}");
         $response = $response->getGraphNode()->asArray();
     } catch (FacebookResponseException $e) {
         // When Graph returns an error
@@ -26,10 +28,11 @@ function getFacebookData($fb, $startDate, $endDate)
         $error = 'Facebook SDK returned an error: ' . $e->getMessage();
 
     }
-
+/*print_r($error);
+die();*/
     return $response;
 }
-
+/*
 function adAccountsActivities($fb, $startDate, $endDate)
 {
     $response = false;
@@ -49,7 +52,7 @@ function adAccountsActivities($fb, $startDate, $endDate)
 
     return $response;
 }
-
+*/
 function getAccountDetail($fb, $accountId)
 {
     $response = false;
@@ -100,25 +103,26 @@ $router->get('/adAccountsActivities', function (Request $request) use ($router, 
     return response()->json($response);
 
 });*/
-$router->get('/adAccounts', function (Request $request) use ($router, $fb) {
+$router->get('/adAccounts', function (Request $request) use ($router, $fb, $bmId) {
 
     $startDate = $request->has('startDate') ? $request->get('startDate') : date("Y-m-d");
     $endDate   = $request->has('endDate') ? $request->get('endDate') : date("Y-m-d");
 
-    $cacheKey = 'adAccounts' . $startDate . $endDate;
+    $cacheKey = $bmId . 'adAccounts' . $startDate . $endDate;
     //Cache::forget($cacheKey);
     //Cache::flush();
     if (Cache::has($cacheKey)) {
         $response = Cache::get($cacheKey);
         $response = array_merge([], $response['client_ad_accounts']);
     } else {
-        $fbData = getFacebookData($fb, $startDate, $endDate);
+        $fbData = getFacebookData($fb, $startDate, $endDate, $bmId);
+
         if ($fbData) {
 
             Cache::put($cacheKey, $fbData, 600);
             $response = Cache::get($cacheKey);
             $response = array_merge([], $response['client_ad_accounts']);
-            file_put_contents('logs/fbgraphql_' . date('Y_m_d_H_i') . '.json', json_encode($response));
+            file_put_contents('logs/fbgraphql_' . date('Y_m_d_H_i').$bmId . '.json', json_encode($response));
 
         } else {
             $response = ['message' => 'bir hata var'];

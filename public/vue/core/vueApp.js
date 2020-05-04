@@ -1,6 +1,7 @@
 var App = httpVueLoader('./vue/container/app.vue');
 var Blank = httpVueLoader('./vue/page/blank.vue');
 var BusinessAccounts = httpVueLoader('./vue/page/BusinessAccounts.vue');
+var BmList = httpVueLoader('./vue/page/BmList.vue');
 var AdAccounts = httpVueLoader('./vue/page/AdAccounts.vue');
 var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
 
@@ -13,10 +14,11 @@ var CargoTracking = httpVueLoader('./vue/page/CargoTracking.vue');
 var DomainManagment = httpVueLoader('./vue/page/DomainManagment.vue');
 var ServerManagment = httpVueLoader('./vue/page/ServerManagment.vue');
 var ProductGroupList = httpVueLoader('./vue/page/ProductGroupList.vue');
-var OrderList = httpVueLoader('./vue/page/OrderList.vue');
+var OrderList2 = httpVueLoader('./vue/page/OrderList2.vue');
 var CustomerList = httpVueLoader('./vue/page/CustomerList.vue');
 var ContentTypeList = httpVueLoader('./vue/page/ContentTypeList.vue');
 var RoleList = httpVueLoader('./vue/page/RoleList.vue');
+var OrderList = httpVueLoader('./vue/page/OrderList.vue');
 
 
 
@@ -68,11 +70,22 @@ Vue.mixin({
                 "33": "Siparişler",
                 "34": "Müşteriler",
                 "32": "Ürün Grupları",
+                "35": "Ödeme Metodları",
+                "36": "Kargo Yöntemleri",
             },
             showLog: 0,
-            userData: {
+            clientLangs: {
+                order:{
+                    "order_view": "Görüntülendi",
+                    "order_updated": "Güncellendi",
+                    "order_confirmed": "Onaylandı",
+                    "order_price_changed": "Ürün Fiyatı Değişti"
+                }
 
-            }
+            },
+            userData: {},
+            clientInit: {},
+            paymentMethods: [],
         };
     },
     computed: {
@@ -81,9 +94,31 @@ Vue.mixin({
         }
     },
     methods: {
+
         getLast() {
             this.get('//' + apiUrl + '/last10', (response) => {
             });
+        },
+        linkDownload(url, filename) {
+            var link = document.createElement("a");
+  link.download = filename;
+  // Construct the uri
+
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  // Cleanup the DOM
+  document.body.removeChild(link);
+        },
+        addLogHistory(data = {}) {
+            this.post(apiUrl + '/addlogHistory', data, (response) => {
+
+            });
+        },
+        logoutPanel() {
+            localStorage.removeItem('api_token');
+            localStorage.removeItem('userData');
+            window.location.reload(1)
         },
         checkLogin() {
             let userData = localStorage.getItem('api_token') ? JSON.parse(localStorage.getItem('userData') || {}) : {}
@@ -95,6 +130,34 @@ Vue.mixin({
             }
         },
         /* API AREA */
+        getString(o) {
+
+            function iter(o, path) {
+                if (Array.isArray(o)) {
+                    o.forEach(function (a) {
+                        iter(a, path + '[]');
+                    });
+                    return;
+                }
+                if (o !== null && typeof o === 'object') {
+                    Object.keys(o).forEach(function (k) {
+                        iter(o[k], path + '[' + k + ']');
+                    });
+                    return;
+                }
+                data.push(path + '=' + o);
+            }
+        
+            var data = [];
+            Object.keys(o).forEach(function (k) {
+                iter(o[k], k);
+            });
+            return '?' + data.join('&');
+        },
+        urlParams(query = {}) {
+            const params = new URLSearchParams(query);
+              return '?' + params.toString();
+        },
         post(url, pdata, cb) {
             fetch(url, this.postHeader(pdata))
                 .then((response) => {
@@ -104,8 +167,8 @@ Vue.mixin({
                     cb(data);
                 });
         },
-        get(url, cb, header = {}) {
-            fetch(url, Object.assign(header, this.getHeader()))
+        get(url, cb) {
+            fetch(url, this.getHeader())
                 .then((response) => {
                     return response.json();
                 })
@@ -148,7 +211,7 @@ var routes = [
     {
         path: '/',
         name: 'Dashboard',
-        component: BusinessAccounts
+        component: Blank //BusinessAccounts
     },
     {
         path: '/AddProduct',
@@ -181,37 +244,37 @@ var routes = [
     },
     {
         path: '/AddProductGroup',
-        props:true,
+        props: true,
         name: 'AddProductGroup',
         component: AddProductGroup
     },
     {
         path: '/AddCustomer',
-        props:true,
+        props: true,
         name: 'AddCustomer',
         component: AddCustomer
     },
     {
         path: '/AddPayment',
-        props:true,
+        props: true,
         name: 'AddPayment',
         component: AddPayment
     },
     {
         path: '/AddOrder',
-        props:true,
+        props: true,
         name: 'AddOrder',
         component: AddOrder
     },
     {
         path: '/AddRole/:primaryId',
-        props:true,
+        props: true,
         name: 'AddRole',
         component: AddRole
     },
     {
         path: '/RoleList',
-        props:true,
+        props: true,
         name: 'RoleList',
         component: RoleList
     },
@@ -226,9 +289,14 @@ var routes = [
         component: Category
     },
     {
-        path: '/business-accounts',
+        path: '/business-accounts-dashboard',
         name: 'BusinessAccounts',
         component: Blank
+    },
+    {
+        path: '/business-accounts',
+        name: 'BmList',
+        component: BmList
     },
     {
         path: '/ref-prefix',
@@ -267,7 +335,8 @@ var routes = [
         component: ServerManagment
     },
     {
-        path: '/ad-accounts',
+        path: '/ad-accounts/:bmId?',
+        props:true,
         name: 'AdAccounts',
         component: AdAccounts
     },
@@ -290,10 +359,10 @@ var routes = [
         component: ProductGroupList
     },
     {
-        path: '/OrderList',
-        name: 'OrderList',
+        path: '/OrderList2',
+        name: 'OrderList2',
         props: true,
-        component: OrderList
+        component: OrderList2
     },
     {
         path: '/CustomerList',
@@ -371,9 +440,16 @@ var vueApp = new Vue({
         this.$root.checkLogin();
     },
     mounted() {
-
-
-
+        /*
+        this.$root.get(window.apiUrl + '/contents/' + 35, (res)=> {
+            this.paymentMethods = res
+        })
+        this.$root.get(window.apiUrl + '/contents/' + 37, (res)=> {
+            this.adSources = res
+        })*/
+        this.$root.get(window.apiUrl + '/clientInit', (res) => {
+            this.$root.clientInit = res
+        })
     },
     methods: {}
 });

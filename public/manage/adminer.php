@@ -1,5 +1,4 @@
-﻿<?php
-
+<?php
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', false);
 
@@ -16,6 +15,9 @@ function adminer_object() {
       // key used for permanent login
       return '26ddbfebb2eb6f439cdb698e0154796a';
     }*/
+
+
+
     function credentials() {
       // server, username and password for connecting to database
       if (isset($_GET['sqlite'])) {
@@ -26,9 +28,6 @@ function adminer_object() {
 
       }
     }
-
-
-
     function get_sqlite() {
 
      $path = "../../database/db/";

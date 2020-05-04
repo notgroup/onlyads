@@ -19,10 +19,10 @@
                             Reklam
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="submenu">
-                        <li class="hide">
+                        <li class="">
                             <a href="#/business-accounts">BM Hesapları</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/ad-accounts">Reklam Hesapları</a>
                         </li>
                         <li class="hide"><a href="#/ref-prefix">Ref Önek</a></li>
@@ -30,7 +30,7 @@
                     </ul>
                 </li>
 
-                <li class="">
+                <li class="hide">
                     <a href="#/settings" class="waves-effect"><i class="fa fa-cog"></i><span> Envanter </span></a>
                 </li>
                 <li class="">
@@ -110,7 +110,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="hide">
+                <li class="">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Kargo
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -119,7 +119,7 @@
                             <a href="#/">Ç.M İşlemleri</a>
                         </li>
                         <li class="">
-                            <a href="#/">Teslimat Raporu</a>
+                            <a href="#/CargoTracking">Teslimat Raporu</a>
                         </li>
                         <li class="">
                             <a href="#/">Teslimat Raporu (Mini)</a>
