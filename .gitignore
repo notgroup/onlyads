@@ -5,7 +5,6 @@ Homestead.yaml
 .phpunit.result.cache
 ftpsync.settings
 /**/logs
-*.sqlite
 WHMAPI.txt
 .vscode/sftp.json
 /.vscode
