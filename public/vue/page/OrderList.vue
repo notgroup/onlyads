@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="btn-group"> 
-                        <select class="btn btn-primary form-control multiselector text-white">
+                        <select class="btn btn-primary form-control text-white">
                             <option value="0" selected="selected">Toplu İşlemler</option>
                             <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
                                 <option :key="itemi" :value="item.option">{{item.value}}</option>
