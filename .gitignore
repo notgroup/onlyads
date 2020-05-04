@@ -9,7 +9,6 @@ WHMAPI.txt
 .vscode/sftp.json
 /.vscode
 /backup
-.env
 ftpsync.settings
 /**/*.xls
 /**/*error_log
