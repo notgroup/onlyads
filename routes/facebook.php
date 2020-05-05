@@ -178,6 +178,19 @@ $router->get('/adAccountDetail/{accountId}', function (Request $request, $accoun
 
 });
 
+$router->get('/bm_accounts', function (Request $request) use ($router) {
+
+    $response = DB::connection('facebook')->table('bm_accounts')->get()->toArray();
+    return response()->json($response);
+
+});
+
+$router->post('/addBm', function (Request $request) use ($router) {
+    $requestAll               = $request->all();
+    DB::connection('facebook')->table('bm_accounts')->updateOrInsert(['bm_id' => $request->bm_id], $requestAll);
+    return response()->json(DB::connection('facebook')->table('bm_accounts')->get()->toArray());
+
+});
 $router->post('/addNote', function (Request $request) use ($router) {
     $requestAll               = $request->all();
     $requestAll['updateTime'] = \Carbon\Carbon::now();

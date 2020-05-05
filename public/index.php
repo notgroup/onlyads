@@ -1,5 +1,7 @@
 <?php
+
 if ($_SERVER['REQUEST_URI'] == '/') {
+  require "anti-ddos-lite.php";
   include_once("index.html");
 } else {
 

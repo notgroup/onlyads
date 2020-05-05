@@ -570,7 +570,7 @@ module.exports = {
 }
 </script>
 
-<style>
+<style scoped>
 @import "/assets/plugins/datatables/dataTables.bootstrap4.min.css";
 @import "/assets/plugins/datatables/buttons.bootstrap4.min.css";
 @import "/assets/plugins/datatables/responsive.bootstrap4.min.css";

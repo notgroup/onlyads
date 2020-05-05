@@ -9,6 +9,8 @@ use App\Models\EavGroup;
 use App\Models\Entities;
 use App\Models\TermVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -29,7 +31,7 @@ class ContentController extends Controller
             if (isset($filter['status']) && $filter['status']) {
                 $contents->where('entity_status', $filter['status']);
             }
-            if (isset($filter['startDate']) && $filter['startDate']) {
+           if (isset($filter['startDate']) && $filter['startDate']) {
                 $contents->whereDate('created_at', '>=', $filter['startDate']);
             }
             if (isset($filter['endDate']) && $filter['endDate']) {
@@ -45,16 +47,17 @@ class ContentController extends Controller
 
         //$request->get('filter')
         $response = [];
-        $contents           = $contents->orderBy('content_id', 'desc');
-        if (isset($filter['download']) && $filter['download'] ) {
-   
+        $contents = $contents->orderBy('content_id', 'desc');
+        if (isset($filter['download']) && $filter['download']) {
+            if ($request->has('selecteds') && $request->get('selecteds')) {
+                $contents->whereIn('content_id', $request->get('selecteds'));
+            }
             return $this->saveAsCsvKeywords('yedek', $contents->get()->toArray());
         } else {
             $contents           = $contents->simplePaginate(100)->toArray();
             $contents['facets'] = $facets;
-            $response = $contents;
+            $response           = $contents;
         }
-        
 
         //->limit(100)->get()->toArray();
         return response()->json($response);
@@ -63,33 +66,60 @@ class ContentController extends Controller
     public function saveAsCsvKeywords($fileName, $data)
     {
 
+        $cities = DB::table('zone')->get()->keyBy('zone_id');
+        /*print_r($cities);
+        die();*/
+        $towns          = DB::table('town')->get()->keyBy('town_id');
+        $paymentMethods = Content::where('entity_type_id', 35)->get()->keyBy('content_id');
 
-        $dt = fopen($fileName.'.csv', 'w');
-
-        foreach ($data as $key => $item) {
-          fputcsv($dt, [$item['content_id'], $item['created_at']]);
+        $newData     = [];
+        $defaultKeys = ["mok", "urun", "ad", "adres", "ilce", "sehir", "tel", "irsaliyeno", "ilkodu", "ilcekodu", "varis", "serino", "desi", "tahsilat_tutari", "odeme_tipi"];
+        $exampleItem = array_fill_keys(array_values($defaultKeys), null);
+        foreach ($data as $key => $preItem) {
+            $preItem                      = collect($preItem);
+            $emptyItem                    = $exampleItem;
+            $emptyItem["mok"]             = $preItem['content_id'];
+            $emptyItem["urun"]            = array_values($preItem['meta']['products'])[0]['meta']['title'];
+            $emptyItem["ad"]              = Str::title($preItem['meta']['fullname']);
+            $emptyItem["adres"]           = $preItem['meta']['address'];
+            $emptyItem["ilce"]            = isset($towns[$preItem['meta']['town']]) ? $towns[$preItem['meta']['town']]->name : $preItem['meta']['town'];
+            $emptyItem["sehir"]           = $cities[$preItem['meta']['city']]->name;
+            $emptyItem["tel"]             = $preItem['meta']['phone_number'];
+            $emptyItem["irsaliyeno"]      = $preItem['content_id'];
+            $emptyItem["ilkodu"]          = $cities[$preItem['meta']['city']]->code_number;
+            $emptyItem["tahsilat_tutari"] = $preItem['meta']['finalPrice'];
+            $emptyItem["odeme_tipi"]      = $paymentMethods[$preItem['meta']['payment_method']]->meta['name'];
+            $emptyItem                    = array_map("trim", array_values($emptyItem));
+            $newData[]                    = $emptyItem;
         }
-      
+
+        $fileName = 'assets/uploads/' . $fileName;
+        $dt       = fopen($fileName . '.csv', 'w');
+        fputcsv($dt, array_keys($exampleItem));
+        foreach ($newData as $key => $item) {
+            fputcsv($dt, $item);
+        }
+
         fclose($dt);
 
         $spreadsheet = new Spreadsheet();
-        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
-        
+        $reader      = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+
         /* Set CSV parsing options */
-        
+
         $reader->setDelimiter(',');
         $reader->setEnclosure('"');
         $reader->setSheetIndex(0);
-        
+
         /* Load a CSV file and save as a XLS */
-        
-        $spreadsheet = $reader->load($fileName.'.csv');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($fileName.'.xlsx');
-        
+
+        $spreadsheet = $reader->load($fileName . '.csv');
+        $writer      = new Xlsx($spreadsheet);
+        $writer->save($fileName . '.xlsx');
+
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
-    return response()->json(['url' => $fileName.'.xlsx']);
+        return response()->json(['url' => $fileName . '.xlsx']);
     }
 
     public function getContents(Request $request, $entity_type_id)
@@ -102,9 +132,17 @@ class ContentController extends Controller
     }
     public function setChangeStatus(Request $request, $entity_type_id)
     {
-        $items = Content::where('entity_type_id', $entity_type_id)->whereIn('content_id', $request->get('selecteds'));
+        if ($request->has('selecteds')) {
+            $items     = Content::where('entity_type_id', $entity_type_id)->whereIn('content_id', $request->get('selecteds'));
+            if (strpos($request->get('status'), ':')) {
+                $status = explode(':', $request->get('status'));
+                $updateArr = ['meta->shipment_type' => $status[1], 'entity_status' => $status[0], 'meta->update_' . $status[0] => date('d/m/Y H:i')];
+            } else {
+                $updateArr = ['entity_status' => $request->get('status'), 'meta->update_' . $request->get('status') => date('d/m/Y H:i')];
+            }
+            $items->update($updateArr);
+        }
 
-        $items->update(['entity_status' => $request->get('status')]);
 
         return response()->json([]);
     }
@@ -132,7 +170,6 @@ class ContentController extends Controller
         } else {
             $contentAttr = [
                 'entity_type_id' => $type_id,
-                'entity_status'  => 1,
                 'creator_id'     => $request->user()->id,
                 'parent_id'      => 0,
             ];

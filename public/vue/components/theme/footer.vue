@@ -1,11 +1,12 @@
 <template>
+<div>
+<notification v-if="1 == 0" :details="{type: 'danger', title: 'başarılı', content: 'başarılı bir şekilde eklendi'}"></notification>
 <footer class="footer hide">
-    <div class="notifications hide">
-        <div role="alert" class="alert alert-success"><strong>Başarılı!</strong> Nesne onaylandı olarak işaretlendi.
-        </div>
-    </div>
+
     © 2020 RoketMedia <span class="d-none d-sm-inline-block"> - Crafted with <i class="mdi mdi-heart text-danger"></i> by RoketMedia</span>.
 </footer>
+</div>
+
 </template>
 
 <script>

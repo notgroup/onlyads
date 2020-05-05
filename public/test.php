@@ -49,5 +49,12 @@ function parseHeaders( $headers )
 }
 /*file_get_contents('http://kargotakip.deposerileti.com:90/sorgu.asp?MUS_KOD=7700000423&MUS_sif=123DEF123&tip=3&har_kod=E839E4E4', false);
 echo parseHeaders($http_response_header)['Location'];*/
-$res = get_web_page_header('http://kargotakip.deposerileti.com:90/sorgu.asp?MUS_KOD=7700000423&MUS_sif=123DEF123&tip=3&har_kod=E839E4E4');
-print_r($res);
+/*$res = get_web_page_header('http://kargotakip.deposerileti.com:90/sorgu.asp?MUS_KOD=7700000423&MUS_sif=123DEF123&tip=3&har_kod=E839E4E4');
+print_r($res);*/
+/*
+$exampleItem = array_fill_keys(array_values(["mok","urun","ad","adres","ilce","sehir","tel","irsaliyeno","ilkodu","ilcekodu","varis","serino","desi","tahsilat", "tutarı","ödeme", "tipi"]), 1);
+print_r($exampleItem);*/
+
+$test01 = strpos('shipped:deposer', ':');
+$test02 = explode(':', 'shipped:deposer');
+print_r($test02);

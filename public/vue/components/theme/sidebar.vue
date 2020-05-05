@@ -45,7 +45,7 @@
                         <li class=""><a href="#/DbManagment">DB Yönetimi</a></li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="hide">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Portföy
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>

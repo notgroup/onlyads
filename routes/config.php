@@ -3,13 +3,14 @@
 
 $bm_id_A9 = '3191402807537654';
 
-$bmId = isset($_GET['bmId']) ? $_GET['bmId'] : '156479078851727';
+$bmId = isset($_GET['bmId']) ? $_GET['bmId'] : 0;
+$fb = null;
 /*
 $tokens = [
-  "156479078851727" => [
-    "app_secret" => "61dc8d2dbe452894981432eb7ec02ac6",
-    "app_id" => "150821419662950",
-    "access_token" => "EAACJK9kkvmYBAEBEszq1SWoDCb9nGiZCPuC8fZAVP5ck6cl5uxtzyiWj3oI8dOACLaGcmDW5O4p1mXB0cvZA7s4QJltNib1bwxxIytZAAwgN8sQ7dAZAu9NREaUoCbB2iPoCQK8AauLRdTEZCBUwykE89rdSX6YgprjQTcgBxSVgZDZD"
+  "530512111162643" => [
+    "app_secret" => "215697765b7968953ab39de3af7c4d5b",
+    "app_id" => "2601891003400553",
+    "access_token" => "EAAkZBZAZCUAgWkBAEbrldKId3b2Y9Qyd6LjfWoaTm9qsTlovfzwXpeyudKXroV3IwidEG5TPeIsDtofmdSFpHAW57aWNX6ZCrW8Nv9uqZAiHKhUc8ZAG1MMrgtqPPqKfC9CTRrAH96uo5pxMTr7N7YXr1wpqEZAXQvwEhy4scQ5W1WXf5uS0pyc"
   ],
   "3191402807537654" => [
     "app_secret" => "fb45edc174cc3c4aed65f6a6b3d4d9e5",
@@ -27,7 +28,13 @@ $fb = new \Facebook\Facebook([
   'default_access_token' => $tokens[$bmId]['access_token'], // optional
 ]);
 */
+/*
 $tokens = [
+    "530512111162643" => [
+    "app_secret" => "215697765b7968953ab39de3af7c4d5b",
+    "app_id" => "2601891003400553",
+    "access_token" => "EAAkZBZAZCUAgWkBAEbrldKId3b2Y9Qyd6LjfWoaTm9qsTlovfzwXpeyudKXroV3IwidEG5TPeIsDtofmdSFpHAW57aWNX6ZCrW8Nv9uqZAiHKhUc8ZAG1MMrgtqPPqKfC9CTRrAH96uo5pxMTr7N7YXr1wpqEZAXQvwEhy4scQ5W1WXf5uS0pyc"
+  ],
   "156479078851727" => [
     "app_secret" => "61dc8d2dbe452894981432eb7ec02ac6",
     "app_id" => "150821419662950",
@@ -38,17 +45,23 @@ $tokens = [
     "app_id" => "230894151343130",
     "access_token" => "EAADRZCzvfHBoBAG70fSUL6xcJXAPrtZAXYo3Nf18HGFJ5uPIyZB8AAJZB2A3YgsJJLclVwR8dkbh9lHNw7fjxJhfxOOI9mUpNnnI8HIBr9qVPUoKa9pUZBbfZC8fWGr6RMcJmCJenQFZCKzZBvtHhl7yuPd3SyuTffaXWVYtvsusfgZDZD"
   ]
-];
+];*/
 
-$access_token = $tokens[$bmId]['access_token'];
-$app_secret = $tokens[$bmId]['app_secret'];
-$app_id = $tokens[$bmId]['app_id'];
+if ($bmId) {
+$tokens = DB::connection('facebook')->table('bm_accounts')->get()->keyBy('bm_id');
+
+
+$access_token = $tokens[$bmId]->access_token;
+$app_secret = $tokens[$bmId]->app_secret;
+$app_id = $tokens[$bmId]->app_id;
 $fb = new \Facebook\Facebook([
   'app_id' => $app_id,
   'app_secret' => $app_secret,
   'default_graph_version' => 'v6.0',
   'default_access_token' => $access_token, // optional
 ]);
+}
+
 
 /*
 http://www.tulane.edu/~howard/CompCultES/facebook.html

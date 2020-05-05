@@ -7,7 +7,7 @@
                     <h4 class="page-title">{{item.username || 'AddUser'}}</h4>
                 </div>
                 <div class="col-sm-6">
-                    <button @click="addUser(item)" class="btn btn-success rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
+                    <button @click="addUser(item)" class="btn btn-primary rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
                 </div>
             </div>
         </div>
@@ -92,7 +92,7 @@ module.exports = {
     },
     computed: {},
     mounted() {
-        if (this.userId) {
+        if (this.userId > 0) {
             this.getUser(this.userId);
         }
     },
@@ -106,6 +106,12 @@ module.exports = {
         },
         addUser(item = {}) {
             this.post(window.apiUrl + "/addUser", item, (res) => {
+                if (item.id) {
+                    alertify.success("Kullanıcı bilgilerini güncellediniz.");
+                } else {
+                    alertify.success("Yeni kullanıcı eklendi.");
+                }
+                this.item = res
                 console.log(res)
             })
         },

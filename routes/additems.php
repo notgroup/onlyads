@@ -2,6 +2,7 @@
 use App\Models\Content;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 $router->post('/addContent/{contentTypeId}', 'ContentController@addContent');
 $router->post('/setChangeStatus/{contentTypeId}', 'ContentController@setChangeStatus');
 $router->post('/addOrder', 'ContentController@addOrder');

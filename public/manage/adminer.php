@@ -21,7 +21,6 @@ function adminer_object() {
     function credentials() {
       // server, username and password for connecting to database
       if (isset($_GET['sqlite'])) {
-        # code...
         return array('localhost', 'ODBC', '');
       } else {
         return array('localhost', 'root', '123456');

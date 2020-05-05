@@ -119,10 +119,12 @@ $router->get('/clientInit', function (Request $request) {
     $countries      = DB::table('country')->get()->toArray();
     $cities         = DB::table('zone')->get()->toArray();
     $towns          = DB::table('town')->get()->toArray();
+    $roles          = DB::table('roles')->get()->toArray();
     $paymentMethods = Content::where('entity_type_id', 35)->get()->toArray();
     $adsources      = Content::where('entity_type_id', 37)->get()->toArray();
     $orderStatuses  = DB::table('situations')->get()->toArray();
     $response       = [
+        "roles"      => $roles,
         "countries"      => $countries,
         "cities"         => $cities,
         "towns"          => $towns,

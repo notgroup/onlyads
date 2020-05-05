@@ -10,9 +10,10 @@
                     <div class="mail-list m-t-10" style="max-height: 280px;overflow-y: auto;">
 
                         <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
-                            <a @click="filter.status = item.option" :key="itemi" v-if="facets[item.option]" href="javascript:;">
-                                <span class="mdi mdi-label-outline text-danger mr-2" :class="['text-'+statusColors[item.option]]"></span>
-                                {{item.value}} (<b>{{facets[item.option] || 0}}</b>)</a>
+                            <a @click="filter.status = item.option" :key="itemi" v-if="facets[item.option]" href="javascript:;" >
+                                <span class="mdi mdi-label-outline text-default mr-2" :class="[filter.status == item.option ? 'text-success' :'']"></span>
+                                {{item.value}} (<b>{{facets[item.option] || 0}}</b>)
+                            </a>
                         </template>
 
                     </div>
@@ -77,33 +78,28 @@
                         <button class="btn btn-primary" @click="selecteds = Array.from(_.pluck(items, 'content_id')).map(item => Number(item))">Hepsini Seç</button>
                         <button v-if="selecteds.length" class="btn btn-primary" @click="selecteds = []">Kaldır </button>
                     </div>
-                    <div v-if="selecteds.length" class="btn-group ml-1 mo-mb-2">
-                        <button type="button" class="btn btn-primary waves-light waves-effect dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                            İşlemler
-                        </button>
 
-                        <div class="dropdown-menu" style="z-index: 100;">
-                            <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
-                                <a :key="itemi" class="dropdown-item" href="javascript:;" @click="setChangeStatus(selecteds, item.option)">{{item.value}}</a>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="btn-group"> 
-                        <select class="btn btn-primary form-control text-white">
+                    <div class="btn-group" v-if="selecteds.length">
+                        <select class="btn btn-primary form-control text-white" v-model="actionValue" @change="setChangeStatus(selecteds, actionValue)">
                             <option value="0" selected="selected">Toplu İşlemler</option>
-                            <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
-                                <option :key="itemi" :value="item.option">{{item.value}}</option>
-                            </template>
+                            <optgroup label="Standart İşlemler">
+                                <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
+                                    <option :key="itemi" :value="item.option" v-if="item.option != 'shipped'">{{item.value}}</option>
+                                </template>
+                            </optgroup>
+                            <optgroup label="Kargo İşlemleri">
+                                <option value="shipped:deposer">Kargoya Verildi (Deposer)</option>
+                            </optgroup>
                         </select>
-                        </div>
+                    </div>
                     <div class="btn-group ml-1 mo-mb-2">
                         <button type="button" class="btn btn-primary waves-light waves-effect dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                             <i class="fa fa-download"></i> Dışa Aktar
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:;" @click="getExcell()">Depose XLSX</a>
-                            <a class="dropdown-item" href="#">Aras Kargo CSV</a>
-                            <a class="dropdown-item" href="#">MNG XML</a>
+                            <a class="dropdown-item" href="javascript:;" @click="getExcell('deposer')">Deposer XLSX</a>
+                            <a class="dropdown-item hide" href="#">Aras Kargo CSV</a>
+                            <a class="dropdown-item hide" href="#">MNG XML</a>
                         </div>
                     </div>
                     <label v-if="selecteds.length" style="
@@ -164,8 +160,8 @@
                                     <label class="custom-control-label" :for="'customCheck'+itemi">{{item.content_id}}</label>
                                 </div>
                             </td>
-                            <td>{{(item.meta.fullname || item.meta.firstname || item.meta.title)}}</td>
-                            <td>{{(item.entity_status)}}</td>
+                            <td @click="$router.push('/ContenDetail/' + item.entity_type_id + '/' +item.content_id)">{{(item.meta.fullname || item.meta.firstname || item.meta.title)}}</td>
+                            <td>{{(_.indexBy($root.clientInit.orderStatuses,'option')[item.entity_status].value)}}</td>
                             <td>{{(item.meta.phone_number ? '*****.' + item.meta.phone_number.substr(item.meta.phone_number.length -4) : '')}}</td>
                             <td>{{(item.meta.finalPrice)}} .TL</td>
                             <td>{{(_.indexBy($root.clientInit.paymentMethods, 'content_id')[item.meta.payment_method].meta.name || item.meta.payment_method)}}</td>
@@ -197,6 +193,7 @@ module.exports = {
     props: ['typeId'],
     data() {
         return {
+            actionValue: 0,
             rawData: {},
             statusColors: {
                 "confirmed": "success",
@@ -204,7 +201,7 @@ module.exports = {
             },
             filter: {
                 content_type: this.typeId,
-                status: 0,
+                status: 'confirmed',
                 payment_method: 0,
                 city: 0,
                 endDate: todayDate,
@@ -232,6 +229,7 @@ module.exports = {
     created() {},
     methods: {
         setChangeStatus(selecteds, status) {
+
             this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
                 selecteds: selecteds,
                 status: status
@@ -239,8 +237,10 @@ module.exports = {
 
                 this.selecteds = []
                 this.getData()
-
+                this.actionValue = 0
+                    alertify.success("Toplu sipariş güncellemesi başarılı.");
             })
+
         },
         addSetting() {
             this.post(window.apiUrl + "/addSetting", this.currentSettings, (res) => {
@@ -260,14 +260,19 @@ module.exports = {
                 document.getElementById("tablebody").scrollTop = 0
             })
         },
-        getExcell() {
+        getExcell(fileName = 'defaultName') {
+            alertify.log("Aktarma dosyası hazırlanıyor.");
             this.get(window.apiUrl + "/contents" + this.$root.getString({
                 page: this.filter.page,
+                selecteds: this.selecteds,
                 filter: Object.assign({
                     download: 1
                 }, this.filter)
             }), (res) => {
-                this.$root.linkDownload(res.url, 'dosya.xlsx')
+                let basename = res.url.replace(/.*\//, '');
+                let dirname = res.url.match(/.*\//);
+                this.$root.linkDownload(res.url, todayDate + fileName + '.xlsx')
+                alertify.success("Aktarma dosyası hazırlandı.");
                 console.log(res);
 
             })

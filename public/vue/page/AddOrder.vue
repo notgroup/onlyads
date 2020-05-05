@@ -4,35 +4,19 @@
         <div class="page-title-box">
             <div class="row align-items-center">
                 <div class="col-sm-4">
-                    <h4 class="page-title">{{(item.meta ? item.meta.title : '') || 'AddOrder'}}</h4>
+                    <h4 class="page-title">{{(item.meta ? item.meta.fullname : item.meta.firstname) || 'AddOrder'}}</h4>
                 </div>
                 <div class="col-sm-6 hide">
                     <button @click="addContent(item, contenttypeid)" class="btn btn-success rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
                 </div>
                 <div class="col-sm-8">
                     <div class="btn-group float-right">
+                        <template v-for="(status, itemi) in $root.clientInit.orderStatuses">
 
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="payment_review" type="button" @click="changeOrderStatus(item.content_id, 'payment_review');" autocomplete="off">Ödeme Onayı</button>
+                            <button :key="itemi" class="btn btn-sm change-order-status" :class="['btn-'+(item.entity_status == status.option ? 'success' : 'primary')]" type="button" @click="item.entity_status = status.option, addContent(item, contenttypeid)">{{status.value}}</button>
+                        </template>
 
-                        <button class="btn btn-success btn-sm change-order-status" data-status="confirmed" type="button" @click="changeOrderStatus(item.content_id, 'confirmed');" autocomplete="off">Onayla</button>
-
-                        <button class="btn btn-danger btn-sm change-order-status" data-status="canceled" type="button" @click="changeOrderStatus(item.content_id, 'canceled');" autocomplete="off">İptal</button>
-
-                        <button class="btn btn-warning btn-sm change-order-status" data-status="unreachable" type="button" @click="changeOrderStatus(item.content_id, 'unreachable');" autocomplete="off">Ulaşılamadı</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="unreachable" type="button" @click="changeOrderStatus(item.content_id, 'pending_product');" autocomplete="off">Stok Bekleyen</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="unreachable" type="button" @click="changeOrderStatus(item.content_id, 'hold');" autocomplete="off">İleri Tarihli</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="unreachable" type="button" @click="changeOrderStatus(item.content_id, 'cross');" autocomplete="off">Cross</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="invoice" type="button" @click="changeOrderStatus(item.content_id, 'invoice_prepare');" autocomplete="off">Fatura Hazırlık</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="invoice" type="button" @click="changeOrderStatus(item.content_id, 'invoice');" autocomplete="off">Faturası Kesildi</button>
-
-                        <button class="btn btn-primary btn-sm change-order-status" data-status="shipped" type="button" @click="changeOrderStatus(item.content_id, 'shipped');" autocomplete="off">Kargoya Verildi</button>
-
-                        <button type="submit" @click="addContent(item, contenttypeid)" class="btn btn-primary btn-sm" autocomplete="off"><i class="fa fa-save"></i> Kaydet</button>
+                        <button type="submit" @click="addContent(item, contenttypeid)" class="btn btn-warning btn-sm"><i class="fa fa-save"></i> Kaydet</button>
                     </div>
 
                 </div>
@@ -43,7 +27,7 @@
                 Log
             </button>
             <pre v-if="$root.showLog">
-                {{rawItem}}
+            {{rawItem}}
             {{item}}
             </pre>
         </div>
@@ -57,7 +41,7 @@
                     </div>
                     <div class="card-body">
 
-                        <div class="form-group">
+                        <div class="form-group hide">
                             <label for="input-payment-method" class=" control-label col-sm-2">Sipariş Tipi</label>
                             <div class="col-sm-10">
                                 <p class="form-control-static">
@@ -126,6 +110,10 @@
                             <div class="">
                                 <div class="input-group">
                                     <input id="input-phone-number" class="form-control" placeholder="Telefon 1" v-model="item.meta.phone_number" name="phone_number" type="text">
+                                    <div class="input-group-append bg-custom b-0">
+                                        <a target="_blank" :href="'tel:' + item.meta.phone_number" class="input-group-text"><i class="fas fa-headphones-alt"></i></a>
+                                        <a target="_blank" :href="'https://api.whatsapp.com/send?phone='+item.meta.phone_number+'&text=Merhaba '+item.meta.fullname" class="input-group-text"><i class="fab fa-whatsapp"></i></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,6 +122,10 @@
                             <div class="">
                                 <div class="input-group">
                                     <input id="input-phone-number-2" class="form-control" placeholder="Telefon 2" v-model="item.meta.phone_number_2" name="phone_number_2" type="text">
+                                    <div class="input-group-append bg-custom b-0">
+                                        <a target="_blank" :href="'tel:' + item.meta.phone_number" class="input-group-text"><i class="fas fa-headphones-alt"></i></a>
+                                        <a target="_blank" :href="'https://api.whatsapp.com/send?phone='+item.meta.phone_number+'&text=Merhaba '+item.meta.fullname" class="input-group-text"><i class="fab fa-whatsapp"></i></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -264,13 +256,13 @@
                         </table>
                     </div>
                 </div>
-                <div class="card m-b-30">
+                <div class="card m-b-30" v-if="item.content_id">
                     <div class="card-header bg-primary text-white">
                         SMS Görevleri
                     </div>
                     <div class="card-body tableScroll">
 
-                        <table class="table table-striped table-bordered table-hover min-table">
+                        <table class="table table-striped table-bordered table-hover min-table hide">
                             <thead class="thead-default">
                                 <tr>
                                     <th>Hazırlanma Tarihi</th>
@@ -291,7 +283,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="card m-b-30">
+                <div class="card m-b-30" v-if="item.content_id">
                     <div class="card-header bg-primary text-white">
                         Önceki Siparişler
                     </div>
@@ -322,7 +314,7 @@
                     </div>
                 </div>
 
-                <div class="card m-b-30">
+                <div class="card m-b-30" v-if="item.content_id">
                     <div class="card-header bg-primary text-white">
                         Geçmiş
                     </div>
@@ -379,13 +371,16 @@ module.exports = {
             selectedProductId: 0,
             totalPriceFinal: 0,
             item: {
+                entity_status: 'pending',
                 meta: {
                     products: {},
                     product_id: []
                 },
 
             },
-            rawItem: {meta:{}},
+            rawItem: {
+                meta: {}
+            },
             products: [],
             oldOrders: [],
             logHistory: [],
@@ -423,26 +418,31 @@ module.exports = {
         addContent(item = {}, contenttypeid = 0) {
             item.meta.title = item.meta.fullname + ' Siparişi';
 
-
             this.post(window.apiUrl + "/addContent/" + contenttypeid, item, (res) => {
+                if (this.item.content_id) {
+                    alertify.success("Sipariş bilgilerini güncellediniz.");
+                } else {
+                    alertify.success("Yeni Sipariş Eklendi");
+
+                }
                 this.item = res
-                
+
                 console.log(this.rawItem.finalPrice, res.meta.finalPrice);
                 if (this.rawItem.finalPrice && this.rawItem.finalPrice != res.meta.finalPrice) {
 
-                this.$root.addLogHistory({
-                    "object_id": this.primaryid,
-                    "subject_id": 0,
-                    "action_type": "order_price_changed",
-                    "content": {
-                        "old_value": "",
-                        "new_value": "",
-                    },
-                });
-                setTimeout(() => {
-                    
-                    this.rawItem = res.meta
-                }, 1000);
+                    this.$root.addLogHistory({
+                        "object_id": this.primaryid,
+                        "subject_id": 0,
+                        "action_type": "order_price_changed",
+                        "content": {
+                            "old_value": "",
+                            "new_value": "",
+                        },
+                    });
+                    setTimeout(() => {
+
+                        this.rawItem = res.meta
+                    }, 1000);
                 }
                 console.log(res)
             })
@@ -451,7 +451,7 @@ module.exports = {
         getData(primaryid) {
             this.get(window.apiUrl + "/getOrder/" + primaryid, (res) => {
                 this.item = res.order;
-                
+
                 if (!this.item.meta.products) {
 
                     this.item.meta.products = {};
@@ -469,7 +469,9 @@ module.exports = {
                         "new_value": "",
                     },
                 })
-                let rawItem = {...res.order.meta};
+                let rawItem = {
+                    ...res.order.meta
+                };
                 this.rawItem = rawItem
                 this.getOrderLogHistory(primaryid)
                 console.log(res);

@@ -52,12 +52,14 @@ var Settings = httpVueLoader('./vue/page/Settings.vue');
 var Single = httpVueLoader('./vue/page/single.vue');
 
 
+var Notification = httpVueLoader('./vue/components/part/notification.vue')
 var Header = httpVueLoader('./vue/components/theme/header.vue')
 var Sidebar = httpVueLoader('./vue/components/theme/sidebar.vue')
 var HeaderSort = httpVueLoader('./vue/components/theme/header-sort.vue')
 var Footer = httpVueLoader('./vue/components/theme/footer.vue')
 Vue.mixin({
     components: {
+        'notification': Notification,
         'headersort': HeaderSort,
         'header-comp': Header,
         "footer-comp": Footer,
@@ -75,7 +77,7 @@ Vue.mixin({
             },
             showLog: 0,
             clientLangs: {
-                order:{
+                order: {
                     "order_view": "Görüntülendi",
                     "order_updated": "Güncellendi",
                     "order_confirmed": "Onaylandı",
@@ -101,14 +103,14 @@ Vue.mixin({
         },
         linkDownload(url, filename) {
             var link = document.createElement("a");
-  link.download = filename;
-  // Construct the uri
+            link.download = filename;
+            // Construct the uri
 
-  link.href = url;
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            // Cleanup the DOM
+            document.body.removeChild(link);
         },
         addLogHistory(data = {}) {
             this.post(apiUrl + '/addlogHistory', data, (response) => {
@@ -147,7 +149,7 @@ Vue.mixin({
                 }
                 data.push(path + '=' + o);
             }
-        
+
             var data = [];
             Object.keys(o).forEach(function (k) {
                 iter(o[k], k);
@@ -156,9 +158,11 @@ Vue.mixin({
         },
         urlParams(query = {}) {
             const params = new URLSearchParams(query);
-              return '?' + params.toString();
+            return '?' + params.toString();
         },
         post(url, pdata, cb) {
+            console.log(url);
+            
             fetch(url, this.postHeader(pdata))
                 .then((response) => {
                     return response.json();
@@ -168,6 +172,8 @@ Vue.mixin({
                 });
         },
         get(url, cb) {
+            console.log(url);
+            
             fetch(url, this.getHeader())
                 .then((response) => {
                     return response.json();
@@ -336,7 +342,7 @@ var routes = [
     },
     {
         path: '/ad-accounts/:bmId?',
-        props:true,
+        props: true,
         name: 'AdAccounts',
         component: AdAccounts
     },
@@ -447,6 +453,7 @@ var vueApp = new Vue({
         this.$root.get(window.apiUrl + '/contents/' + 37, (res)=> {
             this.adSources = res
         })*/
+        alertify.logPosition("bottom right");
         this.$root.get(window.apiUrl + '/clientInit', (res) => {
             this.$root.clientInit = res
         })
