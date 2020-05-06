@@ -22,10 +22,14 @@ $router->post('/addSetting', function (Request $request) use ($router) {
 
 
 $router->get('/CargoTracking', function (Request $request) use ($router) {
-   // $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
-    //->leftJoin('cargotracking', 'contents.content_id', '=', 'cargotracking.orderId')
+   /* $results = $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
+   ->join('cargotracking', 'cargotracking.orderId', '=', 'contents.content_id')
+   //->where('contents.content_id', 10325)
     //->update(['contents.meta' => DB::raw("JSON_REMOVE(contents.meta, '$.orderMeta')")]);
-    //->update(['contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')")]);
+    ->update(['contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')")]);
+    //print_r($results->getBindings());
+    //print_r($results->toSql());
+    //die();*/
     $cargoStatusTypes = [
         "0"     => "Paketleme",
         "1"     => "Teslimler",
@@ -41,7 +45,9 @@ $router->get('/CargoTracking', function (Request $request) use ($router) {
     //Shipment::limit(10)->update(['meta->test01' => 12]);
     $response = [];
     $response['item'] = Content::where('entity_type_id', 33)
-    ->where('meta->cargoDetail', '!=', 'null')
+    ->where('meta->cargoDetail', '!=', '{}')
+    //->where('meta->cargoDetail', '!=', 'null')
+    ->orderBy('content_id', 'desc')
     ->limit(10)->get();
     $response['cargoStatusTypes'] = $cargoStatusTypes;
 
@@ -62,13 +68,13 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
     ];
     $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
     $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
-    $query    = [
+    $query2    = [
         "user"       => "7700000423",
         "password"   => "123DEF123",
         "alim_start" => $startDate,
         "alim_end"   => $endDate,
     ];
-    $query2 = [
+    $query = [
         "user"       => "9500000209",
         "password"   => "E775893",
         "alim_start" => $startDate,
@@ -97,14 +103,14 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
                 $exampleItem = array_fill_keys(array_keys($item), null);
                 $item        = array_merge($exampleItem, array_filter($item));
                 //DB::connection('cargo')->table('deposer')->updateOrInsert(['gonderino' => $item['gonderino']], $item);
-              /*  DB::table('cargotracking')->updateOrInsert(
+              DB::table('cargotracking')->updateOrInsert(
                     ['senderId' => $item['gonderino']],
                     ['orderId'        => $item['sipno'],
                         'senderId'        => $item['gonderino'],
                         'shipmentType'    => 'deposer',
                         'shipmentSubtype' => $item['sube'],
                         'meta'            => json_encode($item),
-                    ]);*/
+                    ]);
 
                 return $item;
             }, $response['item']);

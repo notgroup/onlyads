@@ -195,7 +195,7 @@ module.exports = {
         },
         getCargoDetail(order) {
             this.currentCargoDetail = {}
-            this.get(window.apiUrl + "/CargoTracking/" + order.sipno, (res) => {
+            this.get(window.apiUrl + "/CargoTracking/" + order.meta.cargoDetail.sipno, (res) => {
                 window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
                 this.currentCargoDetail = Object.assign(order, res);
               //  $('.modal01').modal('show');
