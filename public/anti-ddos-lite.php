@@ -35,7 +35,7 @@ if ($anti_ddos_protection_enable && isset($_SERVER['REMOTE_ADDR'])) {
     // Days to use secure cookie.
     $secure_cookie_days = 180;
     // Delay in seconds before redirection to original URL.
-    $redirect_delay = 2;
+    $redirect_delay = 30;
 
     $test_ip = true;
     $set_secure_cookie = true;
