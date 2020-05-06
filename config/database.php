@@ -40,7 +40,7 @@ return [
         ],
         'local_sqlite' => [
             'driver' => 'sqlite',
-            'database' => env('LOCAL_DB_DATABASE' , 'db/database.sqlite'),
+            'database' => database_path(env('LOCAL_DB_DATABASE' , 'db/database.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
         'tracker' => [
