@@ -143,7 +143,7 @@
                                                 {{(bs.ads ? _.pluck(bs.ads, 'effective_status').join(',') : 'Yok')}}
                                             </td>
                                             <td>{{(allNotes[bs.account_id] ? (allNotes[bs.account_id].note ? allNotes[bs.account_id].note : allNotes[bs.account_id].type) : 'Yok')}}</td>
-                                            <td class="hide">{{(bs.disable_reason || bs.account_status > 1) ? 10 : (!(_.pluck(bs.ads, 'effective_status').includes('ACTIVE')) ? 9 : 0)}}</td>
+                                            <td class="hide">{{(bs.disable_reason || bs.account_status > 1) ? (_.pluck(bs.ads, 'effective_status').includes('ACTIVE') ? 9 : 10) : (!(_.pluck(bs.ads, 'effective_status').includes('ACTIVE')) ? ((bs.insights && bs.insights[0].unique_clicks) ? 7 : 8) : ((bs.insights && bs.insights[0].unique_clicks) ? 0 : 6))}}</td>
 
                                             <td>
                                                 <div class="btn-group btn-group">

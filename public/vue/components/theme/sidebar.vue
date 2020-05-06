@@ -115,13 +115,13 @@
                             Kargo
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="submenu">
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Ç.M İşlemleri</a>
                         </li>
                         <li class="">
                             <a href="#/CargoTracking">Teslimat Raporu</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Teslimat Raporu (Mini)</a>
                         </li>
                     </ul>

@@ -57,4 +57,4 @@ print_r($exampleItem);*/
 
 $test01 = strpos('shipped:deposer', ':');
 $test02 = explode(':', 'shipped:deposer');
-print_r($test02);
+print_r(substr('+9053698565464505511500212', -10));

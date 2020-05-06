@@ -63,6 +63,11 @@ class UserController extends Controller
         $user->save();*/
         return response()->json($users);
     }
+    public function addRole(Request $request)
+    {
+        $role = Role::updateOrCreate(['slug' => $request->get('slug')], $request->all());
+        return response()->json($role);
+    }
     public function getRoles(Request $request)
     {
         ///api/user?api_token=gokhan

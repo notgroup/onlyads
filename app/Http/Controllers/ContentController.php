@@ -191,6 +191,7 @@ class ContentController extends Controller
             'title'        => $request->get('firstname') . '/' . date('Y_m_d_H_i'),
             'fullname'     => $request->get('firstname') . ($request->has('lastname') ? ' ' . $request->get('lastname') : ''),
             'lastname'     => $request->get('lastname') ?: '',
+            'phone_number'     => $request->has('phone_number') ? substr($request->get('phone_number'), -10) : '',
             'redirect'     => $request->get('success_url'),
             'client_ip'    => $request->ip(),
             'browser'      => $request->header('User-Agent'),

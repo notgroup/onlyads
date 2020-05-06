@@ -1,11 +1,12 @@
 <?php
 
 use App\Models\Content;
+use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 $router->get('/', function () use ($router) {
-    return '<a href="http://notgroupgithubio.test/yuz-kalkani-siperlik2/index.html?pixel=123456&ref=asd_12">Test</a>';
+    //return '<a href="http://notgroupgithubio.test/yuz-kalkani-siperlik2/index.html?pixel=123456&ref=asd_12">Test</a>';
     return [];
 });
 
@@ -18,14 +19,13 @@ $router->post('/addSetting', function (Request $request) use ($router) {
 
 });
 
-$router->get('/BlogList', function (Request $request) use ($router) {
-    // DB::connection('blog')->table('settings')->insert($requestAll);
-    //DB::connection('facebook')->table('settings')->get()->toArray();
-    return response()->json([]);
 
-});
 
 $router->get('/CargoTracking', function (Request $request) use ($router) {
+   // $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
+    //->leftJoin('cargotracking', 'contents.content_id', '=', 'cargotracking.orderId')
+    //->update(['contents.meta' => DB::raw("JSON_REMOVE(contents.meta, '$.orderMeta')")]);
+    //->update(['contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')")]);
     $cargoStatusTypes = [
         "0"     => "Paketleme",
         "1"     => "Teslimler",
@@ -38,12 +38,42 @@ $router->get('/CargoTracking', function (Request $request) use ($router) {
     ];
     $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
     $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
-    $query     = [
+    //Shipment::limit(10)->update(['meta->test01' => 12]);
+    $response = [];
+    $response['item'] = Content::where('entity_type_id', 33)
+    ->where('meta->cargoDetail', '!=', 'null')
+    ->limit(10)->get();
+    $response['cargoStatusTypes'] = $cargoStatusTypes;
+
+    return response()->json($response);
+
+});
+
+$router->get('/CronTracking', function (Request $request) use ($router) {
+    $cargoStatusTypes = [
+        "0"     => "Paketleme",
+        "1"     => "Teslimler",
+        "2"     => "İadeler",
+        "3"     => "Haber Formları",
+        "4"     => "Dağıtımda",
+        "5"     => "Kayıp",
+        "6"     => "Sorunlu",
+        "1,2,6" => "Teslim,İade ve Sorunlu kargolar",
+    ];
+    $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
+    $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
+    $query    = [
         "user"       => "7700000423",
         "password"   => "123DEF123",
         "alim_start" => $startDate,
-        //"alim_start" => "25/04/2020",
         "alim_end"   => $endDate,
+    ];
+    $query2 = [
+        "user"       => "9500000209",
+        "password"   => "E775893",
+        "alim_start" => $startDate,
+        "alim_end"   => $endDate,
+        //"durums" => [4],
     ];
     $query = http_build_query($query);
 
@@ -52,27 +82,35 @@ $router->get('/CargoTracking', function (Request $request) use ($router) {
         'Accept: application/json, application/xml, text/plain, text/html, *.*',
     ];
 
-    $cacheKey = 'deposerileti';
-   Cache::forget($cacheKey);
+    $cacheKey = 'deposerileti' . $startDate;
+    //Cache::forget($cacheKey);
     if (Cache::has($cacheKey)) {
         $response = Cache::get($cacheKey);
     } else {
         $xmlfile = getCurl($url, $headers);
         if (!strpos($xmlfile, '<hata>')) {
-            $response = simplexml_load_string($xmlfile);
-            $response = json_encode($response);
-            $response = json_decode($response, true);
-              $response['item'] = array_map(function($item){
- 
-                $exampleItem = array_fill_keys(array_keys($item), NULL);
-                $item = array_merge($exampleItem, array_filter($item));
-                DB::connection('cargo')->table('deposer')->updateOrInsert(['gonderino' => $item['gonderino']], $item);
-                
-              return $item;
+            $response         = simplexml_load_string($xmlfile);
+            $response         = json_encode($response);
+            $response         = json_decode($response, true);
+            $response['item'] = array_map(function ($item) {
+
+                $exampleItem = array_fill_keys(array_keys($item), null);
+                $item        = array_merge($exampleItem, array_filter($item));
+                //DB::connection('cargo')->table('deposer')->updateOrInsert(['gonderino' => $item['gonderino']], $item);
+              /*  DB::table('cargotracking')->updateOrInsert(
+                    ['senderId' => $item['gonderino']],
+                    ['orderId'        => $item['sipno'],
+                        'senderId'        => $item['gonderino'],
+                        'shipmentType'    => 'deposer',
+                        'shipmentSubtype' => $item['sube'],
+                        'meta'            => json_encode($item),
+                    ]);*/
+
+                return $item;
             }, $response['item']);
-          //  DB::connection('cargo')->table('deposer')->insert(array_slice($response['item'], 0, 10));
-      // generateCsv('deposer.csv', $response['item']);
-            Cache::put($cacheKey, $response, (5));
+            //  DB::connection('cargo')->table('deposer')->insert(array_slice($response['item'], 0, 10));
+            // generateCsv('deposer.csv', $response['item']);
+            Cache::put($cacheKey, $response, (30 * 60));
             $response = Cache::get($cacheKey);
 
         } else {
@@ -85,8 +123,21 @@ $router->get('/CargoTracking', function (Request $request) use ($router) {
 
 });
 $router->get('/CargoTracking/{orderId}', function (Request $request, $orderId) use ($router) {
-  //http://kargotakip.deposerileti.com:90/sorgu.asp?MUS_KOD=7700000423&MUS_sif=123DEF123&tip=3&har_kod=E839E4E4
-  $response = get_web_page_header("http://kargotakip.deposerileti.com:90/sorgu.asp?MUS_KOD=7700000423&MUS_sif=123DEF123&tip=3&har_kod=" . $orderId);
+
+    $query2 = [
+        'har_kod' => $orderId,
+        'tip'     => 3,
+        'MUS_KOD' => '7700000423',
+        'MUS_sif' => '123DEF123',
+    ];
+    $query = [
+        'har_kod' => $orderId,
+        'tip'     => 3,
+        "MUS_KOD" => "9500000209",
+        "MUS_sif" => "E775893",
+    ];
+    $query    = http_build_query($query);
+    $response = get_web_page_header("http://kargotakip.deposerileti.com:90/sorgu.asp?" . $query);
     return response()->json($response);
 
 });
@@ -104,6 +155,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 $router->get('/getMyDetail', 'UserController@getMyDetail');
 $router->get('/getUsers', 'UserController@getUsers');
 $router->get('/getRoles', 'UserController@getRoles');
+$router->post('/addRole', 'UserController@addRole');
 $router->get('/getRole/{roleId}', 'UserController@getRole');
 $router->get('/getUser/{userId}', 'UserController@getUser');
 
@@ -116,22 +168,35 @@ $router->get('/frontcontent/{content_id}', function (Request $request, $content_
 });
 
 $router->get('/clientInit', function (Request $request) {
-    $countries      = DB::table('country')->get()->toArray();
-    $cities         = DB::table('zone')->get()->toArray();
-    $towns          = DB::table('town')->get()->toArray();
-    $roles          = DB::table('roles')->get()->toArray();
-    $paymentMethods = Content::where('entity_type_id', 35)->get()->toArray();
-    $adsources      = Content::where('entity_type_id', 37)->get()->toArray();
-    $orderStatuses  = DB::table('situations')->get()->toArray();
-    $response       = [
-        "roles"      => $roles,
-        "countries"      => $countries,
-        "cities"         => $cities,
-        "towns"          => $towns,
-        "paymentMethods" => $paymentMethods,
-        "adsources"      => $adsources,
-        "orderStatuses"  => $orderStatuses,
-    ];
+    $cacheKey = 'clientInit';
+    $response = [];
+    if (Cache::has($cacheKey)) {
+        $response = Cache::get($cacheKey);
+    } else {
+        $countries      = DB::table('country')->get()->toArray();
+        $cities         = DB::table('zone')->get()->toArray();
+        $towns          = DB::table('town')->get()->toArray();
+        $roles          = DB::table('roles')->get()->toArray();
+        $products = Content::where('entity_type_id', 4)->get()->toArray();
+        $productsGroup = Content::where('entity_type_id', 32)->get()->toArray();
+        $paymentMethods = Content::where('entity_type_id', 35)->get()->toArray();
+        $adsources      = Content::where('entity_type_id', 37)->get()->toArray();
+        $orderStatuses  = DB::table('situations')->get()->toArray();
+        $response       = [
+            "roles"          => $roles,
+            "countries"      => $countries,
+            "cities"         => $cities,
+            "towns"          => $towns,
+            "paymentMethods" => $paymentMethods,
+            "adsources"      => $adsources,
+            "orderStatuses"  => $orderStatuses,
+            "productsGroup"  => $productsGroup,
+            "products"  => $products,
+        ];
+        Cache::put($cacheKey, $response, (30 * 60));
+    }
+
+
     return response()->json($response);
 });
 
@@ -190,4 +255,5 @@ $router->get('/whmpanel', function (Request $request) {
 });
 
 require_once 'additems.php';
+require_once 'outorder.php';
 require_once 'facebook.php';

@@ -25,8 +25,6 @@
             <div class="col-xl-12">
                 <div class="email-leftbar card" @click="filter.page = 1">
 
-
-    
                     <div class="form-group row">
                         <label class="col-sm-12 col-form-label">Durumu</label>
                         <div class="col-sm-12">
@@ -67,7 +65,7 @@
                 </div>
                 <div class="email-rightbar mb-3 card m-b-30">
                     <div class="card-body" v-if="getFilter">
-                        <table class="table table-striped table-bordered mb-0 table-hover nowrap display" style="
+                        <table class="table table-striped table-bordered table-responsive mb-0 table-hover nowrap display" style="
                             border-collapse: collapse;
                             border-spacing: 0;
                             width: 100%;
@@ -91,22 +89,22 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, itemi) in items">
-                                    <td>{{ item.gonderino }}</td>
-                                    <td>{{ item.sipno }}</td>
-                                    <td>{{ cargoStatusTypes[item.durum] }}</td>
-                                    <td>{{ item.aliciadi }}</td>
-                                    <td>{{ item.alicisoyad }}</td>
-                                    <td>{{ item.sehiradi }}</td>
-                                    <td>{{ item.sube }}</td>
-                                    <td>{{ item.onsonuc }}</td>
-                                    <td>{{ item.sonuc }}</td>
-                                    <td>{{ item.tutar }}</td>
-                                    <td>{{ item.alimtarihi }}</td>
-                                    <td>{{ item.sonuctarihi }}</td>
+                                    <td  @click="getCargoDetail(item)">{{ item.meta.cargoDetail.gonderino }}</td>
+                                    <td  @click="getCargoDetail(item)">{{ item.meta.cargoDetail.sipno }}</td>
+                                    <td>{{ cargoStatusTypes[item.meta.cargoDetail.durum] }}</td>
+                                    <td>{{ item.meta.cargoDetail.aliciadi }}</td>
+                                    <td>{{ item.meta.cargoDetail.alicisoyad }}</td>
+                                    <td>{{ item.meta.cargoDetail.sehiradi }}</td>
+                                    <td>{{ item.meta.cargoDetail.sube }}</td>
+                                    <td>{{ item.meta.cargoDetail.onsonuc }}</td>
+                                    <td>{{ item.meta.cargoDetail.sonuc }}</td>
+                                    <td>{{ item.meta.cargoDetail.tutar }}</td>
+                                    <td>{{ item.meta.cargoDetail.alimtarihi }}</td>
+                                    <td>{{ item.meta.cargoDetail.sonuctarihi }}</td>
 
                                     <td>
                                         <div class="btn-group btn-group">
-                                            <button class="btn btn-primary waves-effect waves-light"  @click="getCargoDetail(item)">
+                                            <button class="btn btn-primary waves-effect waves-light" @click="getCargoDetail(item)">
                                                 <i class="far fa-eye"></i>
                                             </button>
                                         </div>
@@ -119,29 +117,22 @@
                 </div>
             </div>
         </div>
-            <button type="button" class="btn btn-primary waves-effect waves-light hide" data-toggle="modal" data-target=".modal01">Large modal</button>
-    <div class="modal fade bs-example-modal-lg modal01" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title mt-0" id="myLargeModalLabel">{{currentCargoDetail.aliciadi}} {{currentCargoDetail.alicisoyad}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-              <iframe v-if="currentCargoDetail.url" 
-            style="padding-top: 20px;"
-                :src="currentCargoDetail.url"
-                frameborder="0"
-                height="600px"
-                scrolling="yes"
-                width="100%"
-            ></iframe>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+        <button type="button" class="btn btn-primary waves-effect waves-light hide" data-toggle="modal" data-target=".modal01">Large modal</button>
+        <div class="modal fade bs-example-modal-lg modal01" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title mt-0" id="myLargeModalLabel">{{currentCargoDetail.aliciadi}} {{currentCargoDetail.alicisoyad}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe v-if="currentCargoDetail.url" style="padding-top: 20px;" :src="currentCargoDetail.url" frameborder="0" height="600px" scrolling="yes" width="100%"></iframe>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
     </div>
 </div>
 </template>
@@ -159,7 +150,7 @@ module.exports = {
 
             },
             filter: {
-                                status: 0,
+                status: 0,
                 payment_method: 0,
                 city: 0,
                 startDate: todayDate,
@@ -180,8 +171,8 @@ module.exports = {
         };
     },
     computed: {
-        getFilter(){
-            
+        getFilter() {
+
             this.getData();
             return this.filter;
         }
@@ -199,14 +190,15 @@ module.exports = {
             this.refreshing = true;
             this.get(window.apiUrl + "/CargoTracking" + this.$root.getString(this.filter), (res) => {
                 this.items = res.item;
-            this.refreshing = false;
+                this.refreshing = false;
             });
         },
         getCargoDetail(order) {
-this.currentCargoDetail = {}
+            this.currentCargoDetail = {}
             this.get(window.apiUrl + "/CargoTracking/" + order.sipno, (res) => {
+                window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
                 this.currentCargoDetail = Object.assign(order, res);
-                $('.modal01').modal('show');
+              //  $('.modal01').modal('show');
                 console.log(res)
 
             });
@@ -216,7 +208,8 @@ this.currentCargoDetail = {}
 </script>
 
 <style scoped>
-.modal-lg, .modal-xl {
+.modal-lg,
+.modal-xl {
     max-width: 900px;
 }
 </style>

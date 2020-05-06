@@ -42,8 +42,8 @@
                     <div class="card-body">
 
                         <div class="form-group hide">
-                            <label for="input-payment-method" class=" control-label col-sm-2">Sipariş Tipi</label>
-                            <div class="col-sm-10">
+                            <label for="input-payment-method" class=" control-label ">Sipariş Tipi</label>
+                            <div class="">
                                 <p class="form-control-static">
                                     <input v-model="item.meta.type" name="type" type="hidden" value="order">
                                     Sipariş
@@ -176,6 +176,164 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card m-b-30">
+                    <div class="card-header bg-primary text-white">
+                        Gönderi Bilgileri
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class=" control-label">Gönderi Kodu</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    <a href="javascript: void(0);" target="_blank" data-toggle="modal" data-target="#shipment-modal-4356">A76BCE7B</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Kargo Firması</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    Deposer (Yeni)
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Çıkış Tarihi</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    29.04.2020
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Teslimat Durumu</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    Sorunlu
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Takip Numarası</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    952341100182
+                                    <a href="http://kargotakip.deposerileti.com:90/mng2.asp?har_kod=952341100182" class="btn btn-primary btn-sm ajax-link popup-link" style="margin-left: 10px;"><i class="fa fa-truck" aria-hidden="true"></i> Takip Bağlantısı</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Takip Bağlantısı</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    <a href="http://kargotakip.deposerileti.com:90/mng2.asp?har_kod=952341100182" target="_blank">http://kargotakip.deposerileti.com:90/mng2.asp?har_kod=952341100182</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Varış Şubesi</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    MNG KARGO
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">İade Sebebi</label>
+                            <div class="">
+                                <p class="form-control-static">
+                                    Kabul Edilmedi
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card m-b-30">
+                    <div class="card-header bg-primary text-white">
+                        Diğer Bilgiler
+                    </div>
+                    <div class="card-body">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">ID</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                3936
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Fatura Numarası</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                ---
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Tarih</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                29.04.2020 - 12:31:50
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Güncelleme Tarihi</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                04.05.2020 - 13:59:54
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-name" class="col-sm-3 control-label">IP Adresi</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                176.40.242.136
+                            </p>
+                        </div>
+                    </div>
+                                        <div class="form-group">
+                        <label for="input-source" class="col-sm-3 control-label">Kaynak</label>
+                        <div class="col-sm-9">
+                            <select id="input-source" class="form-control" name="source_id"><option value="">KAYNAK...</option><option value="10">AJANS1</option><option value="11">AJANS2</option><option value="12">AJANS3</option><option value="13">AJANS4</option><option value="14">AJANS5</option><option value="15">AJANS6</option><option value="27">B ELLE ONAY</option><option value="5">ÇAĞRI MERKEZİ</option><option value="26">ELLE ONAY</option><option value="3">FACEBOOK</option><option value="23">FACEBOOK YENİ</option><option value="24">GOOGLE ADWORDS</option><option value="7">İADEDEN SATIŞ</option><option value="2">INSTAGRAM</option><option value="29">INSTAGRAM BİO</option><option value="22">INSTAGRAM DM</option><option value="28">INSTAGRAM STORY</option><option value="21">INSTAGRAM YORUM</option><option value="8">İPTALDEN SATIŞ</option><option value="33">MECRA</option><option value="30">OUTBOUND</option><option value="31">SNAPCHAT</option><option value="16">SOURCE A</option><option value="17">SOURCE B</option><option value="18">SOURCE C</option><option value="25">SOURCE D</option><option value="4">TELEFON</option><option value="32">TWİTTER</option><option value="9">ULAŞILAMADIDAN SATIŞ</option><option value="6" selected="selected">WEB</option><option value="1">WHATSAPP</option><option value="34">WHATSAPP FACEBOOK</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Reklam Kaynak</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                dye30-1
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Domain</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                notgroup.s3.eu-west-3.amazonaws.com
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Yönlendiren</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static">
+                                https://notgroup.s3.eu-west-3.amazonaws.com/meshur-kilis-bali-macunu/order.html
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Kullanıcı Aracı</label>
+                        <div class="col-sm-9">
+                            <p class="form-control-static break-word">
+                                Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 <div class="card m-b-30">
                     <div class="card-header bg-primary text-white">
                         Notlar
@@ -417,7 +575,7 @@ module.exports = {
     methods: {
         addContent(item = {}, contenttypeid = 0) {
             item.meta.title = item.meta.fullname + ' Siparişi';
-
+            this.item.meta.phone_number = this.item.meta.phone_number.substr(this.item.meta.phone_number.length - 10);
             this.post(window.apiUrl + "/addContent/" + contenttypeid, item, (res) => {
                 if (this.item.content_id) {
                     alertify.success("Sipariş bilgilerini güncellediniz.");
@@ -451,6 +609,7 @@ module.exports = {
         getData(primaryid) {
             this.get(window.apiUrl + "/getOrder/" + primaryid, (res) => {
                 this.item = res.order;
+                this.item.meta.phone_number = this.item.meta.phone_number.substr(this.item.meta.phone_number.length - 10);
 
                 if (!this.item.meta.products) {
 
@@ -463,11 +622,7 @@ module.exports = {
                 this.$root.addLogHistory({
                     "object_id": primaryid,
                     "subject_id": 0,
-                    "action_type": "order_view",
-                    "content": {
-                        "old_value": "",
-                        "new_value": "",
-                    },
+                    "action_type": "order_view"
                 })
                 let rawItem = {
                     ...res.order.meta
