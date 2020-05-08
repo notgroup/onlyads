@@ -12,7 +12,7 @@ $router->get('/test', function (Request $request) use ($router) {
 
     $city = DB::table('zone')->where('name', $request->get('city'))->first();
     $town = DB::table('town')->where('zone_id', $city->zone_id)->where('name', $request->get('district'))->first();
-    return response()->json([$city,$town]);
+    return response()->json([$city, $town]);
 });
 
 $router->post('/getLogin', 'UserController@getLogin');
@@ -25,69 +25,132 @@ $router->post('/addSetting', function (Request $request) use ($router) {
 });
 
 $router->get('/CargoTracking', function (Request $request) use ($router) {
-    $facets   = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))->where('entity_type_id', 33)->groupBy('meta->cargoDetail->durum')->get()->pluck('total', 'durum');
+    $facets = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))
+    ->where('entity_type_id', 33)
+    ->groupBy(['meta->cargoDetail->durum'])->get()->pluck('total', 'durum');
 
-    
-    /* $results = $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
-    ->join('cargotracking', 'cargotracking.orderId', '=', 'contents.content_id')
-    //->where('contents.content_id', 10325)
-    //->update(['contents.meta' => DB::raw("JSON_REMOVE(contents.meta, '$.orderMeta')")]);
-    ->update(['contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')")]);
-    //print_r($results->getBindings());
-    //print_r($results->toSql());
-    //die();*/
     $cargoStatusTypes = [
-        "0"     => "Paketleme",
-        "1"     => "Teslimler",
-        "2"     => "İadeler",
-        "3"     => "Haber Formları",
-        "4"     => "Dağıtımda",
-        "5"     => "Kayıp",
-        "6"     => "Sorunlu",
+        "0" => "Paketleme",
+        "1" => "Teslimler",
+        "2" => "İadeler",
+        "3" => "Haber Formları",
+        "4" => "Dağıtımda",
+        "5" => "Kayıp",
+        "6" => "Sorunlu",
     ];
-    $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
-    $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
+    $startDate   = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
+    $endDate     = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
+    $agentStatus = $request->has('agentStatus') ? $request->get('agentStatus') : 0;
+    $cargoStatus = $request->has('cargoStatus') ? $request->get('cargoStatus') : '0';
 
-    $response         = [];
-    $response['item'] = Content::where('entity_type_id', 33)
+    $response = [];
+    $response = Content::where('entity_type_id', 33)
+        ->where('meta->cargoDetail', '!=', '{}')
+        ->where('meta->cargoDetail', '!=', 'null');
+    if ($agentStatus) {
+        $response->where('meta->agentStatus', '=', $agentStatus);
+    }
+    //->where('meta->cargoDetail->durum', '=', $cargoStatus)
+    $response                      = $response->orderBy('content_id', 'desc')->limit(10)->simplePaginate(100)->toArray();
+    $response['cargoStatusTypes']  = $cargoStatusTypes;
+    $response['facetsCargoStatus'] = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))->where('entity_type_id', 33)
         ->where('meta->cargoDetail', '!=', '{}')
         ->where('meta->cargoDetail', '!=', 'null')
-        ->where('meta->agentStatus', '=', 'processless')
-        ->orderBy('content_id', 'desc')
-        ->limit(10)->get();
-    $response['cargoStatusTypes'] = $cargoStatusTypes;
-    $response['facetsCargoStatus'] = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))->where('entity_type_id', 33)
-    ->where('meta->cargoDetail', '!=', '{}')
-    ->where('meta->cargoDetail', '!=', 'null')
-    ->groupBy('meta->cargoDetail->durum')->get()->pluck('total', 'durum');
+        ->groupBy('meta->cargoDetail->durum')->get()->pluck('total', 'durum');
     $response['facetsAgentAction'] = Content::select('meta->agentStatus as agentStatus', \DB::raw('count(*) as total'))->where('entity_type_id', 33)
-    ->where('meta->cargoDetail', '!=', '{}')
-    ->where('meta->cargoDetail', '!=', 'null')
-    ->groupBy('meta->agentStatus')->get()->pluck('total', 'agentStatus');
+        ->where('meta->cargoDetail', '!=', '{}')
+        ->where('meta->cargoDetail', '!=', 'null')
+        ->groupBy('meta->agentStatus')->get()->pluck('total', 'agentStatus');
 
     return response()->json($response);
 
 });
 
+
+
+$router->get('/CargoReport', function (Request $request) use ($router) {
+
+
+/*
+
+SELECT 
+json_unquote(json_extract(meta, '$.cargoDetail.alimtarihi')) as alimtarihi,
+json_unquote(json_extract(meta, '$.cargoDetail.durum')) as durum,
+json_unquote(json_extract(meta, '$.adsource')) as adsource,
+json_unquote(json_extract(meta, '$.products[0].meta.product_group_id')) as product_group_id,
+json_unquote(json_extract(meta, '$.products[0].content_id')) as product_id,
+count(*) as count,
+sum(json_extract(meta, '$.finalPrice')) as price
+FROM `contents`
+WHERE `entity_type_id` = '33'
+and json_extract(meta, '$.cargoDetail') is not null
+and json_extract(meta, '$.cargoDetail') != '{}'
+and json_extract(meta, '$.cargoDetail.alimtarihi') != 'null'
+and json_unquote(json_extract(meta, '$.cargoDetail.durum')) != 'null'
+and json_unquote(json_extract(meta, '$.products[0].content_id')) is not null
+group by alimtarihi, durum, adsource, product_group_id, product_id
+order by alimtarihi desc
+LIMIT 1000;
+
+*/
+
+
+
+
+
+    $facets = Content::select(
+        'meta->cargoDetail->alimtarihi as alimtarihi',
+        'meta->cargoDetail->durum as durum',
+        'meta->adsource as adsource',
+        \DB::raw("json_extract(meta, '$.products[0].meta.product_group_id') as product_group_id"),
+        \DB::raw("json_extract(meta, '$.products[0].content_id') as product_id"),
+         \DB::raw('count(*) as total'),
+         \DB::raw("sum(json_extract(meta, '$.finalPrice')) as price")
+         )
+    ->where('entity_type_id', 33)
+    ->whereRaw("json_extract(meta, '$.cargoDetail') is not null")
+    ->whereRaw("json_extract(meta, '$.products[0].content_id') is not null")
+    ->whereRaw("json_extract(meta, '$.products[0].meta.product_group_id') is not null")
+    ->where('meta->cargoDetail', '!=', '{}')
+    ->where('meta->cargoDetail->alimtarihi', '!=', 'null')
+    ->where('meta->cargoDetail->durum', '!=', 'null')
+    ->groupBy([
+        'alimtarihi',
+        'durum',
+        'adsource',
+        'product_group_id',
+        ]);
+
+/*
+print_r($facets->toSql());
+die();
+*/
+    return response()->json($facets->get());
+
+});
+
+
+
+
 $router->get('/CronTracking', function (Request $request) use ($router) {
     $cargoStatusTypes = [
-        "0"     => "Paketleme",
-        "1"     => "Teslimler",
-        "2"     => "İadeler",
-        "3"     => "Haber Formları",
-        "4"     => "Dağıtımda",
-        "5"     => "Kayıp",
-        "6"     => "Sorunlu"
+        "0" => "Paketleme",
+        "1" => "Teslimler",
+        "2" => "İadeler",
+        "3" => "Haber Formları",
+        "4" => "Dağıtımda",
+        "5" => "Kayıp",
+        "6" => "Sorunlu",
     ];
     $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
     $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
-    $query2    = [
+    $query     = [
         "user"       => "7700000423",
         "password"   => "123DEF123",
         "alim_start" => $startDate,
         "alim_end"   => $endDate,
     ];
-    $query = [
+    $query1 = [
         "user"       => "9500000209",
         "password"   => "E775893",
         "alim_start" => $startDate,
@@ -102,7 +165,7 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
     ];
 
     $cacheKey = 'deposerileti' . $startDate;
-    //Cache::forget($cacheKey);
+    Cache::forget($cacheKey);
     if (Cache::has($cacheKey)) {
         $response = Cache::get($cacheKey);
     } else {
@@ -113,8 +176,8 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
             $response         = json_decode($response, true);
             $response['item'] = array_map(function ($item) {
 
-                $exampleItem = array_fill_keys(array_keys($item), null);
-                $item        = array_merge($exampleItem, array_filter($item));
+                $exampleItem = array_fill_keys(array_keys($item), '');
+                $item        = array_merge($exampleItem, $item);
                 //DB::connection('cargo')->table('deposer')->updateOrInsert(['gonderino' => $item['gonderino']], $item);
                 DB::table('cargotracking')->updateOrInsert(
                     ['senderId' => $item['gonderino']],
@@ -146,7 +209,7 @@ $router->get('/CargoTracking/{orderId}', function (Request $request, $orderId) u
     $order = Content::where('entity_type_id', 33)->where('meta->cargoDetail->sipno', '=', (string) $orderId)->first();
 
     $shipmentMethods = Content::find((int) $order->meta['shipment_id']);
-    $query = [
+    $query           = [
         'har_kod' => $orderId,
         'tip'     => 3,
         'MUS_KOD' => $shipmentMethods->meta['customerCode'],

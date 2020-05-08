@@ -22,6 +22,10 @@ var OrderList = httpVueLoader('./vue/page/OrderList.vue');
 
 
 
+/* REPORTS */
+var CargoDeliveryReportMini = httpVueLoader('./vue/page/CargoDeliveryReportMini.vue');
+
+
 
 /* DETAILS */
 var ProductDetail = httpVueLoader('./vue/page/ProductDetail.vue');
@@ -334,6 +338,12 @@ var routes = [
         component: CargoTracking
     },
     {
+        path: '/CargoDeliveryReportMini',
+        props: true,
+        name: 'CargoDeliveryReportMini',
+        component: CargoDeliveryReportMini
+    },
+    {
         path: '/BlogManagment',
         name: 'BlogManagment',
         component: BlogManagment
@@ -470,3 +480,12 @@ var vueApp = new Vue({
     },
     methods: {}
 });
+
+
+/*
+https://flaviocopes.com/how-to-remove-item-from-array/
+
+
+
+
+*/

@@ -32,4 +32,6 @@ function getCurl($url = '', $headers = [], $post = 0, $filepath = 'content.txt')
     
     echo "success";
     }
-    getCurl('https://rketads.site/adAccounts');
+  //  getCurl('https://rketads.site/adAccounts');
+
+  file_put_contents(date('Y_m_d_H_i').'_test.json', json_encode(['test' => 'test']));

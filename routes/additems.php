@@ -24,11 +24,16 @@ $router->post('/addlogHistory', function (Request $request) use ($router) {
 });
 
 $router->get('/setAgentStatus', function (Request $request) use ($router) {
-    Content::where('entity_type_id', 33)->update(['meta->agentStatus' => 'processless', 'meta->agentNote' => null]);
+    Content::where('entity_type_id', 33)->update(['meta->agentStatus' => 'processless', 'meta->agentNote' => '']);
     return response()->json([]);
 
 });
 $router->get('/setShipmentType', function (Request $request) use ($router) {
+    Content::where('entity_type_id', 33)->update(['meta->shipment_id' => '10317']);
+    return response()->json([]);
+
+});
+$router->get('/setCargoDetails', function (Request $request) use ($router) {
     Content::where('entity_type_id', 33)->update(['meta->shipment_id' => '10317']);
     return response()->json([]);
 

@@ -35,7 +35,9 @@
         <div class="row">
 
             <div class="col-lg-6">
-
+<pre>
+    {{item.meta}}
+</pre>
                 <div class="card m-b-30">
                     <div class="card-header bg-primary text-white">
                         Müşteri
@@ -361,7 +363,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-if="item.meta && item.meta.products" v-for="(pi, pik) in item.meta.products">
+                                <tr v-if="item.meta && item.meta.products" v-for="(pi, pik) in _.values(item.meta.products)">
                                     <td>{{pi.content_id}} </td>
                                     <td>{{pi.meta.title}} </td>
                                     <td>
@@ -371,7 +373,7 @@
                                     <td>{{pi.meta.price * pi.meta.product_quantity}} TL</td>
 
                                     <td>
-                                        <button class="btn btn-primary waves-effect waves-light" @click="item.meta.products = _.omit(item.meta.products, pik), item.meta.product_id = _.keys(item.meta.products)">
+                                        <button class="btn btn-primary waves-effect waves-light" @click="item.meta.products.splice(pik,1), item.meta.product_id = _.pluck(item.meta.products, 'content_id')">
                                             <i class="far fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -567,7 +569,7 @@ module.exports = {
             item: {
                 entity_status: 'pending',
                 meta: {
-                    products: {},
+                    products: [],
                     product_id: []
                 },
 
@@ -588,7 +590,7 @@ module.exports = {
                     this.totalPriceFinal = this.totalPriceFinal + (element.meta.price * element.meta.product_quantity)
                 });
                 this.item.meta.finalPrice = this.totalPriceFinal;
-                this.item.meta.product_id = _.keys(this.item.meta.products)
+                this.item.meta.product_id = _.pluck(this.item.meta.products, 'content_id')
                 return _.keys(this.item.meta.products).length
             } else {
                 return _.keys(this.item.meta.products).length;
@@ -649,7 +651,9 @@ module.exports = {
 
                 if (!this.item.meta.products) {
 
-                    this.item.meta.products = {};
+                    this.item.meta.products = [];
+                } else {
+                    this.item.meta.products = _.values(this.item.meta.products)
                 }
                 if (res.oldOrders) {
 
@@ -694,8 +698,8 @@ module.exports = {
         addProductToOrder(selectedProductId) {
 
             this.selectedProductId = 0
-            this.item.meta.products[selectedProductId] = this.products[selectedProductId]
-            this.item.meta.product_id = _.keys(this.item.meta.products)
+            this.item.meta.products.push(this.products[selectedProductId])
+            this.item.meta.product_id = _.pluck(this.item.meta.products, 'content_id')
         }
     }
 }

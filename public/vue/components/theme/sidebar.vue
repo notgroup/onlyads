@@ -121,8 +121,8 @@
                         <li class="">
                             <a href="#/CargoTracking">Teslimat Raporu</a>
                         </li>
-                        <li class="hide">
-                            <a href="#/">Teslimat Raporu (Mini)</a>
+                        <li class="">
+                            <a href="#/CargoDeliveryReportMini">Teslimat Raporu (Mini)</a>
                         </li>
                     </ul>
                 </li>
