@@ -96,7 +96,16 @@ Vue.mixin({
         }
     },
     methods: {
+        getCargoDetail(order) {
+        
+            this.get(window.apiUrl + "/CargoTracking/" + order.meta.cargoDetail.sipno, (res) => {
+                window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
+                //this.currentCargoDetail = Object.assign(order, res);
+                //  
+                console.log(res)
 
+            });
+        },
         getLast() {
             this.get('//' + apiUrl + '/last10', (response) => {
             });
@@ -453,6 +462,7 @@ var vueApp = new Vue({
         this.$root.get(window.apiUrl + '/contents/' + 37, (res)=> {
             this.adSources = res
         })*/
+     
         alertify.logPosition("bottom right");
         this.$root.get(window.apiUrl + '/clientInit', (res) => {
             this.$root.clientInit = res

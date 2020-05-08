@@ -1,13 +1,18 @@
 <?php
 
 use App\Models\Content;
-use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-
+use Illuminate\Support\Facades\DB;
 $router->get('/', function () use ($router) {
     //return '<a href="http://notgroupgithubio.test/yuz-kalkani-siperlik2/index.html?pixel=123456&ref=asd_12">Test</a>';
     return [];
+});
+$router->get('/test', function (Request $request) use ($router) {
+
+    $city = DB::table('zone')->where('name', $request->get('city'))->first();
+    $town = DB::table('town')->where('zone_id', $city->zone_id)->where('name', $request->get('district'))->first();
+    return response()->json([$city,$town]);
 });
 
 $router->post('/getLogin', 'UserController@getLogin');
@@ -19,12 +24,13 @@ $router->post('/addSetting', function (Request $request) use ($router) {
 
 });
 
-
-
 $router->get('/CargoTracking', function (Request $request) use ($router) {
-   /* $results = $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
-   ->join('cargotracking', 'cargotracking.orderId', '=', 'contents.content_id')
-   //->where('contents.content_id', 10325)
+    $facets   = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))->where('entity_type_id', 33)->groupBy('meta->cargoDetail->durum')->get()->pluck('total', 'durum');
+
+    
+    /* $results = $orderContents = Content::select(['contents.*'])->where('entity_type_id', 33)
+    ->join('cargotracking', 'cargotracking.orderId', '=', 'contents.content_id')
+    //->where('contents.content_id', 10325)
     //->update(['contents.meta' => DB::raw("JSON_REMOVE(contents.meta, '$.orderMeta')")]);
     ->update(['contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')")]);
     //print_r($results->getBindings());
@@ -38,18 +44,26 @@ $router->get('/CargoTracking', function (Request $request) use ($router) {
         "4"     => "Dağıtımda",
         "5"     => "Kayıp",
         "6"     => "Sorunlu",
-        "1,2,6" => "Teslim,İade ve Sorunlu kargolar",
     ];
     $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
     $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
-    //Shipment::limit(10)->update(['meta->test01' => 12]);
-    $response = [];
+
+    $response         = [];
     $response['item'] = Content::where('entity_type_id', 33)
-    ->where('meta->cargoDetail', '!=', '{}')
-    //->where('meta->cargoDetail', '!=', 'null')
-    ->orderBy('content_id', 'desc')
-    ->limit(10)->get();
+        ->where('meta->cargoDetail', '!=', '{}')
+        ->where('meta->cargoDetail', '!=', 'null')
+        ->where('meta->agentStatus', '=', 'processless')
+        ->orderBy('content_id', 'desc')
+        ->limit(10)->get();
     $response['cargoStatusTypes'] = $cargoStatusTypes;
+    $response['facetsCargoStatus'] = Content::select('meta->cargoDetail->durum as durum', \DB::raw('count(*) as total'))->where('entity_type_id', 33)
+    ->where('meta->cargoDetail', '!=', '{}')
+    ->where('meta->cargoDetail', '!=', 'null')
+    ->groupBy('meta->cargoDetail->durum')->get()->pluck('total', 'durum');
+    $response['facetsAgentAction'] = Content::select('meta->agentStatus as agentStatus', \DB::raw('count(*) as total'))->where('entity_type_id', 33)
+    ->where('meta->cargoDetail', '!=', '{}')
+    ->where('meta->cargoDetail', '!=', 'null')
+    ->groupBy('meta->agentStatus')->get()->pluck('total', 'agentStatus');
 
     return response()->json($response);
 
@@ -63,8 +77,7 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
         "3"     => "Haber Formları",
         "4"     => "Dağıtımda",
         "5"     => "Kayıp",
-        "6"     => "Sorunlu",
-        "1,2,6" => "Teslim,İade ve Sorunlu kargolar",
+        "6"     => "Sorunlu"
     ];
     $startDate = $request->has('startDate') ? date("d/m/Y", strtotime($request->get('startDate'))) : date("d/m/Y");
     $endDate   = $request->has('endDate') ? date("d/m/Y", strtotime($request->get('endDate'))) : date("d/m/Y");
@@ -103,7 +116,7 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
                 $exampleItem = array_fill_keys(array_keys($item), null);
                 $item        = array_merge($exampleItem, array_filter($item));
                 //DB::connection('cargo')->table('deposer')->updateOrInsert(['gonderino' => $item['gonderino']], $item);
-              DB::table('cargotracking')->updateOrInsert(
+                DB::table('cargotracking')->updateOrInsert(
                     ['senderId' => $item['gonderino']],
                     ['orderId'        => $item['sipno'],
                         'senderId'        => $item['gonderino'],
@@ -130,18 +143,16 @@ $router->get('/CronTracking', function (Request $request) use ($router) {
 });
 $router->get('/CargoTracking/{orderId}', function (Request $request, $orderId) use ($router) {
 
-    $query2 = [
-        'har_kod' => $orderId,
-        'tip'     => 3,
-        'MUS_KOD' => '7700000423',
-        'MUS_sif' => '123DEF123',
-    ];
+    $order = Content::where('entity_type_id', 33)->where('meta->cargoDetail->sipno', '=', (string) $orderId)->first();
+
+    $shipmentMethods = Content::find((int) $order->meta['shipment_id']);
     $query = [
         'har_kod' => $orderId,
         'tip'     => 3,
-        "MUS_KOD" => "9500000209",
-        "MUS_sif" => "E775893",
+        'MUS_KOD' => $shipmentMethods->meta['customerCode'],
+        'MUS_sif' => $shipmentMethods->meta['password'],
     ];
+
     $query    = http_build_query($query);
     $response = get_web_page_header("http://kargotakip.deposerileti.com:90/sorgu.asp?" . $query);
     return response()->json($response);
@@ -175,33 +186,37 @@ $router->get('/frontcontent/{content_id}', function (Request $request, $content_
 
 $router->get('/clientInit', function (Request $request) {
     $cacheKey = 'clientInit';
+    Cache::forget($cacheKey);
     $response = [];
     if (Cache::has($cacheKey)) {
         $response = Cache::get($cacheKey);
     } else {
-        $countries      = DB::table('country')->get()->toArray();
-        $cities         = DB::table('zone')->get()->toArray();
-        $towns          = DB::table('town')->get()->toArray();
-        $roles          = DB::table('roles')->get()->toArray();
-        $products = Content::where('entity_type_id', 4)->get()->toArray();
-        $productsGroup = Content::where('entity_type_id', 32)->get()->toArray();
-        $paymentMethods = Content::where('entity_type_id', 35)->get()->toArray();
-        $adsources      = Content::where('entity_type_id', 37)->get()->toArray();
-        $orderStatuses  = DB::table('situations')->get()->toArray();
-        $response       = [
-            "roles"          => $roles,
-            "countries"      => $countries,
-            "cities"         => $cities,
-            "towns"          => $towns,
-            "paymentMethods" => $paymentMethods,
-            "adsources"      => $adsources,
-            "orderStatuses"  => $orderStatuses,
-            "productsGroup"  => $productsGroup,
-            "products"  => $products,
+        $countries       = DB::table('country')->get()->toArray();
+        $cities          = DB::table('zone')->get()->toArray();
+        $towns           = DB::table('town')->get()->toArray();
+        $roles           = DB::table('roles')->get()->toArray();
+        $products        = Content::where('entity_type_id', 4)->get()->toArray();
+        $shipmentMethods = Content::where('entity_type_id', 36)->get()->toArray();
+        $productsGroup   = Content::where('entity_type_id', 32)->get()->toArray();
+        $paymentMethods  = Content::where('entity_type_id', 35)->get()->toArray();
+        $adsources       = Content::where('entity_type_id', 37)->get()->toArray();
+        $orderStatuses   = DB::table('situations')->where('type', 'orderStatus')->get()->toArray();
+        $agentActions    = DB::table('situations')->where('type', 'agentAction')->get()->toArray();
+        $response        = [
+            "roles"           => $roles,
+            "shipmentMethods" => $shipmentMethods,
+            "countries"       => $countries,
+            "cities"          => $cities,
+            "towns"           => $towns,
+            "paymentMethods"  => $paymentMethods,
+            "adsources"       => $adsources,
+            "orderStatuses"   => $orderStatuses,
+            "agentActions"    => $agentActions,
+            "productsGroup"   => $productsGroup,
+            "products"        => $products,
         ];
         Cache::put($cacheKey, $response, (30 * 60));
     }
-
 
     return response()->json($response);
 });

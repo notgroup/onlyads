@@ -21,6 +21,15 @@ $router->get('/getOrder/{orderId}', function (Request $request, int $orderId) us
     return response()->json($response);
 
 });
+$router->get('/fetchOrder', function (Request $request) use ($router) {
+    $order      = Content::where('entity_type_id', 33)->where('entity_status','pending')->first();
+    $order->entity_status = 'inprocess';
+    $order->save();
+
+    $response = $order;
+    return response()->json($response);
+
+});
 
 $router->post('/orderForm/payment/method', function (Request $request) use ($router) {
     $stringHtml = '<option value="">Ödeme Metodu Seçiniz</option>';

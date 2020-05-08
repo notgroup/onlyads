@@ -3,14 +3,16 @@
 
     <div class="col-xl-12" v-if="contentTypeId">
         <div class="email-leftbar card" @click="filter.page = 1">
-
+            <button class="btn btn-primary btn-block" @click="fetchOrder()">
+                Sipariş Çek
+            </button>
             <div class="form-group row ">
                 <label class="col-sm-12 col-form-label">Sipariş Durumu</label>
                 <div class="col-sm-12">
                     <div class="mail-list m-t-10" style="max-height: 280px;overflow-y: auto;">
 
                         <template v-for="(item, itemi) in $root.clientInit.orderStatuses">
-                            <a @click="filter.status = item.option" :key="itemi" v-if="facets[item.option]" href="javascript:;" >
+                            <a @click="filter.status = item.option" :key="itemi" v-if="facets[item.option]" href="javascript:;">
                                 <span class="mdi mdi-label-outline text-default mr-2" :class="[filter.status == item.option ? 'text-success' :'']"></span>
                                 {{item.value}} (<b>{{facets[item.option] || 0}}</b>)
                             </a>
@@ -88,7 +90,10 @@
                                 </template>
                             </optgroup>
                             <optgroup label="Kargo İşlemleri">
-                                <option value="shipped:deposer">Kargoya Verildi (Deposer)</option>
+                                <template v-for="(item, itemi) in $root.clientInit.shipmentMethods">
+                                    <option v-if="item.entity_status > 0" :key="itemi" :value="'shipped:' + item.content_id">{{item.meta.name}}</option>
+                                </template>
+
                             </optgroup>
                         </select>
                     </div>
@@ -97,15 +102,13 @@
                             <i class="fa fa-download"></i> Dışa Aktar
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:;" @click="getExcell('deposer')">Deposer XLSX</a>
-                            <a class="dropdown-item hide" href="#">Aras Kargo CSV</a>
-                            <a class="dropdown-item hide" href="#">MNG XML</a>
+                            <template v-for="(item, itemi) in $root.clientInit.shipmentMethods">
+                                <a v-if="item.entity_status > 0" :key="itemi" class="dropdown-item" href="javascript:;" @click="getExcell(item)">{{item.meta.name}}</a>
+                            </template>
+
                         </div>
                     </div>
-                    <label v-if="selecteds.length" style="
-    padding-top: 7px;
-    padding-left: 10px;
-"> {{selecteds.length}} seçilen</label>
+                    <label v-if="selecteds.length" class="padding-top: 7px;padding-left: 10px;"> {{selecteds.length}} seçilen</label>
 
                     <form role="search" class="email-inbox hide">
                         <div class="form-group mb-0">
@@ -164,8 +167,8 @@
                             <td>{{(_.indexBy($root.clientInit.orderStatuses,'option')[item.entity_status].value)}}</td>
                             <td>{{(item.meta.phone_number ? '*****.' + item.meta.phone_number.substr(item.meta.phone_number.length -4) : '')}}</td>
                             <td>{{(item.meta.finalPrice)}} .TL</td>
-                            <td>{{(_.indexBy($root.clientInit.paymentMethods, 'content_id')[item.meta.payment_method].meta.name || item.meta.payment_method)}}</td>
-                            <td>{{(_.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city] ? _.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city].name : item.meta.city)}}/{{(_.indexBy($root.clientInit.towns, 'town_id')[item.meta.town] ? _.indexBy($root.clientInit.towns, 'town_id')[item.meta.town].name : item.meta.town)}}</td>
+                            <td>{{(_.indexBy($root.clientInit.paymentMethods, 'content_id')[item.meta.payment_method] ? _.indexBy($root.clientInit.paymentMethods, 'content_id')[item.meta.payment_method].meta.name : item.meta.payment_method)}}</td>
+                            <td>{{(_.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city] ? _.indexBy($root.clientInit.cities, 'zone_id')[item.meta.city].name || '' : item.meta.city)}}/{{(_.indexBy($root.clientInit.towns, 'town_id')[item.meta.town] ? _.indexBy($root.clientInit.towns, 'town_id')[item.meta.town].name || '' : item.meta.town)}}</td>
                             <td>{{new Date(item.created_at).toLocaleString()}}</td>
 
                             <td>
@@ -201,7 +204,7 @@ module.exports = {
             },
             filter: {
                 content_type: this.typeId,
-                status: 'confirmed',
+                status: 'pending',
                 payment_method: 0,
                 city: 0,
                 endDate: todayDate,
@@ -229,17 +232,31 @@ module.exports = {
     created() {},
     methods: {
         setChangeStatus(selecteds, status) {
+            alertify.okBtn("Tamam")
+                .cancelBtn("Vazgeç")
+                .defaultValue("")
+                
+                .prompt("İptal Etme nedeni:" + status, (str, ev) => {
+                 
+                    console.log(str)
+                    console.log(ev)
+                   // alertify.success("Başarılı " + str);
 
-            this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
-                selecteds: selecteds,
-                status: status
-            }, (res) => {
+                    this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
+                        selecteds: selecteds,
+                        status: status
+                    }, (res) => {
 
-                this.selecteds = []
-                this.getData()
-                this.actionValue = 0
-                    alertify.success("Toplu sipariş güncellemesi başarılı.");
-            })
+                        this.selecteds = []
+                        this.getData()
+                        this.actionValue = 0
+                        alertify.success("Toplu sipariş güncellemesi başarılı.");
+                    })
+
+                }, (ev) => {
+                    ev.preventDefault();
+                    alertify.error("Vazgeçtiniz");
+                });
 
         },
         addSetting() {
@@ -260,9 +277,16 @@ module.exports = {
                 document.getElementById("tablebody").scrollTop = 0
             })
         },
-        getExcell(fileName = 'defaultName') {
+        fetchOrder() {
+            this.get(window.apiUrl + "/fetchOrder", (res) => {
+                let item = res
+                this.$router.push('/ContenDetail/' + item.entity_type_id + '/' + item.content_id)
+            });
+        },
+        getExcell(shipment = {}) {
             alertify.log("Aktarma dosyası hazırlanıyor.");
             this.get(window.apiUrl + "/contents" + this.$root.getString({
+                shipment_id: shipment.content_id,
                 page: this.filter.page,
                 selecteds: this.selecteds,
                 filter: Object.assign({
@@ -271,7 +295,7 @@ module.exports = {
             }), (res) => {
                 let basename = res.url.replace(/.*\//, '');
                 let dirname = res.url.match(/.*\//);
-                this.$root.linkDownload(res.url, todayDate + fileName + '.xlsx')
+                this.$root.linkDownload(res.url, todayDate + shipment.meta.name + '.xlsx')
                 alertify.success("Aktarma dosyası hazırlandı.");
                 console.log(res);
 

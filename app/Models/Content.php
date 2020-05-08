@@ -10,6 +10,7 @@ class Content extends Model
     protected $casts    = [
         'creator_id' => 'int',
         'entity_type_id' => 'int',
+        //'entity_status' => 'int',
         'parent_id' => 'int',
         'meta' => 'array',
        // 'created_at' => 'date:U',

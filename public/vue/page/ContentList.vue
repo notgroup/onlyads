@@ -6,6 +6,7 @@
                 <tr>
                     <th width="1%">ID</th>
                     <th>Başlık</th>
+                    <th width="1%">Durum</th>
                     <th width="1%">İşlem</th>
                 </tr>
             </thead>
@@ -13,6 +14,7 @@
                 <tr v-for="(item, itemi) in items">
                     <td>{{itemi}}</td>
                     <td>{{item.meta.title || item.meta.name || item.meta.fullname}}</td>
+                    <td>{{item.entity_status}}</td>
 
                     <td>
                         <div class="btn-group btn-group">

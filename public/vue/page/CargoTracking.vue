@@ -24,14 +24,43 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="email-leftbar card" @click="filter.page = 1">
+            <div class="form-group row ">
+                <label class="col-sm-12 col-form-label">Agent Actions</label>
+                <div class="col-sm-12">
+                    <div class="mail-list m-t-10" style="max-height: 280px;overflow-y: auto;">
 
-                    <div class="form-group row">
+                        <template v-for="(item, itemi) in facetsAgentAction">
+                            <a :key="itemi" href="javascript:;">
+                                <span class="mdi mdi-label-outline text-default mr-2"></span>
+                                {{_.indexBy($root.clientInit.agentActions, 'option')[itemi].value}} (<b>{{item || 0}}</b>)
+                            </a>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row ">
+                <label class="col-sm-12 col-form-label">Kargo Durumu</label>
+                <div class="col-sm-12">
+                    <div class="mail-list m-t-10" style="max-height: 280px;overflow-y: auto;">
+
+                        <template v-for="(item, itemi) in facetsCargoStatus">
+                            <a :key="itemi" href="javascript:;">
+                                <span class="mdi mdi-label-outline text-default mr-2"></span>
+                                {{cargoStatusTypes[itemi]}} (<b>{{item || 0}}</b>)
+                            </a>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+                    <div class="form-group row hide">
                         <label class="col-sm-12 col-form-label">Durumu</label>
                         <div class="col-sm-12">
-                            <select class="form-control adstatus-selector multiselector" v-model="filter.payment_method">
-                                <option value="0" selected>Hepsi</option>
-                                <template v-for="(item, itemi) in $root.clientInit.paymentMethods">
-                                    <option :key="itemi" :value="item.content_id">{{item.meta.name}} </option>
+                            <select class="form-control adstatus-selector multiselector" v-model="filter.cargoStatus">
+                                <option value="-1" selected>Hepsi</option>
+                                <template v-for="(item, itemi) in cargoStatusTypes">
+                                    <option :key="itemi" :value="itemi">{{item}} </option>
                                 </template>
                             </select>
                         </div>
@@ -41,7 +70,7 @@
                         <div class="col-sm-12">
                             <select class="form-control adstatus-selector multiselector" v-model="filter.city">
                                 <option value="0" selected>Hepsi</option>
-                                <template v-for="(item, itemi) in _.groupBy(this.$root.clientInit.cities,'country_id')[215]">
+                                <template v-for="(item, itemi) in _.groupBy($root.clientInit.cities,'country_id')[215]">
                                     <option :key="itemi" :value="item.zone_id">{{item.name}} </option>
                                 </template>
                             </select>
@@ -88,9 +117,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, itemi) in items">
-                                    <td  @click="getCargoDetail(item)">{{ item.meta.cargoDetail.gonderino }}</td>
-                                    <td  @click="getCargoDetail(item)">{{ item.meta.cargoDetail.sipno }}</td>
+                                <tr v-for="(item, itemi) in items" v-if="item.meta.cargoDetail">
+                                    <td @click="getCargoDetail(item)">{{ item.meta.cargoDetail.gonderino }}</td>
+                                    <td @click="getCargoDetail(item)">{{ item.meta.cargoDetail.sipno }}</td>
                                     <td>{{ cargoStatusTypes[item.meta.cargoDetail.durum] }}</td>
                                     <td>{{ item.meta.cargoDetail.aliciadi }}</td>
                                     <td>{{ item.meta.cargoDetail.alicisoyad }}</td>
@@ -104,8 +133,14 @@
 
                                     <td>
                                         <div class="btn-group btn-group">
-                                            <button class="btn btn-primary waves-effect waves-light" @click="getCargoDetail(item)">
+                                            <button class="btn btn-primary waves-effect waves-light" @click="getCargoModal(item)">
                                                 <i class="far fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-primary waves-effect waves-light" @click="$router.push('/ContenDetail/' + item.entity_type_id + '/' +item.content_id)">
+                                                <i class="far fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-primary waves-effect waves-light" @click="$root.getCargoDetail(item)">
+                                                <i class="fa fa-truck"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -117,39 +152,28 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="btn btn-primary waves-effect waves-light hide" data-toggle="modal" data-target=".modal01">Large modal</button>
-        <div class="modal fade bs-example-modal-lg modal01" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title mt-0" id="myLargeModalLabel">{{currentCargoDetail.aliciadi}} {{currentCargoDetail.alicisoyad}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <iframe v-if="currentCargoDetail.url" style="padding-top: 20px;" :src="currentCargoDetail.url" frameborder="0" height="600px" scrolling="yes" width="100%"></iframe>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+
     </div>
+    <cargo-detail-modal v-if="currentCargoDetail && currentCargoDetail.meta" v-on:closemodal="(res) => {currentCargoDetail = 0, getData()}" :cargo-detail="currentCargoDetail"></cargo-detail-modal>
 </div>
 </template>
 
 <script>
 var todayDate = new Date().toLocaleDateString().split('.').reverse().join('-');
+var CargoDetailModal = httpVueLoader('/vue/components/part/CargoDetailModal.vue');
 module.exports = {
     name: "CargoTracking",
+    components:{CargoDetailModal},
     props: ["typeId"],
     data() {
         return {
             refreshing: false,
-            currentCargoDetail: {},
+            currentCargoDetail: 0,
             facets: {
 
             },
             filter: {
+                cargoStatus: '-1',
                 status: 0,
                 payment_method: 0,
                 city: 0,
@@ -158,15 +182,17 @@ module.exports = {
                 page: 1
             },
             cargoStatusTypes: {
+                "null": "Paketleme",
                 "0": "Paketleme",
                 "1": "Teslimler",
                 "2": "İadeler",
                 "3": "Haber Formları",
                 "4": "Dağıtımda",
                 "5": "Kayıp",
-                "6": "Sorunlu",
-                "1,2,6": "Teslim,İade ve Sorunlu kargolar",
+                "6": "Sorunlu"
             },
+            facetsCargoStatus: {},
+            facetsAgentAction: {},
             items: [],
         };
     },
@@ -190,18 +216,20 @@ module.exports = {
             this.refreshing = true;
             this.get(window.apiUrl + "/CargoTracking" + this.$root.getString(this.filter), (res) => {
                 this.items = res.item;
+                this.facetsCargoStatus = res.facetsCargoStatus;
+                this.facetsAgentAction = res.facetsAgentAction;
                 this.refreshing = false;
             });
         },
-        getCargoDetail(order) {
-            this.currentCargoDetail = {}
-            this.get(window.apiUrl + "/CargoTracking/" + order.meta.cargoDetail.sipno, (res) => {
-                window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
-                this.currentCargoDetail = Object.assign(order, res);
-              //  $('.modal01').modal('show');
-                console.log(res)
 
-            });
+        getCargoModal(order) {
+            this.currentCargoDetail = 0;
+            setTimeout(() => {
+                this.currentCargoDetail = order
+                console.log(this.currentCargoDetail);
+            }, 600);
+
+         
         },
     },
 };
@@ -210,6 +238,10 @@ module.exports = {
 <style scoped>
 .modal-lg,
 .modal-xl {
-    max-width: 900px;
+    max-width: 1024px;
+}
+
+.modal-body.row .form-group.row {
+    margin-bottom: 0;
 }
 </style>

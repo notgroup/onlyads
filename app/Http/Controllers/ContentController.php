@@ -31,7 +31,7 @@ class ContentController extends Controller
             if (isset($filter['status']) && $filter['status']) {
                 $contents->where('entity_status', $filter['status']);
             }
-           if (isset($filter['startDate']) && $filter['startDate']) {
+            if (isset($filter['startDate']) && $filter['startDate']) {
                 $contents->whereDate('created_at', '>=', $filter['startDate']);
             }
             if (isset($filter['endDate']) && $filter['endDate']) {
@@ -66,11 +66,10 @@ class ContentController extends Controller
     public function saveAsCsvKeywords($fileName, $data)
     {
 
-        $cities = DB::table('zone')->get()->keyBy('zone_id');
-        /*print_r($cities);
-        die();*/
-        $towns          = DB::table('town')->get()->keyBy('town_id');
-        $paymentMethods = Content::where('entity_type_id', 35)->get()->keyBy('content_id');
+        $cities          = DB::table('zone')->get()->keyBy('zone_id');
+        $towns           = DB::table('town')->get()->keyBy('town_id');
+        $paymentMethods  = Content::where('entity_type_id', 35)->get()->keyBy('content_id');
+        $shipmentMethods = Content::where('entity_type_id', 36)->get()->keyBy('content_id');
 
         $newData     = [];
         $defaultKeys = ["mok", "urun", "ad", "adres", "ilce", "sehir", "tel", "irsaliyeno", "ilkodu", "ilcekodu", "varis", "serino", "desi", "tahsilat_tutari", "odeme_tipi"];
@@ -133,19 +132,19 @@ class ContentController extends Controller
     public function setChangeStatus(Request $request, $entity_type_id)
     {
         if ($request->has('selecteds')) {
-            $items     = Content::where('entity_type_id', $entity_type_id)->whereIn('content_id', $request->get('selecteds'));
+            $items = Content::where('entity_type_id', $entity_type_id)->whereIn('content_id', $request->get('selecteds'));
             if (strpos($request->get('status'), ':')) {
-                $status = explode(':', $request->get('status'));
-                $updateArr = ['meta->shipment_type' => $status[1], 'entity_status' => $status[0], 'meta->update_' . $status[0] => date('d/m/Y H:i')];
+                $status    = explode(':', $request->get('status'));
+                $updateArr = ['meta->shipment_id' => $status[1], 'entity_status' => $status[0], 'meta->update_' . $status[0] => date('d/m/Y H:i')];
             } else {
                 $updateArr = ['entity_status' => $request->get('status'), 'meta->update_' . $request->get('status') => date('d/m/Y H:i')];
             }
             $items->update($updateArr);
         }
 
-
         return response()->json([]);
     }
+
     public function exportExcell(Request $request, $entity_type_id)
     {
 
@@ -184,40 +183,49 @@ class ContentController extends Controller
     }
     public function addOrder(Request $request)
     {
-        $products = $request->has('product_id') ? Content::where('entity_type_id', 4)
-            ->whereIn('content_id', $request->get('product_id'))
-            ->get() : collect([]);
-        $request->merge([
-            'title'        => $request->get('firstname') . '/' . date('Y_m_d_H_i'),
-            'fullname'     => $request->get('firstname') . ($request->has('lastname') ? ' ' . $request->get('lastname') : ''),
-            'lastname'     => $request->get('lastname') ?: '',
-            'phone_number'     => $request->has('phone_number') ? substr($request->get('phone_number'), -10) : '',
-            'redirect'     => $request->get('success_url'),
-            'client_ip'    => $request->ip(),
-            'browser'      => $request->header('User-Agent'),
-            'town'         => $request->has('district') ? $request->get('district') : $request->get('town'),
-            'products'     => $products->keyBy('content_id'),
-            'firstPrice'   => $products->sum('meta.price') ?: 0,
-            'finalPrice'   => $products->sum('meta.price') ?: 0,
-            'shipmentCost' => 0,
-            'status'       => 'pending',
-        ]);
-        $contentAttr = [
-            'entity_type_id' => 33,
-            'entity_status'  => 'pending',
-            'creator_id'     => 1,
-            'parent_id'      => 0,
-            'meta'           => $request->all(),
-        ];
-        $content = Content::create($contentAttr);
 
-        $response = [
-            //"redirect"   => $request->get('success_url'),
-            "reload"     => false,
-            "message"    => "Sipariş başarılı, şimdi yönlendiriliyorsunuz.",
-            "reset_form" => false,
-            "data"       => $contentAttr,
-        ];
+        try {
+            $products = $request->has('product_id') ? Content::where('entity_type_id', 4)
+                ->whereIn('content_id', $request->get('product_id'))
+                ->get() : collect([]);
+            $city = DB::table('zone')->where('name', $request->get('city'))->first();
+            $town = DB::table('town')->where('zone_id', $city->zone_id)->where('name', $request->get('district'))->first();
+            $request->merge([
+                'title'        => $request->get('firstname') . '/' . date('Y_m_d_H_i'),
+                'fullname'     => $request->get('firstname') . ($request->has('lastname') ? ' ' . $request->get('lastname') : ''),
+                'lastname'     => $request->get('lastname') ?: '',
+                'phone_number' => $request->has('phone_number') ? substr($request->get('phone_number'), -10) : '',
+                'redirect'     => $request->get('success_url'),
+                'client_ip'    => $request->ip(),
+                'browser'      => $request->header('User-Agent'),
+                'city'         => $request->has('city') ? $city->zone_id : 0,
+                'town'         => $request->has('district') ? $town->town_id : 0,
+                'products'     => $products->keyBy('content_id'),
+                'firstPrice'   => $products->sum('meta.price') ?: 0,
+                'finalPrice'   => $products->sum('meta.price') ?: 0,
+                'shipmentCost' => 0,
+                'status'       => 'pending',
+            ]);
+            $contentAttr = [
+                'entity_type_id' => 33,
+                'entity_status'  => 'pending',
+                'creator_id'     => 1,
+                'parent_id'      => 0,
+                'meta'           => $request->all(),
+            ];
+            $content = Content::create($contentAttr);
+
+            $response = [
+                //"redirect"   => $request->get('success_url'),
+                "reload"     => false,
+                "message"    => "Sipariş başarılı, şimdi yönlendiriliyorsunuz.",
+                "reset_form" => false,
+                // "data"       => $contentAttr,
+            ];
+        } catch (\Throwable $th) {
+            $response = [];
+        }
+
         return response()->json($response);
 
     }

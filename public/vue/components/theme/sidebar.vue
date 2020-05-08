@@ -42,7 +42,7 @@
                         <li class=""><a href="#/DomainManagment">Domain Yönetimi</a></li>
                         <li class=""><a href="#/ServerManagment">Sunucu Yönetimi</a></li>
                         <li class=""><a href="#/BlogManagment">Blog Yönetimi</a></li>
-                        <li class=""><a href="#/DbManagment">DB Yönetimi</a></li>
+                        <li class=""><a target="_blank" href="/manage/adminer-4.7.6-en.php">DB Yönetimi</a></li>
                     </ul>
                 </li>
                 <li class="hide">
