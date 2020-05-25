@@ -35,9 +35,9 @@
         <div class="row">
 
             <div class="col-lg-6">
-<pre>
-    {{item.meta}}
-</pre>
+                <pre>
+                {{item.meta}}
+                </pre>
                 <div class="card m-b-30">
                     <div class="card-header bg-primary text-white">
                         Müşteri
@@ -257,46 +257,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="input-source" class="col-sm-3 control-label">Kaynak</label>
-                            <div class="col-sm-9">
-                                <select id="input-source" class="form-control" name="source_id">
-                                    <option value="">KAYNAK...</option>
-                                    <option value="10">AJANS1</option>
-                                    <option value="11">AJANS2</option>
-                                    <option value="12">AJANS3</option>
-                                    <option value="13">AJANS4</option>
-                                    <option value="14">AJANS5</option>
-                                    <option value="15">AJANS6</option>
-                                    <option value="27">B ELLE ONAY</option>
-                                    <option value="5">ÇAĞRI MERKEZİ</option>
-                                    <option value="26">ELLE ONAY</option>
-                                    <option value="3">FACEBOOK</option>
-                                    <option value="23">FACEBOOK YENİ</option>
-                                    <option value="24">GOOGLE ADWORDS</option>
-                                    <option value="7">İADEDEN SATIŞ</option>
-                                    <option value="2">INSTAGRAM</option>
-                                    <option value="29">INSTAGRAM BİO</option>
-                                    <option value="22">INSTAGRAM DM</option>
-                                    <option value="28">INSTAGRAM STORY</option>
-                                    <option value="21">INSTAGRAM YORUM</option>
-                                    <option value="8">İPTALDEN SATIŞ</option>
-                                    <option value="33">MECRA</option>
-                                    <option value="30">OUTBOUND</option>
-                                    <option value="31">SNAPCHAT</option>
-                                    <option value="16">SOURCE A</option>
-                                    <option value="17">SOURCE B</option>
-                                    <option value="18">SOURCE C</option>
-                                    <option value="25">SOURCE D</option>
-                                    <option value="4">TELEFON</option>
-                                    <option value="32">TWİTTER</option>
-                                    <option value="9">ULAŞILAMADIDAN SATIŞ</option>
-                                    <option value="6" selected="selected">WEB</option>
-                                    <option value="1">WHATSAPP</option>
-                                    <option value="34">WHATSAPP FACEBOOK</option>
-                                </select>
-                            </div>
-                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Reklam Kaynak</label>
                             <div class="col-sm-9">
@@ -346,7 +307,7 @@
                             <div class="">
                                 <select id="input-payment-method" class="form-control" v-model="selectedProductId" @change="addProductToOrder(selectedProductId)">
                                     <option value="0" selected="selected">Ürün Ekle</option>
-                                    <option v-for="(pi, pik) in products" :value="pik">{{pi.meta ? pi.meta.title : 0}}</option>
+                                    <option v-for="(pi, pik) in products" :value="pik">{{pi.meta ? pi.meta.name : 0}}</option>
                                 </select>
                             </div>
                         </div>
@@ -365,7 +326,7 @@
                             <tbody>
                                 <tr v-if="item.meta && item.meta.products" v-for="(pi, pik) in _.values(item.meta.products)">
                                     <td>{{pi.content_id}} </td>
-                                    <td>{{pi.meta.title}} </td>
+                                    <td>{{pi.meta.name || pi.meta.title}} </td>
                                     <td>
                                         <input class="form-control" type="text" name="adet" :value="pi.meta.product_quantity" v-model="pi.meta.product_quantity">
                                     </td>
@@ -398,7 +359,7 @@
                         </table>
                     </div>
                 </div>
-                                <div class="card m-b-30">
+                <div class="card m-b-30">
                     <div class="card-header bg-primary text-white">
                         Sipariş Detayları
                     </div>
@@ -438,7 +399,7 @@
 
                     </div>
                 </div>
-                                <div class="card m-b-30">
+                <div class="card m-b-30">
                     <div class="card-header bg-primary text-white">
                         Notlar
                     </div>
@@ -498,7 +459,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(pi, pik) in oldOrders">
-                                    <td>{{new Date('2020-04-29T11:44:42.000000Z').toLocaleDateString()}} </td>
+                                    <td>{{new Date(pi.created_at).toLocaleString()}} </td>
                                     <td>İptal</td>
                                     <td>Bilinmiyor</td>
                                     <td>{{pi.content_id}}</td>
@@ -521,18 +482,14 @@
                                     <th style="width: 1%;">Tarih</th>
                                     <th style="width: 1%;">Durum</th>
                                     <th style="width: 1%;">Açıklama</th>
-                                    <th style="width: 1%;">E-posta</th>
-                                    <th style="width: 1%;">SMS</th>
                                     <th style="width: 1%;">Yönetici</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(pi, pik) in logHistory">
-                                    <td>{{pi.created_at}} </td>
-                                    <td>{{clientLangs.order[pi.action_type]}} </td>
+                                    <td>{{moment(pi.created_at).format('DD.MM.YY - HH:mm')}} </td>
+                                    <td>{{userActions[pi.action_type] || pi.action_type}} </td>
                                     <td>{{pi.content.note}} </td>
-                                    <td>{{pi.content.email}} </td>
-                                    <td>{{pi.content.sms}} </td>
                                     <td>{{pi.content.manager}} </td>
                                 </tr>
                             </tbody>
@@ -574,9 +531,6 @@ module.exports = {
                 },
 
             },
-            rawItem: {
-                meta: {}
-            },
             products: [],
             oldOrders: [],
             logHistory: [],
@@ -612,34 +566,56 @@ module.exports = {
     created() {},
     methods: {
         addContent(item = {}, contenttypeid = 0) {
-            item.meta.title = item.meta.fullname + ' Siparişi';
             this.item.meta.phone_number = this.item.meta.phone_number.substr(this.item.meta.phone_number.length - 10);
             this.post(window.apiUrl + "/addContent/" + contenttypeid, item, (res) => {
                 if (this.item.content_id) {
                     alertify.success("Sipariş bilgilerini güncellediniz.");
                 } else {
                     alertify.success("Yeni Sipariş Eklendi");
-
                 }
-                this.item = res
 
-                console.log(this.rawItem.finalPrice, res.meta.finalPrice);
-                if (this.rawItem.finalPrice && this.rawItem.finalPrice != res.meta.finalPrice) {
+                if (this.primaryid && res.meta.finalPrice && this.oldPrice != res.meta.finalPrice) {
 
                     this.$root.addLogHistory({
                         "object_id": this.primaryid,
-                        "subject_id": 0,
+                        "log_type": "orderAction",
                         "action_type": "order_price_changed",
                         "content": {
-                            "old_value": "",
-                            "new_value": "",
+                            "old_value": this.oldPrice,
+                            "new_value": res.meta.finalPrice,
                         },
                     });
-                    setTimeout(() => {
 
-                        this.rawItem = res.meta
-                    }, 1000);
                 }
+                if (this.primaryid && this.oldStatus != res.entity_status) {
+
+                    this.$root.addLogHistory({
+                        "object_id": this.primaryid,
+                        "log_type": "orderAction",
+                        "action_type": "change_status",
+                        "content": {
+                            "old_value": this.oldStatus,
+                            "new_value": res.entity_status,
+                        },
+                    });
+
+                }
+
+                if (!this.primaryid) {
+
+                    this.$root.addLogHistory({
+                        "object_id": res.content_id,
+                        "log_type": "orderAction",
+                        "action_type": "new_order"
+                    });
+                    this.$router.push('/ContenDetail/33/' + this.item.content_id)
+                }
+                setTimeout(() => {
+                    this.item = res
+                    this.oldPrice = this.item.meta.finalPrice
+                    this.oldStatus = this.item.entity_status
+                    this.oldProductLength = this.item.meta.product_id.length
+                }, 600);
                 console.log(res)
             })
         },
@@ -659,15 +635,18 @@ module.exports = {
 
                     this.oldOrders = res.oldOrders;
                 }
-                this.$root.addLogHistory({
-                    "object_id": primaryid,
-                    "subject_id": 0,
-                    "action_type": "order_view"
-                })
-                let rawItem = {
-                    ...res.order.meta
-                };
-                this.rawItem = rawItem
+
+                if (this.item.meta.finalPrice) {
+                    this.oldPrice = this.item.meta.finalPrice
+                    this.oldStatus = this.item.entity_status
+                    this.oldProductLength = this.item.meta.product_id.length
+                    this.$root.addLogHistory({
+                        "object_id": primaryid,
+                        "log_type": "orderAction",
+                        "action_type": "order_view"
+                    })
+                }
+
                 this.getOrderLogHistory(primaryid)
                 console.log(res);
 
@@ -700,6 +679,17 @@ module.exports = {
             this.selectedProductId = 0
             this.item.meta.products.push(this.products[selectedProductId])
             this.item.meta.product_id = _.pluck(this.item.meta.products, 'content_id')
+            if (this.primaryid) {
+                this.$root.addLogHistory({
+                    "object_id": this.primaryid,
+                    "log_type": "orderAction",
+                    "action_type": "add_product",
+                    "content": {
+                        itemId: selectedProductId
+                    }
+                })
+            }
+
         }
     }
 }

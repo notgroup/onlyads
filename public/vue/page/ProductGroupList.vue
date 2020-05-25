@@ -6,13 +6,17 @@
                 <tr>
                     <th width="1%">ID</th>
                     <th>Başlık</th>
+                    <th>Stok</th>
+                    <th>Maliyet</th>
                     <th width="1%">İşlem</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, itemi) in items">
                     <td>{{itemi}}</td>
-                    <td>{{item.meta.title}}</td>
+                    <td>{{item.meta.name}}</td>
+                    <td>{{item.meta.quantity}}</td>
+                    <td>{{item.meta.cost}}</td>
 
                     <td>
                         <div class="btn-group btn-group">

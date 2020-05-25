@@ -1,7 +1,21 @@
 <?php
-/*$date=date_create(date("d/m/Y"));
-echo date_format($date,"d/m/Y");*/
 
+print_r(date('Y-m-d H:i:s'));
+/*
+$date=date_create(date("8.05.2020"));
+$time1 = strtotime('9.05.2020');
+$time2 = strtotime('10.05.2020');
+echo date_format($date,"d/m/Y")."<br>".PHP_EOL;
+echo DEFAULT_INCLUDE_PATH ."<br>".PHP_EOL;
+echo PHP_EXTENSION_DIR  ."<br>".PHP_EOL;
+echo PHP_LIBDIR   ."<br>".PHP_EOL;
+echo PHP_BINDIR    ."<br>".PHP_EOL;
+if (date("d/m/Y", $time1) < date("d/m/Y", $time2)) {
+} else {
+}
+echo "$time1 time1 buyuk" . date("d/m/Y H:i:s", $time1)."<br>".PHP_EOL;
+echo "$time2 buyuk" . date("d/m/Y H:i:s", $time2)."<br>".PHP_EOL;
+*/
 function get_web_page_header( $url ) {
     $res = array();
     $options = array(
@@ -54,7 +68,8 @@ print_r($res);*/
 /*
 $exampleItem = array_fill_keys(array_values(["mok","urun","ad","adres","ilce","sehir","tel","irsaliyeno","ilkodu","ilcekodu","varis","serino","desi","tahsilat", "tutarı","ödeme", "tipi"]), 1);
 print_r($exampleItem);*/
-
+/*
 $test01 = strpos('shipped:deposer', ':');
 $test02 = explode(':', 'shipped:deposer');
-print_r(substr('+9053698565464505511500212', -10));
+print_r(substr('+9053698565464505511500212', -10));*/
+

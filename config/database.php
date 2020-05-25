@@ -53,9 +53,19 @@ return [
             'database' => env('DB_DATABASE', database_path('db/cargo.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
+        'accounting' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/accounting.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
         'test_sqlite' => [
             'driver' => 'sqlite',
             'database' => env('DB_DATABASE', database_path('db/rtopless.sqlite')),
+            'prefix' => env('DB_PREFIX', ''),
+        ],
+        'test_remote' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', database_path('db/remote.sqlite')),
             'prefix' => env('DB_PREFIX', ''),
         ],
         'facebook' => [

@@ -1,4 +1,5 @@
 <?php
+use App\Models\LogHistory;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
@@ -12,46 +13,79 @@ use Laravel\Lumen\Routing\UrlGenerator;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpFoundation\Cookie;
 
+if (!function_exists('cargoDateFormat')) {
+    function cargoDateFormat($stringDate)
+    {
+      /*
+        $date = date_create('2000-01-01');
+        if (!$date) {}
+        echo date_format($date, 'Y-m-d');
+        */
+
+
+        if (strpos($stringDate, ':00')) {
+            return null;
+        } else {
+
+            $time = strtotime($stringDate);
+            return date("Y-m-d", $time);
+        }
+
+    }
+}
 if (!function_exists('generateCsv')) {
     function generateCsv($fileName, $data = [], $delimiter = ',', $enclosure = '"')
     {
 
         $handle = fopen($fileName, 'w');
         foreach ($data as $lkey => $line) {
-            if ($lkey < 100) {
                 fputcsv($handle, array_values($line), $delimiter, $enclosure);
-            }
         }
         fclose($handle);
 
     }
 }
+if (!function_exists('addLogHistory')) {
+    function addLogHistory($data)
+    {
+$where = [
+    'subject_id'  => $data['subject_id'],
+    'object_id'   => $data['object_id'],
+    'log_type'    => $data['log_type'],
+    'action_type' => $data['action_type'],
+];
+        $log = LogHistory::create($data);
+        return $log;
+
+    }
+}
 if (!function_exists('get_web_page_header')) {
-    function get_web_page_header( $url ) {
-        $res = array();
+    function get_web_page_header($url)
+    {
+        $res     = array();
         $options = array(
-            CURLOPT_RETURNTRANSFER => true,     // return web page
-            CURLOPT_HEADER         => false,    // do not return headers
-            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+            CURLOPT_RETURNTRANSFER => true, // return web page
+            CURLOPT_HEADER         => false, // do not return headers
+            CURLOPT_FOLLOWLOCATION => true, // follow redirects
             CURLOPT_USERAGENT      => "spider", // who am i
-            CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
-            CURLOPT_TIMEOUT        => 120,      // timeout on response
-            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+            CURLOPT_AUTOREFERER    => true, // set referer on redirect
+            CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
+            CURLOPT_TIMEOUT        => 120, // timeout on response
+            CURLOPT_MAXREDIRS      => 10, // stop after 10 redirects
         );
-        $ch      = curl_init( $url );
-        curl_setopt_array( $ch, $options );
-        $content = curl_exec( $ch );
-        $err     = curl_errno( $ch );
-        $errmsg  = curl_error( $ch );
-        $header  = curl_getinfo( $ch );
-        curl_close( $ch );
-    
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $options);
+        $content = curl_exec($ch);
+        $err     = curl_errno($ch);
+        $errmsg  = curl_error($ch);
+        $header  = curl_getinfo($ch);
+        curl_close($ch);
+
         //$res['content'] = $content;
-        $res['url'] = $header['url'];
+        $res['url']            = $header['url'];
         $res['redirect_count'] = $header['redirect_count'];
-        $res['errmsg'] = $errmsg;
-        $res['err'] = $err;
+        $res['errmsg']         = $errmsg;
+        $res['err']            = $err;
         return $res;
     }
 }

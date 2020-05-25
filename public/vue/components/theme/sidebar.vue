@@ -23,7 +23,7 @@
                             <a href="#/business-accounts">BM Hesapları</a>
                         </li>
                         <li class="hide">
-                            <a href="#/ad-accounts">Reklam Hesapları</a>
+                            <a href="#/AdProductAds">Ürün Eşleştirme</a>
                         </li>
                         <li class="hide"><a href="#/ref-prefix">Ref Önek</a></li>
                         <li class="hide"><a href="#/ref-prefix">Events</a></li>
@@ -126,59 +126,73 @@
                         </li>
                     </ul>
                 </li>
-                <li class="hide">
-                    <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
+                <li class="">
+                    <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i>
+                        <span>
                             Raporlar
-                            <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
+                            <span class="float-right menu-arrow">
+                                <i class="mdi mdi-chevron-right"></i>
+                            </span>
+                        </span>
+                    </a>
                     <ul class="submenu">
                         <li class="">
-                            <a href="#/">Satış</a>
+                            <a href="#/SalesReport">Satış</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Satış Grafikleri</a>
                         </li>
                         <li class="">
-                            <a href="#/">Agent Raporları</a>
+                            <a href="#/AgentReport">Kullanıcı Raporları</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Arama Raporları</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Saatlik</a>
                         </li>
-                        <li class="">
-                            <a href="#/">Yönetici</a>
+                        <li class="hide">
+                            <a href="#/ManagerReport">Yönetici</a>
                         </li>
                         <li class="">
-                            <a href="#/">Maliyet Raporları</a>
+                            <a href="#/CostReport">Maliyet (Ürün/Gün)</a>
                         </li>
                         <li class="">
-                            <a href="#/">Onay Değerleri</a>
+                            <a href="#/ConfirmReport">Onay Değerleri (Gün/Ürün)</a>
                         </li>
                         <li class="">
-                            <a href="#/">Onay Değerleri (Detaylı)</a>
+                            <a href="#/ConfirmReportDetails">Onay Değerleri (Toplam/ürün)</a>
                         </li>
-                        <li class="">
+                        <li class="hide">
                             <a href="#/">Primler</a>
                         </li>
                     </ul>
                 </li>
-                <li class="hide">
+                <li class="">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
-                            Gider Yönetimi
+                            Muhasebe
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="submenu">
                         <li class="">
                             <a href="#/">Reklam Maliyetleri</a>
                         </li>
                         <li class="">
-                            <a href="#/">Teslim Oranları</a>
+                            <a href="#/StockActions">Stok Takibi</a>
                         </li>
                         <li class="">
-                            <a href="#/">Ürün Maliyetleri</a>
+                            <a href="#/PersonalCards">Personel</a>
                         </li>
                         <li class="">
-                            <a href="#/">Genel Gider</a>
+                            <a href="#/CompanyCards">Şirket</a>
+                        </li>
+                        <li class="">
+                            <a href="#/AccountingSettings">Muhasebe Ayarları</a>
+                        </li>
+                        <li class="">
+                            <a href="#/SpendRevenue">Gelir/Gider</a>
+                        </li>
+                        <li class="">
+                            <a href="#/">Raporlar</a>
                         </li>
                     </ul>
                 </li>

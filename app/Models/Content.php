@@ -46,6 +46,13 @@ class Content extends Model
         return $this->belongsToMany('App\Models\TermVariant', 'term_content', 'content_id', 'variant_id');
     }
 
+
+    public function cargoDetail()
+    {
+        return $this->hasOne('App\Models\Shipment', 'refOrderId', 'content_id');
+        //->get()->pluck('meta_key','meta_value');
+    }
+
     public function meta2()
     {
         return $this->hasOne('App\Models\ContentMeta', 'content_id', 'content_id');
@@ -58,6 +65,10 @@ class Content extends Model
         //->get()->pluck('meta_key','meta_value');
     }
     public function getTermsAttribute()
+    {
+        return $this->terms()->get();
+    }
+    public function getCargoDetailAttribute()
     {
         return $this->terms()->get();
     }

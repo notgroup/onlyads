@@ -5,7 +5,7 @@
         <div class="page-title-box">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4 class="page-title">RoleList</h4>
+                    <h4 class="page-title">Kullanıcı Rolleri</h4>
                 </div>
                 <div class="col-sm-6">
                     <a :href="'#/AddRole/0'" class="btn btn-primary rounded btn-custom waves-effect waves-light float-right"><i class="fa fa-plus" style="margin-right:10px;"></i> Ekle</a>

@@ -4,7 +4,7 @@
         <div class="page-title-box">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4 class="page-title">AddRole</h4>
+                    <h4 class="page-title">{{item.name || 'Kullanıcı Rolü'}}</h4>
                 </div>
                 <div class="col-sm-6">
                     <button @click="addRole(item)" class="btn btn-success rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
@@ -36,7 +36,7 @@
                         <div class="form-group">
                             <label for="input-name" class="control-label">Name</label>
                             <div class="">
-                                <input id="input-name" class="form-control" placeholder="Name" v-model="item.name" name="title" type="text">
+                                <input id="input-name" class="form-control" placeholder="Name" v-model="item.name" name="name" type="text">
                             </div>
                         </div>
                         <div class="form-group">
@@ -118,9 +118,11 @@ module.exports = {
                     "settings.delete",
                     "settings.view"
                 ],
-                shipment: ["shipment.create",
+                shipment: [
+                    "shipment.create",
                     "shipment.edit",
                     "shipment.delete",
+                    "shipment.report",
                     "shipment.view"
                 ],
                 dashboard: ["dashboard.create",
@@ -134,8 +136,9 @@ module.exports = {
                     "payment.view"
                 ],
                 report: ["report.create",
-                    "report.edit",
-                    "report.delete",
+                    "report.shipment",
+                    "report.self",
+                    "report.callcenter",
                     "report.view"
                 ],
                 user: ["user.create",

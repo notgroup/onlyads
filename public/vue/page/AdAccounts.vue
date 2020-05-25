@@ -131,7 +131,7 @@
                                             <td class="keyi"></td>
                                             <td :class="[bs.is_prepay_account ? 'bg-success' : '']">{{bs.name.toLocaleLowerCase('tr')}}</td>
                                             <td>{{(bs.business_name || bs.business.name).toLocaleLowerCase('tr')}}</td>
-                                            <td>{{bs.campaigns ? (bs.campaigns[0].daily_budget/100) : '0'}} </td>
+                                            <td>{{bs.campaigns && bs.campaigns[0] ? (bs.campaigns[0].daily_budget/100) : '0'}} </td>
                                             <td>{{bs.disable_reason ? reasons[bs.disable_reason] + '/' : ''}}{{accountLang[bs.account_status]}} </td>
                                             <td>{{bs.insights ? parseFloat(bs.insights[0].spend).toFixed(2) : 0}}</td>
                                             <td>{{bs.insights ? bs.insights[0].unique_clicks : 0}}</td>
@@ -152,7 +152,7 @@
 
                                                     </label>
                                                     <label class="btn btn-default waves-effect waves-light" :class="[]">
-                                                        <i class="far fa-credit-card"></i>
+                                                        <i class="far fa-trash-alt"></i>
                                                     </label>
                                                     <label class="btn btn-default waves-effect waves-light">
                                                         <i class="fas fa-cog"></i>
@@ -344,6 +344,8 @@ module.exports = {
     props: ['bmId'],
     data() {
         return {
+            bmAccount: {},
+            hiddenAccounts: [],
             table: undefined,
             filterDate: todayDate,
             filterDateEnd: todayDate,
@@ -385,6 +387,37 @@ module.exports = {
         };
     },
     methods: {
+        hideAccount(accountId) {
+            // this.hiddenAccounts.push(accountId);
+            alertify.delay(10000)
+                .okBtn("Tamam")
+                .cancelBtn("Vazgeç")
+                .confirm("Bu reklam hesabı artık listenizde bulunmayacak!", (ev) => {
+                    ev.preventDefault();
+                    this.hiddenAccounts.push(accountId);
+                    this.get(window.apiUrl + "/hideAdAccount/" + this.bmId + '/' + accountId, (res) => {
+
+                        this.table
+                            .rows('.hiddenx')
+                            .remove()
+                            .draw();
+                        setTimeout(() => {
+
+                            sortColumn(this.table, 'all', 0, 1);
+                        }, 600);
+                        /* if (this.table) {
+
+                        this.table.destroy();
+                    }
+
+this.createTable();*/
+                        alertify.success("Reklam hesabı kaldırıldı!");
+                    })
+                }, (ev) => {
+                    ev.preventDefault();
+                });
+            /*  */
+        },
         newDateRequest(filterDate = this.filterDate, filterDateEnd = this.filterDateEnd) {
             this.getAdAccounts(filterDate, filterDateEnd)
         },
@@ -395,6 +428,7 @@ module.exports = {
             this.addNoteModal = 1
             $('.modal01').modal('show');
             this.currentNote.objectId = objectId
+            this.currentNote.parent_bm_id = this.bmId
             this.getNotes(objectId)
 
         },
@@ -424,6 +458,108 @@ module.exports = {
                 this.allNotes = _.indexBy(res, 'objectId')
             })
         },
+        createTable() {
+            setTimeout(() => {
+
+                this.table = $('#datatable').DataTable({
+                    pageLength: 300,
+                    destroy: true,
+                    ordering: true,
+                    colReorder: {
+                        enable: true,
+                        realtime: true
+                    },
+                    "processing": true,
+                    rowReorder: true,
+                    columnDefs: [{
+                        searchable: false,
+                        orderable: true,
+                        visible: true,
+                        targets: 0,
+                    }, {
+                        "targets": 'no-sort',
+                        "orderable": false,
+                    }],
+                    "lengthMenu": [100, 200, 300, 500, 1000],
+                    drawCallback: function (settings) {
+
+                        var api = this.api();
+                        sortColumn(api, 'current', 2, 1);
+                    },
+                    initComplete: function () {
+
+                        var api = this.api();
+
+                        api.column(2, {
+                            page: 'all'
+                        }).every(function () {
+                            var column = this;
+                            var select = $('.bm-selector')
+                                .on('change', function () {
+                                    var val = $(this).val().join('|');
+                                    column
+                                        .search(val, true, false)
+                                        .draw();
+                                    sortColumn(api, val ? 'current' : 'all', 2);
+                                });
+                        });
+                        api.column(11, {
+                            page: 'all'
+                        }).every(function () {
+                            var column = this;
+                            var select = $('.adstatus-selector')
+                                .on('change', function () {
+                                    //console.log($(this).val())
+                                    var val = $(this).val().join('|');
+
+                                    column
+                                        .search(val, true, false)
+                                        .draw();
+                                    sortColumn(api, val ? 'current' : 'all', 2);
+                                });
+
+                        });
+
+                        api.column(1, {
+                            page: 'all'
+                        }).every(function () {
+                            var column = this;
+                            var select = $('.account-selector')
+                                .on('change', function () {
+                                    var val = $(this).val().join('|');
+
+                                    column
+                                        .search(val, true, false)
+                                        .draw();
+                                    sortColumn(api, val ? 'current' : 'all', 1);
+
+                                });
+
+                        });
+
+                        api.column(4, {
+                            page: 'all'
+                        }).every(function () {
+                            var column = this;
+                            var select = $('.status-selector')
+                                .on('change', function () {
+                                    // console.log($(this).val())
+                                    var val = $(this).val().join('|');
+
+                                    column
+                                        .search(val, true, false)
+                                        .draw();
+                                    sortColumn(api, val ? 'current' : 'all', 4);
+                                });
+
+                        });
+                        sortColumn(api, 'all', 0);
+
+                    }
+                });
+                this.refreshing = false;
+            }, 0);
+        },
         getAdAccounts(filterDate = this.filterDate, filterDateEnd = this.filterDateEnd) {
             this.refreshing = true;
             this.get('/adAccounts?bmId=' + this.bmId + '&startDate=' + filterDate + '&endDate=' + filterDateEnd, (res) => {
@@ -436,7 +572,7 @@ module.exports = {
                     let adcreatives = []
                     let insights = []
                     this.adAccounts = res
-                    _.each(this.adAccounts, (adAccount) => {
+                   /* _.each(this.adAccounts, (adAccount) => {
                         let account = {}
                         accounts[adAccount.account_id] = _.pick(adAccount, ['id', 'name', 'balance', 'amount_spent', 'business_name', 'account_id', 'adspixels']);
                         if (adAccount.campaigns) {
@@ -444,112 +580,13 @@ module.exports = {
                             insights = insights.concat(adAccount.insights);
                         };
 
-                    })
+                    })*/
                     if (this.table) {
 
                         this.table.destroy();
                     }
-                    setTimeout(() => {
 
-                        this.table = $('#datatable').DataTable({
-                            pageLength: 300,
-                            destroy: true,
-                            ordering: true,
-                            colReorder: {
-                                enable: true,
-                                realtime: true
-                            },
-                            "processing": true,
-                            rowReorder: true,
-                            columnDefs: [{
-                                searchable: false,
-                                orderable: true,
-                                visible: true,
-                                targets: 0,
-                            }, {
-                                "targets": 'no-sort',
-                                "orderable": false,
-                            }],
-                            "lengthMenu": [100, 200, 300, 500, 1000],
-                            drawCallback: function (settings) {
-
-                                var api = this.api();
-                                sortColumn(api, 'current', 2, 1);
-                            },
-                            initComplete: function () {
-
-                                var api = this.api();
-
-                                api.column(2, {
-                                    page: 'all'
-                                }).every(function () {
-                                    var column = this;
-                                    var select = $('.bm-selector')
-                                        .on('change', function () {
-                                            var val = $(this).val().join('|');
-                                            column
-                                                .search(val, true, false)
-                                                .draw();
-                                            sortColumn(api, val ? 'current' : 'all', 2);
-                                        });
-                                });
-                                api.column(11, {
-                                    page: 'all'
-                                }).every(function () {
-                                    var column = this;
-                                    var select = $('.adstatus-selector')
-                                        .on('change', function () {
-                                            //console.log($(this).val())
-                                            var val = $(this).val().join('|');
-
-                                            column
-                                                .search(val, true, false)
-                                                .draw();
-                                            sortColumn(api, val ? 'current' : 'all', 2);
-                                        });
-
-                                });
-
-                                api.column(1, {
-                                    page: 'all'
-                                }).every(function () {
-                                    var column = this;
-                                    var select = $('.account-selector')
-                                        .on('change', function () {
-                                            var val = $(this).val().join('|');
-
-                                            column
-                                                .search(val, true, false)
-                                                .draw();
-                                            sortColumn(api, val ? 'current' : 'all', 1);
-
-                                        });
-
-                                });
-
-                                api.column(4, {
-                                    page: 'all'
-                                }).every(function () {
-                                    var column = this;
-                                    var select = $('.status-selector')
-                                        .on('change', function () {
-                                            // console.log($(this).val())
-                                            var val = $(this).val().join('|');
-
-                                            column
-                                                .search(val, true, false)
-                                                .draw();
-                                            sortColumn(api, val ? 'current' : 'all', 4);
-                                        });
-
-                                });
-                                sortColumn(api, 'all', 0);
-
-                            }
-                        });
-                        this.refreshing = false;
-                    }, 0);
-
+                    this.createTable();
                 }
 
             })
@@ -557,7 +594,9 @@ module.exports = {
     },
     computed: {},
     mounted() {
-
+        this.get(window.apiUrl + "/getBmAcoount/" + this.bmId, (res) => {
+            this.bmAccount = res;
+        })
         this.getAdAccounts()
 
         this.getAllNotes();

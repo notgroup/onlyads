@@ -232,31 +232,50 @@ module.exports = {
     created() {},
     methods: {
         setChangeStatus(selecteds, status) {
-            alertify.okBtn("Tamam")
-                .cancelBtn("Vazgeç")
-                .defaultValue("")
-                
-                .prompt("İptal Etme nedeni:" + status, (str, ev) => {
-                 
-                    console.log(str)
-                    console.log(ev)
-                   // alertify.success("Başarılı " + str);
+            if (status == 'canceled') {
+                alertify.okBtn("Tamam")
+                    .cancelBtn("Vazgeç")
+                    .defaultValue("")
 
-                    this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
-                        selecteds: selecteds,
-                        status: status
-                    }, (res) => {
+                    .prompt("İptal etme nedeni:", (note, ev) => {
+                        this.changeStatus(selecteds, status, note)
 
-                        this.selecteds = []
-                        this.getData()
-                        this.actionValue = 0
-                        alertify.success("Toplu sipariş güncellemesi başarılı.");
+                    }, (ev) => {
+                        ev.preventDefault();
+                        // alertify.error("Vazgeçtiniz");
+                    });
+            } else {
+                this.changeStatus(selecteds, status)
+            }
+
+        },
+        changeStatus(selecteds, status, note = '') {
+
+            this.post(window.apiUrl + "/setChangeStatus/" + this.typeId, {
+                selecteds: selecteds,
+                currentStatus: this.filter.status,
+                newStatus: status,
+                status_note: note
+            }, (res) => {
+
+                this.selecteds = []
+                this.getData()
+                this.actionValue = 0
+                alertify.success("Toplu sipariş güncellemesi başarılı.");
+                if (this.filter.status != status.split(':')[0]) {
+                    this.$root.addLogHistory({
+                        object_id: 0,
+                        log_type: 'orderAction',
+                        action_type: 'bulk_change_status',
+                        content: {
+                            itemIds: selecteds,
+                            old_value: this.filter.status,
+                            new_value: status.split(':')[0]
+                        }
                     })
+                }
 
-                }, (ev) => {
-                    ev.preventDefault();
-                    alertify.error("Vazgeçtiniz");
-                });
+            })
 
         },
         addSetting() {

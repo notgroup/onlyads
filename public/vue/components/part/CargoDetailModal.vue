@@ -65,9 +65,9 @@
                             <dt class="col-sm-5">Gönderi Ödemesi</dt>
                             <dd class="col-sm-7">Gönderici Ödemeli</dd>
                             <dt class="col-sm-5">Kargo Firması</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.sube}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.branch}}</dd>
                             <dt class="col-sm-5">Alım Tarihi</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.alimtarihi}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.acceptDate}}</dd>
                             <dt class="col-sm-5">Adres</dt>
                             <dd class="col-sm-7">{{currentCargoDetail.meta.address}}</dd>
 
@@ -77,24 +77,24 @@
                         <dl class="row mb-0" v-if="currentCargoDetail.meta">
 
                             <dt class="col-sm-5">Çıkış Tarihi</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.cikistarihi}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.exitDate}}</dd>
                             <dt class="col-sm-5">Teslimat Durumu</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.durum}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.shipmentStatus}}</dd>
                             <dt class="col-sm-5">Takip Numarası</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.gonderino}}
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.senderId}}
                                 <span @click="$root.getCargoDetail(currentCargoDetail)" class="badge badge-primary"> <i class="fa fa-truck"></i></span>
 
                             </dd>
                             <dt class="col-sm-5">Varış Şubesi</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.sube}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.branch}}</dd>
                             <dt class="col-sm-5">Durum Açıklaması</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.meta.cargoDetail.sonuc}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.result}}</dd>
                             <dt class="col-sm-5">Fatura Numarası</dt>
                             <dd class="col-sm-7">{{currentCargoDetail.content_id}}</dd>
                             <dt class="col-sm-5">İrsaliye Numarası</dt>
                             <dd class="col-sm-7">{{currentCargoDetail.content_id}}</dd>
                             <dt class="col-sm-5">Güncelleme Tarihi</dt>
-                            <dd class="col-sm-7">{{currentCargoDetail.sonuctarihi}}</dd>
+                            <dd class="col-sm-7">{{currentCargoDetail.cargo_detail.resultDate}}</dd>
 
                         </dl>
                     </div>
@@ -115,7 +115,7 @@
                             <tbody>
                                 <template v-for="(product, pkey) in currentCargoDetail.meta.products">
                                     <tr :key="pkey">
-                                        <td>{{pkey}}</td>
+                                        <td>{{product.content_id}}</td>
                                         <td>
                                             <div class="pull-left" style="margin-left: 15px;">
                                                 <b>{{product.meta.name || product.meta.title}}</b>
@@ -149,23 +149,43 @@ module.exports = {
             agentStatusContent: {
                 action: 0,
                 note: ''
-            }
+            },
+            agentStatus: 0
         };
     },
     computed: {},
     mounted() {
         $('.modal01').modal('show');
+        console.log(this);
+
     },
     beforeCreate() {},
     created() {
+        console.log(this);
+
         this.currentCargoDetail = this.cargoDetail
+        this.agentStatus = this.cargoDetail.meta.agentStatus
     },
     methods: {
         setAgentAction() {
+            this.post(window.apiUrl + "/addContent/" + 33, _.omit(this.currentCargoDetail, 'cargo_detail'), (res) => {
+                alertify.success("İşlem bilgilerini güncellediniz.");
+                if (this.agentStatus != this.currentCargoDetail.meta.agentStatus) {
+                    this.$root.addLogHistory({
+                        object_id: this.currentCargoDetail.content_id,
+                        log_type: 'callCenterAction',
+                        action_type: 'change_status',
+                        content: {
+                            old_value: this.agentStatus,
+                            new_value: this.currentCargoDetail.meta.agentStatus
+                        }
+                    })
+                }
+                setTimeout(() => {
+                            this.agentStatus = res.meta.agentStatus
+                            this.currentCargoDetail = Object.assign(this.currentCargoDetail,res)
+                }, 1000);
 
-            this.post(window.apiUrl + "/addContent/" + 33, this.currentCargoDetail, (res) => {
-                console.log(res);
-                alertify.success("Kargo bilgilerini güncellediniz.");
             })
 
         },

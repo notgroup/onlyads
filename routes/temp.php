@@ -114,3 +114,70 @@ $router->get('/jsontest', function (Request $request) use ($router) {
       ->get();
   return response()->json($data);
 });
+
+
+
+$router->get('/bak01', function (Request $request) use ($router) {
+    /*
+
+    $orders = DB::connection('test_remote')->table('orders01')->get();
+    foreach ($orders as $key => $order) {
+
+    try {
+    $products = $order->product_id ? Content::where('entity_type_id', 4)
+    ->where('content_id', $order->product_id)
+    ->get() : collect([]);
+
+    $order = array_merge((array) $order, [
+    'fullname'     => $order->firstname,
+    'lastname'     => '',
+    'product_id'     => [$order->product_id],
+    'hasOldOrder'  => 0,
+    'client_ip'    => $request->ip(),
+    'browser'      => $request->header('User-Agent'),
+    'products'     => $products->toArray(),
+    'firstPrice'   => $products->sum('meta.price') ?: 0,
+    'finalPrice'   => $products->sum('meta.price') ?: 0,
+    'shipmentCost' => 0,
+    'agentStatus'  => 'processless',
+    'shipmentStatus' => 0,
+    'agentNote'    => '',
+    'status'       => 'pending',
+    'pixel'       => 0,
+    'referrerUrl'       => 0,
+    'firstUrl'       => 0,
+    'ref'       => 0,
+    ]);
+    $contentAttr = [
+    'entity_type_id' => 33,
+    'entity_status'  => 'pending',
+    'creator_id'     => 1,
+    'parent_id'      => 0,
+    'meta'           => $order,
+    ];
+    $content = Content::create($contentAttr);
+
+    } catch (\Throwable $th) {
+
+    }
+    }
+     */
+
+// DB::table('contents')->where('entity_type_id', 33)->update(['contents.meta->cargoDetail' => 0, 'contents.meta->shipmentStatus' => 0]);
+
+    $oreders = DB::table('contents')->select(['contents.*', 'cargotracking.meta as cargoDetail'])
+        ->join('cargotracking', DB::raw("json_extract(contents.meta, '$.refOrderId')"), '=', 'cargotracking.orderId')
+        ->where('contents.entity_type_id', 33)
+    //->limit(20)->get()->toArray();
+    //return response()->json($oreders);
+        ->update([
+            'contents.meta->cargoDetail' => DB::raw("JSON_EXTRACT(cargotracking.meta, '$')"),
+        ]);
+/*
+DB::table('contents')
+->join('cargotracking','cargotracking.orderId', '=', 'contents.content_id')
+->where('contents.entity_type_id', 33)
+->update([
+'contents.meta->shipmentStatus' => DB::raw('cargotracking.shipmentStatus'),
+]);*/
+});

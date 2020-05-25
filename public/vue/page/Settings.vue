@@ -5,7 +5,7 @@
             <div class="page-title-box">
                 <div class="row align-items-center">
                     <div class="col-sm-6">
-                        <h4 class="page-title">Settings</h4>
+                        <h4 class="page-title">Ayarlar</h4>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-right">
@@ -36,7 +36,7 @@
 
                   </td>
                   <td>{{set.autoload}}</td>
-                  <td><button class="btn btn-primary waves-effect waves-light">
+                  <td><button class="btn btn-primary waves-effect waves-light" @click="deleteSetting(set)">
                    <i class="far fa-trash-alt"></i>
                </button></td>
            </tr>
@@ -98,6 +98,12 @@ module.exports = {
         addSetting(){
           this.post(window.apiUrl + "/addSetting", this.currentSettings, (res) => {
             this.currentSettings = {}
+            this.settings = res
+        })
+      },
+        deleteSetting(set){
+          this.get(window.apiUrl + "/deleteSetting/"+ set.option_id, (res) => {
+
             this.settings = res
         })
       },

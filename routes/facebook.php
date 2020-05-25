@@ -8,17 +8,34 @@ require_once 'config.php';
 
 function getFacebookData($fb, $startDate, $endDate, $bmId)
 {
-
     $response = false;
-    $error = false;
+    $error    = false;
     try {
-
         $clientAdAccountFields  = "disable_reason,account_status,id,business,account_id,is_prepay_account,name";
         $clientAdAdsFields      = "ads.limit(1){effective_status,name,status}";
         $clientAdInsightsFields = "insights.level(campaign).time_range({'since':'$startDate','until':'$endDate'}).time_increment(all_days)"
             . "{spend,unique_clicks,cost_per_unique_click,unique_actions,cost_per_unique_action_type}";
-        $response = $fb->get($bmId."?fields=client_ad_accounts.limit(400){campaigns.limit(1){daily_budget},$clientAdInsightsFields,$clientAdAdsFields,$clientAdAccountFields}");
-        $response = $response->getGraphNode()->asArray();
+        $response = $fb->get($bmId . "/client_ad_accounts?limit=100&fields=campaigns.limit(1){daily_budget},$clientAdInsightsFields,$clientAdAdsFields,$clientAdAccountFields");
+        // $response = $response->getDecodedBody();
+
+        if ($response->getDecodedBody()['data']) {
+            $responseArr = [];
+
+            $responseArr = (array) $response->getGraphEdge()->asArray();
+            if (isset($response->getDecodedBody()['paging']) && isset($response->getDecodedBody()['paging']['next'])) {
+                //$nextUrl = str_replace('https://graph.facebook.com/v7.0/', '', $response->getDecodedBody()['paging']['next']);
+                do {
+                    //print_r(count($response->getDecodedBody()['data']));
+                    $nextUrl     = str_replace('https://graph.facebook.com/v7.0/', '', $response->getDecodedBody()['paging']['next']);
+                    $response    = $fb->get($nextUrl);
+                    $responseArr = array_merge($responseArr, $response->getGraphEdge()->asArray());
+                    sleep(1);
+
+                } while ((isset($response->getDecodedBody()['paging']) && isset($response->getDecodedBody()['paging']['next'])));
+
+            }
+
+        }
     } catch (FacebookResponseException $e) {
         // When Graph returns an error
         $error = 'Graph returned an error: ' . $e->getMessage();
@@ -28,31 +45,74 @@ function getFacebookData($fb, $startDate, $endDate, $bmId)
         $error = 'Facebook SDK returned an error: ' . $e->getMessage();
 
     }
-/*print_r($error);
-die();*/
-    return $response;
+    /*
+    print_r(count($responseArr));
+    die();
+     */
+
+    //$response = $response->getGraphNode();
+    // $response = $response->getGraphEdge();
+    //getGraphEdge()->asArray()
+
+    //    print_r(get_class_methods($response->getGraphNode()));
+    //   print_r($response->getDecodedBody());
+    // print_r(get_class_methods($response->getGraphNode()->getField('client_ad_accounts')));
+    // print_r($response->getGraphNode()->getField('client_ad_accounts')->getNextPageRequest());
+    // print_r($response->getGraphNode()->getField('client_ad_accounts')->getPaginationUrl('next'));
+    //print_r(get_class_methods($response->getGraphNode()->getField('client_ad_accounts')->getNextPageRequest()));
+    // print_r($response->getGraphNode()->getField('client_ad_accounts')->getMetaData());
+    // print_r($response->getGraphNode()->getField('client_ad_accounts')->getNextPageRequest()->getUrl());
+    // print_r($response->getGraphNode()->getField('client_ad_accounts'));
+    //  print_r($response->getGraphNode()->asArray());
+    //  print_r($response->getDecodedBody());
+    //print_r($response);
+    //print_r($error);
+    //die();
+
+/*
+print_r(count($responseArr));
+die();
+
+$responseArr[] = $response->getGraphNode()->asArray();
+
+do {
+$response = $fb->get($response->getGraphNode()->getField('client_ad_accounts')->getPaginationUrl('next'));
+$responseArr[] = $response->getGraphNode()->asArray();
+print_r(get_class_methods($response->getGraphNode()));
+
+foreach ($response->asArray() as $item){
+//do something with it
+}
+
+} while(isset($response->getDecodedBody()['client_ad_accounts']) && isset($response->getDecodedBody()['client_ad_accounts']['paging']) && isset($response->getDecodedBody()['client_ad_accounts']['paging']['next']));
+
+print_r($responseArr);
+die();
+ */
+
+    return count($responseArr) ? $responseArr : false;
 }
 /*
 function adAccountsActivities($fb, $startDate, $endDate)
 {
-    $response = false;
-    try {
-        $response = $fb->get("156479078851727?fields=client_ad_accounts.limit(250){account_id,activities.limit(5){event_type,translated_event_type,object_type,event_time,actor_name,extra_data}}");
-        $response = $response->getGraphNode()->asArray();
-        //$response = $fb->get('me?fields=businesses{id,name,client_ad_accounts{business,id,balance,name}}');
-    } catch (FacebookResponseException $e) {
-        // When Graph returns an error
-        $error = 'Graph returned an error: ' . $e->getMessage();
+$response = false;
+try {
+$response = $fb->get("156479078851727?fields=client_ad_accounts.limit(250){account_id,activities.limit(5){event_type,translated_event_type,object_type,event_time,actor_name,extra_data}}");
+$response = $response->getGraphNode()->asArray();
+//$response = $fb->get('me?fields=businesses{id,name,client_ad_accounts{business,id,balance,name}}');
+} catch (FacebookResponseException $e) {
+// When Graph returns an error
+$error = 'Graph returned an error: ' . $e->getMessage();
 
-    } catch (FacebookSDKException $e) {
-        // When validation fails or other local issues
-        $error = 'Facebook SDK returned an error: ' . $e->getMessage();
+} catch (FacebookSDKException $e) {
+// When validation fails or other local issues
+$error = 'Facebook SDK returned an error: ' . $e->getMessage();
 
-    }
-
-    return $response;
 }
-*/
+
+return $response;
+}
+ */
 function getAccountDetail($fb, $accountId)
 {
     $response = false;
@@ -75,32 +135,30 @@ function getAccountDetail($fb, $accountId)
 /*
 $router->get('/adAccountsActivities', function (Request $request) use ($router, $fb) {
 
-    $startDate = $request->has('startDate') ? $request->get('startDate') : date("Y-m-d");
-    $endDate   = $request->has('endDate') ? $request->get('endDate') : date("Y-m-d");
+$startDate = $request->has('startDate') ? $request->get('startDate') : date("Y-m-d");
+$endDate   = $request->has('endDate') ? $request->get('endDate') : date("Y-m-d");
 
-    $cacheKey = 'adAccountsActivities' . $startDate . $endDate;
-    //Cache::forget($cacheKey);
-    //Cache::flush();
-    if (Cache::has($cacheKey)) {
-        $response = Cache::get($cacheKey);
-        $response = array_merge([], $response['client_ad_accounts']);
-    } else {
-        $fbData = adAccountsActivities($fb, $startDate, $endDate);
-        if ($fbData) {
+$cacheKey = 'adAccountsActivities' . $startDate . $endDate;
+//Cache::forget($cacheKey);
+//Cache::flush();
+if (Cache::has($cacheKey)) {
+$response = Cache::get($cacheKey);
+$response = array_merge([], $response['client_ad_accounts']);
+} else {
+$fbData = adAccountsActivities($fb, $startDate, $endDate);
+if ($fbData) {
 
-            Cache::put($cacheKey, $fbData, 900);
-            $response = Cache::get($cacheKey);
-            $response = array_merge([], $response['client_ad_accounts']);
-            file_put_contents('logs/fbgraphqlact_' . date('Y_m_d_H_i') . '.json', json_encode($response));
+Cache::put($cacheKey, $fbData, 900);
+$response = Cache::get($cacheKey);
+$response = array_merge([], $response['client_ad_accounts']);
+file_put_contents('logs/fbgraphqlact_' . date('Y_m_d_H_i') . '.json', json_encode($response));
 
-        } else {
-            $response = ['message' => 'bir hata var'];
-        }
-    }
+} else {
+$response = ['message' => 'bir hata var'];
+}
+}
 
-
-
-    return response()->json($response);
+return response()->json($response);
 
 });*/
 $router->get('/adAccounts', function (Request $request) use ($router, $fb, $bmId) {
@@ -110,57 +168,239 @@ $router->get('/adAccounts', function (Request $request) use ($router, $fb, $bmId
 
     $cacheKey = $bmId . 'adAccounts' . $startDate . $endDate;
     //Cache::forget($cacheKey);
-    //Cache::flush();
+   // Cache::flush();
+
     if (Cache::has($cacheKey)) {
         $response = Cache::get($cacheKey);
-        $response = array_merge([], $response['client_ad_accounts']);
+        $response = array_merge([], $response);
     } else {
-        $fbData = getFacebookData($fb, $startDate, $endDate, $bmId);
 
-        if ($fbData) {
+        if (
+            //1 == 1 ||
+            $startDate == date("Y-m-d") && $endDate == date("Y-m-d")) {
+                $contents = DB::connection('facebook')->table('adaccounts')
+                ->where('parent_business_id', $bmId)
+                ->whereDate('reportDate', '>=', $startDate)
+                ->whereDate('reportDate', '<=', $endDate)
+                ->pluck('content')->toArray();
+            $response = array_map(function ($account) {
 
-            Cache::put($cacheKey, $fbData, 600);
-            $response = Cache::get($cacheKey);
-            $response = array_merge([], $response['client_ad_accounts']);
-            file_put_contents('logs/fbgraphql_' . date('Y_m_d_H_i').$bmId . '.json', json_encode($response));
-
+                return json_decode($account, 1);
+            }, $contents);
+            Cache::put($cacheKey, $response, 300);
         } else {
-            $response = ['message' => 'bir hata var'];
+            $fbData = getFacebookData($fb, $startDate, $endDate, $bmId);
+
+            if ($fbData) {
+
+
+
+                $response = array_merge([], $fbData);
+                foreach ($response as $ckey => $adaccount) {
+
+                    $updateArr = [
+                        'account_id'                => $adaccount['account_id'],
+                        'account_name'              => $adaccount['name'],
+                        'parent_business_id'        => $bmId,
+                        'business_id'               => $adaccount['business']['id'],
+                        'business_name'             => $adaccount['business']['name'],
+                        'is_prepay_account'         => $adaccount['is_prepay_account'] ? 1 : 0,
+                        'insights_spend'            => 0,
+                        'unique_clicks'             => 0,
+                        'cost_per_unique_click'     => 0,
+                        'disable_reason'            => $adaccount['disable_reason'],
+                        'account_status'            => $adaccount['account_status'],
+                        'ads_effective_status'      => null,
+                        'ads_status'                => null,
+                        'campaigns_daily_budget'    => 0,
+                        'unique_omni_purchase'      => 0,
+                        'unique_cost_omni_purchase' => 0,
+                        'content'                   => json_encode($adaccount),
+                        'reportDate'                => date("Y-m-d"),
+                        'updateTime'                => (int) strtotime("now"),
+                    ];
+
+                    if (isset($adaccount['ads']) && isset($adaccount['ads'][0])) {
+                        $updateArr['ads_effective_status'] = $adaccount['ads'][0]['effective_status'];
+                        $updateArr['ads_status']           = $adaccount['ads'][0]['status'];
+                    }
+                    if (isset($adaccount['campaigns']) && isset($adaccount['campaigns'][0]) && isset($adaccount['campaigns'][0]['daily_budget'])) {
+                        $updateArr['campaigns_daily_budget'] = $adaccount['campaigns'][0]['daily_budget'];
+                    }
+
+                    if (isset($adaccount['insights']) && isset($insights)) {
+                        $insights = $adaccount['insights'][0];
+
+                        if (isset($insights['spend'])) {
+                            $updateArr['insights_spend'] = $insights['spend'];
+                        }
+
+                        if (isset($insights['unique_clicks'])) {
+
+                            $updateArr['unique_clicks'] = $insights['unique_clicks'];
+                        }
+                        if (isset($insights['cost_per_unique_click'])) {
+
+                            $updateArr['cost_per_unique_click'] = $insights['cost_per_unique_click'];
+                        }
+
+                        if (isset($insights['unique_actions'])) {
+                            $uniqueActions    = array_combine(array_column($insights['unique_actions'], 'action_type'), $insights['unique_actions']);
+                            $uniquePerActions = array_combine(array_column($insights['cost_per_unique_action_type'], 'action_type'), $insights['cost_per_unique_action_type']);
+                            if (isset($uniqueActions['omni_purchase'])) {
+                                $updateArr['unique_omni_purchase']      = $uniqueActions['omni_purchase']['value'];
+                                $updateArr['unique_cost_omni_purchase'] = $uniquePerActions['omni_purchase']['value'];
+                            }
+                        }
+                    }
+                    $response[$ckey] = $updateArr;
+                }
+
+
+
+                $response = array_map(function ($account) {
+                    return json_decode($account, 1);
+                }, array_column($response, 'content'));
+
+
+                Cache::put($cacheKey, $response, 600);
+
+
+
+
+            } else {
+                $response = ['message' => 'bir hata var'];
+            }
         }
     }
 
-    /*
-    foreach (array_merge([], ...array_column($response,'campaigns')) as $ckey => $campaign) {
-    $insert = [];
-    $insert['campaign_id'] = $campaign['id'];
-    $insert['account_id'] = $campaign['account_id'];
-    $insert['data'] = json_encode($campaign);
-    if ($campaign['id']) {
-    $where['campaign_id'] = $campaign['id'];
-    } else {
-    $where['campaign_id'] = $campaign['id'];
-
-    }
-    DB::connection('facebook')->table('campaigns')->updateOrInsert($where, $insert);
-    }
-
-    foreach (array_merge([], ...array_column($response,'adsets')) as $askey => $adset) {
-    $insert = [];
-    $insert['campaign_id'] = $adset['campaign_id'];
-    $insert['account_id'] = $adset['account_id'];
-    $insert['adset_id'] = $adset['id'];
-    $insert['data'] = json_encode($adset);
-    if ($adset['id']) {
-    $where['adset_id'] = $adset['id'];
-    } else {
-    $where['adset_id'] = $adset['id'];
-
-    }
-    DB::connection('facebook')->table('adsets')->updateOrInsert($where, $insert);
-    }
-     */
-
     return response()->json($response);
+
+});
+
+$router->get('/getAddAccounts/{bmId}', function (Request $request, $bmId) {
+
+    $response = DB::connection('facebook')
+        ->table('adaccounts')
+        ->selectRaw("parent_business_id, business_id, account_id, account_name, business_name, ap.product_id")
+        ->leftJoin('adaccount_product as ap', 'ap.ad_account_id', '=', 'adaccounts.account_id')
+        ->where('adaccounts.parent_business_id', $bmId)
+        ->groupBy(['parent_business_id', 'business_id', 'account_id'])
+        ->get()
+        ->toArray();
+    return response()->json($response);
+
+});
+$router->post('/setChangeProductAds/{productId}', function (Request $request, $productId) {
+
+    foreach ($request->get('selecteds') as $key => $adAccountId) {
+
+        DB::connection('facebook')
+            ->table('adaccount_product')
+            ->updateOrInsert(['ad_account_id' => $adAccountId], ['ad_account_id' => $adAccountId, 'product_id' => $productId]);
+    }
+    return response()->json([]);
+
+});
+
+$router->get('/cronAdAccounts', function (Request $request) use ($router, $fb, $bmId) {
+
+    $startDate = date("Y-m-d");
+    $endDate   = date("Y-m-d");
+
+    $fbData = getFacebookData($fb, $startDate, $endDate, $bmId);
+
+    if ($fbData) {
+
+        $response = array_merge([], $fbData);
+        foreach ($response as $ckey => $adaccount) {
+
+            $updateArr = [
+                'account_id'                => $adaccount['account_id'],
+                'account_name'              => $adaccount['name'],
+                'parent_business_id'        => $bmId,
+                'business_id'               => $adaccount['business']['id'],
+                'business_name'             => $adaccount['business']['name'],
+                'is_prepay_account'         => $adaccount['is_prepay_account'] ? 1 : 0,
+                'insights_spend'            => 0,
+                'unique_clicks'             => 0,
+                'cost_per_unique_click'     => 0,
+                'disable_reason'            => $adaccount['disable_reason'],
+                'account_status'            => $adaccount['account_status'],
+                'ads_effective_status'      => null,
+                'ads_status'                => null,
+                'campaigns_daily_budget'    => 0,
+                'unique_omni_purchase'      => 0,
+                'unique_cost_omni_purchase' => 0,
+                'content'                   => json_encode($adaccount),
+                'reportDate'                => date("Y-m-d"),
+                'updateTime'                => (int) strtotime("now"),
+            ];
+
+            if (isset($adaccount['ads']) && isset($adaccount['ads'][0])) {
+                $updateArr['ads_effective_status'] = $adaccount['ads'][0]['effective_status'];
+                $updateArr['ads_status']           = $adaccount['ads'][0]['status'];
+            }
+            if (isset($adaccount['campaigns']) && isset($adaccount['campaigns'][0]) && isset($adaccount['campaigns'][0]['daily_budget'])) {
+                $updateArr['campaigns_daily_budget'] = $adaccount['campaigns'][0]['daily_budget'];
+            }
+
+            if (isset($adaccount['insights']) && isset($insights)) {
+                $insights = $adaccount['insights'][0];
+
+                if (isset($insights['spend'])) {
+                    $updateArr['insights_spend'] = $insights['spend'];
+                }
+
+                if (isset($insights['unique_clicks'])) {
+
+                    $updateArr['unique_clicks'] = $insights['unique_clicks'];
+                }
+                if (isset($insights['cost_per_unique_click'])) {
+
+                    $updateArr['cost_per_unique_click'] = $insights['cost_per_unique_click'];
+                }
+
+                if (isset($insights['unique_actions'])) {
+                    $uniqueActions    = array_combine(array_column($insights['unique_actions'], 'action_type'), $insights['unique_actions']);
+                    $uniquePerActions = array_combine(array_column($insights['cost_per_unique_action_type'], 'action_type'), $insights['cost_per_unique_action_type']);
+                    if (isset($uniqueActions['omni_purchase'])) {
+                        $updateArr['unique_omni_purchase']      = $uniqueActions['omni_purchase']['value'];
+                        $updateArr['unique_cost_omni_purchase'] = $uniquePerActions['omni_purchase']['value'];
+                    }
+
+                }
+
+            }
+
+            DB::connection('facebook')->table('adaccounts')->updateOrInsert(
+                [
+                    'account_id' => $adaccount['account_id'],
+                    'reportDate' => date("Y-m-d"),
+                ], $updateArr);
+
+        }
+
+    } else {
+        $response = ['message' => 'bir hata var'];
+    }
+    // return response()->json($response);
+});
+
+$router->get('/cronWhile', function (Request $request) use ($router) {
+
+    $tokens = DB::connection('facebook')->table('bm_accounts')->where('auto_update', 1)->get()->toArray();
+    //return response()->json($tokens);
+    $ctx = stream_context_create(array('http' => array(
+        'timeout' => 1200, //1200 Seconds is 20 Minutes
+    ),
+    ));
+    foreach ($tokens as $key => $account) {
+
+        file_get_contents('https://rketads.site/cronAdAccounts' . "?bmId=" . $account->bm_id, false, $ctx);
+        // file_get_contents('http://roketads.test/cronAdAccounts' . "?bmId=".$account->bm_id, false, $ctx);
+        sleep(2);
+    }
 
 });
 
@@ -179,14 +419,24 @@ $router->get('/adAccountDetail/{accountId}', function (Request $request, $accoun
 });
 
 $router->get('/bm_accounts', function (Request $request) use ($router) {
+    if (in_array($request->user()->role, ['root', 'manager', 'admin'])) {
+        $response = DB::connection('facebook')->table('bm_accounts')->get()->toArray();
+    } else {
+        $response = DB::connection('facebook')->table('bm_accounts')->where('creator_id', $request->user()->id)->get()->toArray();
+    }
 
-    $response = DB::connection('facebook')->table('bm_accounts')->get()->toArray();
     return response()->json($response);
+
+});
+$router->get('/getBmAcoount/{bmId}', function (Request $request, $bmId) use ($router) {
+    $BmAccount                 = DB::connection('facebook')->table('bm_accounts')->where('bm_id', $bmId)->first();
+    $BmAccount->hiddenAccounts = $BmAccount->hiddenAccounts ? json_decode($BmAccount->hiddenAccounts, 1) : [];
+    return response()->json($BmAccount);
 
 });
 
 $router->post('/addBm', function (Request $request) use ($router) {
-    $requestAll               = $request->all();
+    $requestAll = $request->all();
     DB::connection('facebook')->table('bm_accounts')->updateOrInsert(['bm_id' => $request->bm_id], $requestAll);
     return response()->json(DB::connection('facebook')->table('bm_accounts')->get()->toArray());
 
@@ -196,6 +446,18 @@ $router->post('/addNote', function (Request $request) use ($router) {
     $requestAll['updateTime'] = \Carbon\Carbon::now();
     DB::connection('facebook')->table('notes')->insert($requestAll);
     return response()->json(DB::connection('facebook')->table('notes')->where('objectId', $request->get('objectId'))->get()->toArray());
+
+});
+$router->get('/hideAdAccount/{bmId}/{accountId}', function (Request $request, $bmId, $accountId) use ($router) {
+    $requestAll               = $request->all();
+    $requestAll['updateTime'] = \Carbon\Carbon::now();
+    $BmAccount                = DB::connection('facebook')->table('bm_accounts')->where('bm_id', $bmId)->first();
+    $hiddenAccounts           = is_array(json_decode($BmAccount->hiddenAccounts, 1)) ? json_decode($BmAccount->hiddenAccounts, 1) : [];
+    $hiddenAccounts[]         = $accountId;
+    DB::connection('facebook')->table('bm_accounts')->where('bm_id', $BmAccount->bm_id)->update(['hiddenAccounts' => json_encode(array_unique($hiddenAccounts))]);
+    $BmAccount->hiddenAccounts = $hiddenAccounts;
+
+    return response()->json($BmAccount);
 
 });
 

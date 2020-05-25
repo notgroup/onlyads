@@ -4,7 +4,7 @@
         <div class="page-title-box">
             <div class="row align-items-center">
                 <div class="col-sm-4">
-                    <h4 class="page-title">AddProduct</h4>
+                    <h4 class="page-title">{{item.meta.name || 'Ürün Ekle'}}</h4>
                 </div>
                 <div class="col-sm-8">
                     <button @click="addContent(item, contenttypeid)" class="btn btn-success rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
@@ -12,7 +12,7 @@
 
             </div>
         </div>
-        <pre class="logdetail">
+        <pre>
         {{item}}
         </pre>
         <div class="row">
@@ -51,7 +51,7 @@
                             <div class="">
                                 <select id="input-type" class="form-control" v-model="item.meta.product_group_id" name="product_group_id">
                                     <option value="" selected="selected">Ürün Grubu...</option>
-                                    <option v-for="(pg, pgi) in productGroup" :value="pg.content_id">{{pg.meta.title}}</option>
+                                    <option v-for="(pg, pgi) in productGroup" :value="pg.content_id">{{pg.meta.name}}</option>
                                 </select>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                         <div class="form-group">
                             <label for="input-name">İsim</label>
                             <div class="">
-                                <input id="input-name" class="form-control" placeholder="İsim" v-model="item.meta.title" name="title" type="text">
+                                <input id="input-name" class="form-control" placeholder="İsim" v-model="item.meta.name" name="name" type="text">
                             </div>
                         </div>
                         <div class="form-group">
@@ -121,12 +121,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="input-cost">Maliyet</label>
-                            <div class="">
-                                <input id="input-cost" class="form-control text-right" placeholder="Maliyet" v-model="item.meta.cost" name="cost" type="text">
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label for="input-price">Fiyat</label>
                             <div class="">
                                 <input id="input-price" class="form-control text-right" placeholder="Fiyat" v-model="item.meta.price" name="price" type="text">
@@ -145,18 +139,24 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="input-product_quantity">Kargo Ücreti</label>
+                            <div class="">
+                                <input id="input-product_quantity" class="form-control text-right" placeholder="Kargo Ücreti" v-model="item.meta.shipment_cost" name="shipment_cost" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="input-product_quantity">Paket Adeti</label>
                             <div class="">
                                 <input id="input-product_quantity" class="form-control text-right" placeholder="Paket Adeti" v-model="item.meta.product_quantity" name="product_quantity" type="text">
                             </div>
                         </div>
-                        <div class="form-group simple-product-input" style="display: none;">
-                            <label for="input-quantity">Adet</label>
+                        <div class="form-group">
+                            <label for="input-product_quantity">Görünen Adet</label>
                             <div class="">
-                                <input id="input-quantity" class="form-control text-right" 
-                                maxlength="9" placeholder="Adet" v-model="item.meta.quantity" name="quantity" type="number" value="">
+                                <input id="input-product_quantity" class="form-control text-right" placeholder="Görünen Adet" v-model="item.meta.quantity" name="product_quantity" type="text">
                             </div>
                         </div>
+
                         <div class="form-group hide">
                             <label for="input-fake-quantity">Sahte Adet</label>
                             <div class="">

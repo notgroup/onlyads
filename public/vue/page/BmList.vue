@@ -23,20 +23,25 @@
                             <th>Name</th>
                             <th>BM Id</th>
                             <th>App Id</th>
+                            <th>Güncelleme</th>
                             <th width="1%">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template v-for="(bm, bmi) in bm_accounts">
                             <tr :key="bmi">
-                                <td>{{bm.id}}</td>
-                                <td>{{bm.name}}</td>
+                                <td @click="$router.push('/ad-accounts/' + bm.bm_id)">{{bm.id}}</td>
+                                <td @click="$router.push('/ad-accounts/' + bm.bm_id)">{{bm.name}}</td>
                                 <td>{{bm.bm_id}}</td>
                                 <td>{{bm.app_id}}</td>
+                                <td>{{bm.auto_update}}</td>
 
                                 <td>
                                     <div class="btn-group btn-group">
 
+                                        <button @click="$router.push('/AdProductAds/' + bm.bm_id)" class="btn btn-primary waves-effect waves-light">
+                                            <i class="fas fa-arrows-alt-h"></i>
+                                        </button>
                                         <button @click="newBmModal(bm)" class="btn btn-primary waves-effect waves-light">
                                             <i class="fas fa-cog"></i>
                                         </button>
@@ -81,16 +86,26 @@
                                     <input type="text" name="bm_id" v-model="newBm.bm_id" class="form-control" />
                                 </div>
                             </div>
-                            <div class="form-group">
+                                                    <div class="form-group">
+                            <label for="input-status" class="control-label">Otomatik Güncelleme</label>
+                            <div class="">
+                                <select class="form-control" id="input-status" v-model="newBm.auto_update" name="status">
+                                    <option value="1">Aktif</option>
+                                    <option value="0">Pasif</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                            <button type="button" class="btn btn-primary btn-block waves-effect waves-light" @click="addBm()">Gönder</button>
+                        </div>
+                        <div class="col-md-6">
+                                          <div class="form-group">
                                 <label>App Id</label>
                                 <div>
                                     <input type="text" name="app_id" v-model="newBm.app_id" class="form-control" />
                                 </div>
                             </div>
-
-                            <button type="button" class="btn btn-primary btn-block waves-effect waves-light" @click="addBm()">Gönder</button>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>App Secret</label>
                                 <div>
@@ -98,7 +113,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Access Token</label>
+                                <label>Access Token (Sistem Kullanıcısı)</label>
                                 <div>
                                     <textarea required="" class="form-control" rows="5" name="access_token" v-model="newBm.access_token"></textarea>
                                 </div>

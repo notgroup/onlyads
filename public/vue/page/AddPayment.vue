@@ -4,10 +4,10 @@
         <div class="page-title-box">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4 class="page-title">AddPayment</h4>
+                    <h4 class="page-title">{{item.meta.name || 'Ödeme Metodu'}}</h4>
                 </div>
                 <div class="col-sm-6">
-                    <button @click="addContent(item, contenttypeid)" class="btn btn-success rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
+                    <button @click="addContent(item, contenttypeid)" class="btn btn-primary rounded btn-custom waves-effect waves-light float-right">Kaydet</button>
                 </div>
             </div>
         </div>

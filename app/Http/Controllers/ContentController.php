@@ -78,7 +78,7 @@ class ContentController extends Controller
             $preItem                      = collect($preItem);
             $emptyItem                    = $exampleItem;
             $emptyItem["mok"]             = $preItem['content_id'];
-            $emptyItem["urun"]            = array_values($preItem['meta']['products'])[0]['meta']['title'];
+            $emptyItem["urun"]            = array_values($preItem['meta']['products'])[0]['meta']['name'];
             $emptyItem["ad"]              = Str::title($preItem['meta']['fullname']);
             $emptyItem["adres"]           = $preItem['meta']['address'];
             $emptyItem["ilce"]            = isset($towns[$preItem['meta']['town']]) ? $towns[$preItem['meta']['town']]->name : $preItem['meta']['town'];
@@ -131,19 +131,35 @@ class ContentController extends Controller
     }
     public function setChangeStatus(Request $request, $entity_type_id)
     {
+        $log = [];
         if ($request->has('selecteds')) {
+            $status = '';
             $items = Content::where('entity_type_id', $entity_type_id)->whereIn('content_id', $request->get('selecteds'));
-            if (strpos($request->get('status'), ':')) {
-                $status    = explode(':', $request->get('status'));
-                $updateArr = ['meta->shipment_id' => $status[1], 'entity_status' => $status[0], 'meta->update_' . $status[0] => date('d/m/Y H:i')];
+            if (strpos($request->get('newStatus'), ':')) {
+                $statusParse    = explode(':', $request->get('newStatus'));
+                $status = $statusParse[0];
+                $updateArr = ['meta->shipment_id' => $statusParse[1], 'entity_status' => $status, 'meta->update_' . $status => date('Y-m-d H:i:s')];
             } else {
-                $updateArr = ['entity_status' => $request->get('status'), 'meta->update_' . $request->get('status') => date('d/m/Y H:i')];
+                $status = $request->get('newStatus');
+                $updateArr = ['entity_status' => $status, 'meta->update_' . $status => date('Y-m-d H:i:s')];
             }
             $items->update($updateArr);
         }
 
-        return response()->json([]);
+
+
+        return response()->json($log);
     }
+    public function addActionLog(Request $request)
+    {
+        
+     
+            $log = addLogHistory($request->all());
+    
+        return response()->json($request->all());
+    }
+
+
 
     public function exportExcell(Request $request, $entity_type_id)
     {
@@ -160,13 +176,44 @@ class ContentController extends Controller
 
     public function addContent(Request $request, $type_id)
     {
-        $request->merge(['meta' => array_merge($request->meta, ['ip' => $request->ip()])]);
+
         if ($request->has('content_id')) {
+            $request->merge([
+                'meta' => array_merge($request->meta, [
+                    'updated_ip' => $request->ip(),
+                    'updated_' . $request->get('entity_status') => date('Y-m-d H:i:s'),
+                ]),
+            ]);
             $request->merge(['creator_id' => $request->user()->id]);
             Content::where(['content_id' => $request->input('content_id')])->update($request->all());
-            //ContentMeta::where(['content_id' => $request->input('content_id')])->update(['content_id' => $request->input('content_id'), 'attributes' => $request->input('meta')]);
             $content = Content::find($request->input('content_id'));
         } else {
+            $request->merge([
+                'meta' => array_merge($request->meta, [
+                    'updated_ip' => $request->ip(),
+                ]),
+            ]);
+            if ($type_id == 33) {
+                $hasOldOrder = 0;
+                if (isset($request->meta['phone_number'])) {
+                    $hasOldOrder = Content::where(['entity_type_id' => 33])->where('meta->phone_number', $request->meta['phone_number'])->count() ? 1 : 0;
+                }
+                $request->merge([
+                    'meta' => array_merge($request->meta, [
+                        'firstPrice'  => $request->meta['finalPrice'],
+                        'ref'         => 0,
+                        'locale'      => 'tr',
+                        'firstUrl'    => 0,
+                        'domain_name' => 0,
+                        'hasOldOrder' => $hasOldOrder,
+                        'referrerUrl' => 0,
+                        'agentStatus' => 'processless',
+                        'shipmentStatus' => 0,
+                        'completed' => 0,
+                        'agentNote'   => '',
+                    ]),
+                ]);
+            }
             $contentAttr = [
                 'entity_type_id' => $type_id,
                 'creator_id'     => $request->user()->id,
@@ -185,25 +232,34 @@ class ContentController extends Controller
     {
 
         try {
+            $hasOldOrder = 0;
+            $phoneNumber = $request->has('phone_number') ? substr($request->get('phone_number'), -10) : 0;
+            if ($phoneNumber) {
+                $hasOldOrder = Content::where(['entity_type_id' => 33])->where('meta->phone_number', $phoneNumber)->count() ? 1 : 0;
+            }
             $products = $request->has('product_id') ? Content::where('entity_type_id', 4)
                 ->whereIn('content_id', $request->get('product_id'))
                 ->get() : collect([]);
             $city = DB::table('zone')->where('name', $request->get('city'))->first();
             $town = DB::table('town')->where('zone_id', $city->zone_id)->where('name', $request->get('district'))->first();
             $request->merge([
-                'title'        => $request->get('firstname') . '/' . date('Y_m_d_H_i'),
                 'fullname'     => $request->get('firstname') . ($request->has('lastname') ? ' ' . $request->get('lastname') : ''),
                 'lastname'     => $request->get('lastname') ?: '',
-                'phone_number' => $request->has('phone_number') ? substr($request->get('phone_number'), -10) : '',
+                'phone_number' => $phoneNumber,
+                'hasOldOrder'  => $hasOldOrder,
                 'redirect'     => $request->get('success_url'),
                 'client_ip'    => $request->ip(),
                 'browser'      => $request->header('User-Agent'),
                 'city'         => $request->has('city') ? $city->zone_id : 0,
                 'town'         => $request->has('district') ? $town->town_id : 0,
-                'products'     => $products->keyBy('content_id'),
+                'products'     => $products->toArray(),
                 'firstPrice'   => $products->sum('meta.price') ?: 0,
                 'finalPrice'   => $products->sum('meta.price') ?: 0,
                 'shipmentCost' => 0,
+                'agentStatus'  => 'processless',
+                'shipmentStatus' => 0,
+                'completed' => 0,
+                'agentNote'    => '',
                 'status'       => 'pending',
             ]);
             $contentAttr = [
@@ -229,146 +285,52 @@ class ContentController extends Controller
         return response()->json($response);
 
     }
-
-    public function addContent2(Request $request, $type_id)
+    public function addOrderTest(Request $request)
     {
 
-        /*
-        Bu bölümde media dosyaları gelebilir upload için metod yazılmalı.
-        Bu bölümde taxonomy/term tanımlamaları yapılabilir, metod yazılmalı.
 
-         */
+        try {
+            $products = $request->has('product_id') ? Content::where('entity_type_id', 4)
+                ->where('content_id', $request->get('product_id'))
+                ->get() : collect([]);
+            $city = DB::table('zone')->where('name', $request->get('city'))->first();
+            $town = DB::table('town')->where('zone_id', $city->zone_id)->where('name', $request->get('district'))->first();
+            $request->merge([
+                'fullname'     => $request->get('firstname') . ($request->has('lastname') ? ' ' . $request->get('lastname') : ''),
+                'lastname'     => $request->get('lastname') ?: '',
+                'phone_number' => $phoneNumber,
+                'hasOldOrder'  => 0,
+                'client_ip'    => $request->ip(),
+                'browser'      => $request->header('User-Agent'),
+                'city'         => $request->has('city') ? $city->zone_id : 0,
+                'town'         => $request->has('district') ? $town->town_id : 0,
+                'products'     => $products->toArray(),
+                'firstPrice'   => $products->sum('meta.price') ?: 0,
+                'finalPrice'   => $products->sum('meta.price') ?: 0,
+                'shipmentCost' => 0,
+                'agentStatus'  => 'processless',
+                'shipmentStatus' => 0,
+                'agentNote'    => '',
+                'status'       => 'pending',
+            ]);
+            $contentAttr = [
+                'entity_type_id' => 33,
+                'entity_status'  => 'pending',
+                'creator_id'     => 1,
+                'parent_id'      => 0,
+                'meta'           => $request->all(),
+            ];
+            $content = Content::create($contentAttr);
 
-        $attributes = $request->input('attributes');
-        /*
-        //$formDetails = $this->getCrudForm($type_code);
 
-        $entity = DB::table('entities')->where('entity_code', 'content')->where('id', $type_id)->first();
-
-        $entityContentId = DB::table('contents')->insertGetId(['entity_type_id' => $entity->id]);
-        $entityContent = DB::table('content_meta')->insert(['content_id' => $entityContentId,'attributes' => json_encode($attributes)]);
-         */
-        $eavAttrs    = EavAttribute::where('entity_type_id', $type_id)->whereIn('attribute_code', array_keys($attributes))->get()->toArray();
-        $response    = [];
-        $insertTerms = [];
-        foreach ($eavAttrs as $key => $value) {
-            $formValue = $attributes[$value['attribute_code']];
-
-            switch ($value['field_type']) {
-                case 'tags_insert':
-                    $response[$value['attribute_code']] = $this->setTags($formValue);
-                    break;
-                case 'term_select':
-                    $insertTerms                        = $this->setTerms($formValue);
-                    $response[$value['attribute_code']] = (int) $formValue;
-                    break;
-                case 'single_image_upload':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'single_file_upload':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'multiple_image_upload':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'checkbox':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'multiselect':
-                    $response[$value['attribute_code']] = $this->setMultiSelect($formValue);
-                    break;
-                case 'select':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'entity_status':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'text':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'editor':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'media_gallery':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'single_map_select':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'oembed':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'radio':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'price':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'date':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'rating':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'color':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-                case 'range':
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-
-                default:
-                    $response[$value['attribute_code']] = $formValue;
-                    break;
-            }
+        } catch (\Throwable $th) {
+            $response = [];
         }
 
-        $entity      = Entities::where('entity_code', 'content')->where('id', $type_id)->first();
-        $contentAttr = collect($attributes)->only(['content_id', 'entity_status', 'entity_type_id', 'parent_id', 'created_at', 'updated_at', 'creator_id']);
-        $contentAttr->merge($response);
-        $contentAttr                   = $contentAttr->toArray();
-        $contentAttr['entity_type_id'] = $type_id;
-        if ($request->has('api_token')) {
-            $contentAttr['creator_id'] = $request->user()->id;
-        }
+        return response()->json([]);
 
-        $entityContentId = Content::insertGetId($contentAttr);
-        $entityContent   = ContentMeta::create(['content_id' => $entityContentId, 'attributes' => $response]);
-        $content         = Content::find($entityContentId);
-        if ($insertTerms) {
-            $content->terms()->sync((array) $insertTerms, true);
-        }
-        //print_r($content);
-
-        return response()->json($content);
     }
 
-    public function setTags($formValue)
-    {
-        return is_array($formValue) ? $formValue : explode(',', $formValue);
-    }
-    public function setTerms($formValue)
-    {
-        $term = TermVariant::find($formValue);
-        //$content->terms()->sync((array) $term->getPathText(), true);
-        //print_r($term->toArray());
-        //$content->terms()->sync((array) $response['taxonomy_category'], true);
-        //$content->terms()->attach($response['taxonomy_category']);
-        //print_r($content->termList()->get()->toArray());
-        return (array) $term->getPathText();
-    }
-    public function setMultiSelect(array $formValue)
-    {
-        return $formValue;
-    }
-
-    public function getCrudForm($entity)
-    {
-        $eavGroups = EavGroup::select('*')
-            ->whereRaw("JSON_CONTAINS(places, '[\"$entity\"]', 'entities')")
-            ->first();
-        return $eavGroups;
-    }
 
     public function uploadImage($file)
     {

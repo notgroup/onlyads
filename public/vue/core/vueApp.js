@@ -1,9 +1,14 @@
 var App = httpVueLoader('./vue/container/app.vue');
 var Blank = httpVueLoader('./vue/page/blank.vue');
+
+
+
+/* ADS */
 var BusinessAccounts = httpVueLoader('./vue/page/BusinessAccounts.vue');
 var BmList = httpVueLoader('./vue/page/BmList.vue');
 var AdAccounts = httpVueLoader('./vue/page/AdAccounts.vue');
 var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
+var AdProductAds = httpVueLoader('./vue/page/AdProductAds.vue');
 
 
 /* LIST */
@@ -19,11 +24,32 @@ var CustomerList = httpVueLoader('./vue/page/CustomerList.vue');
 var ContentTypeList = httpVueLoader('./vue/page/ContentTypeList.vue');
 var RoleList = httpVueLoader('./vue/page/RoleList.vue');
 var OrderList = httpVueLoader('./vue/page/OrderList.vue');
+var Dashboard = httpVueLoader('./vue/page/Dashboard.vue');
 
 
 
 /* REPORTS */
-var CargoDeliveryReportMini = httpVueLoader('./vue/page/CargoDeliveryReportMini.vue');
+var CargoDeliveryReportMini = httpVueLoader('./vue/page/report/CargoDeliveryReportMini.vue');
+var SalesReport = httpVueLoader('./vue/page/report/SalesReport.vue');
+var AgentReport = httpVueLoader('./vue/page/report/AgentReport.vue');
+var ManagerReport = httpVueLoader('./vue/page/report/ManagerReport.vue');
+var ConfirmReport = httpVueLoader('./vue/page/report/ConfirmReport.vue');
+var ConfirmReportDetails = httpVueLoader('./vue/page/report/ConfirmReportDetails.vue');
+var CostReport = httpVueLoader('./vue/page/report/CostReport.vue');
+
+
+
+/* ACCOUNTING */
+var AccountingSettings = httpVueLoader('./vue/page/AccountingSettings.vue');
+var PersonalCards = httpVueLoader('./vue/page/PersonalCards.vue');
+var CompanyCards = httpVueLoader('./vue/page/CompanyCards.vue');
+var PersonalCard = httpVueLoader('./vue/page/PersonalCard.vue');
+var CompanyCard = httpVueLoader('./vue/page/CompanyCard.vue');
+var SpendRevenue = httpVueLoader('./vue/page/SpendRevenue.vue');
+
+
+/* STOCKS */
+var StockActions = httpVueLoader('./vue/page/StockActions.vue');
 
 
 
@@ -80,14 +106,29 @@ Vue.mixin({
                 "36": "Kargo Yöntemleri",
             },
             showLog: 0,
-            clientLangs: {
-                order: {
-                    "order_view": "Görüntülendi",
-                    "order_updated": "Güncellendi",
-                    "order_confirmed": "Onaylandı",
-                    "order_price_changed": "Ürün Fiyatı Değişti"
-                }
-
+            userActions: {
+                "canceled": "İptal Edildi",
+                "confirmed": "Onaylandı",
+                "invoice_prepare": "Fatura Hazırlık",
+                "pending_product": "Stok Bekliyor",
+                "hold": "İleri Tarihli",
+                "invoice": "Fatura Kesildi",
+                "pending": "Yeni Sipariş",
+                "delivered": "Teslim Edildi",
+                "notreached": "Ulaşılamadı",
+                "unreachable": "Ulaşılamadı",
+                "resale": "Tekrar Satış",
+                "not_get_cargo": "Kargo Getirilmedi",
+                "not_get": "İstemiyor",
+                "whatsapp": "Whatsapp",
+                "orderAction": "Sipariş",
+                "callCenterAction": "Çağrı Merkezi",
+                "order_view": "Görüntülendi",
+                "order_updated": "Güncellendi",
+                "order_confirmed": "Onaylandı",
+                "order_price_changed": "Ürün Fiyatı Değişti",
+                "change_status": "Durum Değişimi",
+                "bulk_change_status": "Toplu Güncelleme"
             },
             userData: {},
             clientInit: {},
@@ -100,9 +141,27 @@ Vue.mixin({
         }
     },
     methods: {
+        computedRate(num1, num2) {
+            return parseFloat((num1 / num2) * 100).toFixed(2)
+        },
+        currencyFormat(num, currency = ' ₺') {
+            console.log(num);
+            console.log(num.toLocaleString('tr-TR', {
+                style: 'currency',
+                currency: 'TRY'
+            }));
+
+            //https://flaviocopes.com/how-to-format-number-as-currency-javascript/
+            return (
+                num
+                .toFixed(2) // always two decimal digits
+                .replace('.', ',') // replace decimal point character with ,
+                .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.') + currency
+            ) // use . as a separator
+        },
         getCargoDetail(order) {
-        
-            this.get(window.apiUrl + "/CargoTracking/" + order.meta.cargoDetail.sipno, (res) => {
+
+            this.get(window.apiUrl + "/CargoTracking/" + order.content_id, (res) => {
                 window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
                 //this.currentCargoDetail = Object.assign(order, res);
                 //  
@@ -111,8 +170,10 @@ Vue.mixin({
             });
         },
         getLast() {
-            this.get('//' + apiUrl + '/last10', (response) => {
-            });
+            this.get('//' + apiUrl + '/last10', (response) => {});
+        },
+        getUserData() {
+            return JSON.parse(localStorage.getItem('userData') || {})
         },
         linkDownload(url, filename) {
             var link = document.createElement("a");
@@ -126,7 +187,19 @@ Vue.mixin({
             document.body.removeChild(link);
         },
         addLogHistory(data = {}) {
-            this.post(apiUrl + '/addlogHistory', data, (response) => {
+            data.subject_id = this.$root.userData.id
+            data.content = data.content || {}
+            if (data.log_type == 0) {
+
+            } else if (data.log_type == 'agent') {
+
+            } else {
+
+            }
+
+
+
+            this.post(apiUrl + '/addActionLog', data, (response) => {
 
             });
         },
@@ -175,7 +248,7 @@ Vue.mixin({
         },
         post(url, pdata, cb) {
             console.log(url);
-            
+
             fetch(url, this.postHeader(pdata))
                 .then((response) => {
                     return response.json();
@@ -186,7 +259,7 @@ Vue.mixin({
         },
         get(url, cb) {
             console.log(url);
-            
+
             fetch(url, this.getHeader())
                 .then((response) => {
                     return response.json();
@@ -226,11 +299,10 @@ Vue.mixin({
     }
 });
 
-var routes = [
-    {
+var routes = [{
         path: '/',
         name: 'Dashboard',
-        component: Blank //BusinessAccounts
+        component: Dashboard //BusinessAccounts
     },
     {
         path: '/AddProduct',
@@ -328,6 +400,48 @@ var routes = [
         component: Settings
     },
     {
+        path: '/AccountingSettings',
+        props:true,
+        name: 'AccountingSettings',
+        component: AccountingSettings
+    },
+    {
+        path: '/StockActions',
+        props:true,
+        name: 'StockActions',
+        component: StockActions
+    },
+    {
+        path: '/PersonalCards',
+        props:true,
+        name: 'PersonalCards',
+        component: PersonalCards
+    },
+    {
+        path: '/SpendRevenue',
+        props:true,
+        name: 'SpendRevenue',
+        component: SpendRevenue
+    },
+    {
+        path: '/CompanyCards',
+        props:true,
+        name: 'CompanyCards',
+        component: CompanyCards
+    },
+    {
+        path: '/PersonalCard/:cardId',
+        props:true,
+        name: 'PersonalCard',
+        component: PersonalCard
+    },
+    {
+        path: '/CompanyCard/:cardId',
+        props:true,
+        name: 'CompanyCard',
+        component: CompanyCard
+    },
+    {
         path: '/DomainManagment',
         name: 'DomainManagment',
         component: DomainManagment
@@ -342,6 +456,42 @@ var routes = [
         props: true,
         name: 'CargoDeliveryReportMini',
         component: CargoDeliveryReportMini
+    },
+    {
+        path: '/SalesReport',
+        props: true,
+        name: 'SalesReport',
+        component: SalesReport
+    },
+    {
+        path: '/AgentReport',
+        props: true,
+        name: 'AgentReport',
+        component: AgentReport
+    },
+    {
+        path: '/ManagerReport',
+        props: true,
+        name: 'ManagerReport',
+        component: ManagerReport
+    },
+    {
+        path: '/ConfirmReport',
+        props: true,
+        name: 'ConfirmReport',
+        component: ConfirmReport
+    },
+    {
+        path: '/ConfirmReportDetails',
+        props: true,
+        name: 'ConfirmReportDetails',
+        component: ConfirmReportDetails
+    },
+    {
+        path: '/CostReport',
+        props: true,
+        name: 'CostReport',
+        component: CostReport
     },
     {
         path: '/BlogManagment',
@@ -364,6 +514,12 @@ var routes = [
         props: true,
         name: 'AdAccounts',
         component: AdAccounts
+    },
+    {
+        path: '/AdProductAds/:bmId?',
+        props: true,
+        name: 'AdProductAds',
+        component: AdProductAds
     },
     {
         path: '/ad-account-detail/:accountId',
@@ -448,7 +604,7 @@ router.beforeEach((to, from, next) => {
     next();
 });
 
-router.afterEach((to, from) => { });
+router.afterEach((to, from) => {});
 var vueApp = new Vue({
     el: "#app",
     router: router,
@@ -460,9 +616,10 @@ var vueApp = new Vue({
     components: {
         App
     },
-    beforeCreate() { },
+    beforeCreate() {},
     created() {
         this.$root.checkLogin();
+
     },
     mounted() {
         /*
@@ -472,11 +629,12 @@ var vueApp = new Vue({
         this.$root.get(window.apiUrl + '/contents/' + 37, (res)=> {
             this.adSources = res
         })*/
-     
+
         alertify.logPosition("bottom right");
         this.$root.get(window.apiUrl + '/clientInit', (res) => {
             this.$root.clientInit = res
         })
+        this.$root.userData = this.$root.getUserData()
     },
     methods: {}
 });

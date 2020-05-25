@@ -11,10 +11,10 @@ function adminer_object() {
       return 'Software';
     }
 
-  /* function permanentLogin() {
+  function permanentLogin() {
       // key used for permanent login
-      return '26ddbfebb2eb6f439cdb698e0154796a';
-    }*/
+     // return '26ddbfebb2eb6f439cdb698e0154796a';
+    }
 
 
 
@@ -68,4 +68,4 @@ return new AdminerSoftware;
 
 
 
-include './adminer-4.7.6-en.php';
+include './adminer.4.7.7.php';
