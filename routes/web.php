@@ -632,3 +632,4 @@ $router->get('/whmpanel', function (Request $request) {
 require_once 'additems.php';
 require_once 'outorder.php';
 require_once 'facebook.php';
+require_once 'facebook_manage.php';

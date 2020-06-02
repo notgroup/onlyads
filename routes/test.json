@@ -1,0 +1,19 @@
+{
+    "name": "0090 link creative name",
+    "object_story_spec": {
+        "link_data": {
+            "call_to_action": {
+                "type": "LEARN_MORE",
+                "value": {
+                    "link": "https://notgroup.s3.eu-west-3.amazonaws.com/meshur-kilis-bali-macunu/index.html?ref=gs03&pixel=2479036262408984",
+                    "link_caption": "www.liberyen.com",
+                    "link_format": "VIDEO_LPP"
+                }
+            },
+            "image_hash": "e97e5ac009532b1aa5350fa5ae530f1a",
+            "link_description": "0090 link açıklaması",
+            "message": "0090 link  mesajı",
+            "title": "0090 link title"
+        }
+    }
+}

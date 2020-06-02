@@ -53,7 +53,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <template v-for="(days, dayi) in reports.ordersByDay">
-                            <div v-if="days.confirmedCount" class="card m-b-30" :key="dayi">
+                            <div class="card m-b-30" :key="dayi">
                                 <div class="card-header bg-primary text-white">
                                     {{days.day}} (Toplam Sipariş: {{days.ordersCount}} | Toplam Onay: {{days.confirmedCount}} | Toplam Oran: {{$root.computedRate(days.confirmedCount,days.ordersCount)}}%)
                                 </div>

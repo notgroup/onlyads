@@ -14,7 +14,7 @@
                     </a>
                 </li>
 
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','agency','manager'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Reklam
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -22,7 +22,7 @@
                         <li class="">
                             <a href="#/business-accounts">BM Hesapları</a>
                         </li>
-                        <li class="hide">
+                        <li class="">
                             <a href="#/AdProductAds">Ürün Eşleştirme</a>
                         </li>
                         <li class="hide"><a href="#/ref-prefix">Ref Önek</a></li>
@@ -33,7 +33,7 @@
                 <li class="hide">
                     <a href="#/settings" class="waves-effect"><i class="fa fa-cog"></i><span> Envanter </span></a>
                 </li>
-                <li class="">
+                <li class="hide" v-if="checkRole(['root'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Araçlar
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -58,7 +58,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','manager','agent'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Sipariş Yönetimi
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -66,12 +66,12 @@
                         <li class="">
                             <a href="#/ContentTypeList/33">Siparişler</a>
                         </li>
-                        <li class="hide">
-                            <a href="#/">Para İadeleri</a>
+                        <li class="">
+                            <a href="#/FormCreator">Form Oluştur</a>
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','manager','agent'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Ürün Yönetimi
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -93,7 +93,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="hide">
+                <li class="hide" v-if="checkRole(['admin','root','manager'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Sms
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -110,7 +110,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class=""  v-if="checkRole(['admin','root','manager','agent'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Kargo
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -121,12 +121,12 @@
                         <li class="">
                             <a href="#/CargoTracking">Teslimat Raporu</a>
                         </li>
-                        <li class="">
+                        <li class="" v-if="checkRole(['admin','root','manager'])">
                             <a href="#/CargoDeliveryReportMini">Teslimat Raporu (Mini)</a>
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','manager'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i>
                         <span>
                             Raporlar
@@ -163,19 +163,19 @@
                         <li class="">
                             <a href="#/ConfirmReportDetails">Onay Değerleri (Toplam/ürün)</a>
                         </li>
+                        <li class="">
+                            <a href="#/AdCostReport">Reklam M.Raporları</a>
+                        </li>
                         <li class="hide">
                             <a href="#/">Primler</a>
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','manager'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Muhasebe
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="submenu">
-                        <li class="">
-                            <a href="#/">Reklam Maliyetleri</a>
-                        </li>
                         <li class="">
                             <a href="#/StockActions">Stok Takibi</a>
                         </li>
@@ -196,7 +196,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="">
+                <li class="" v-if="checkRole(['admin','root','manager'])">
                     <a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cog"></i><span>
                             Sistem
                             <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
@@ -216,7 +216,7 @@
                         <li class="hide">
                             <a href="#/">Callcenter Ayarları</a>
                         </li>
-                        <li class="">
+                        <li class=""  v-if="checkRole(['root'])">
                             <a href="#/Settings">
                                 <span> Settings </span>
                             </a>

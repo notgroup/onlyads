@@ -54,7 +54,7 @@ class UserController extends Controller
     public function getUsers(Request $request)
     {
         ///api/user?api_token=gokhan
-        $users = User::limit(10)->get()->toArray();
+        $users = User::limit(20)->get()->toArray();
         /* $user->password = md5('123456');
         $user->first_name = 'gokhan';
         $user->last_name = 'celik';

@@ -32,7 +32,7 @@
                     </li>
 
                     <!-- full screen -->
-                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block hide" style="display:none!important;">
                         <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
                             <i class="mdi mdi-arrow-expand-all noti-icon"></i>
                         </a>
@@ -91,16 +91,17 @@
                     <li class="dropdown notification-list list-inline-item">
                         <div class="dropdown notification-list nav-pro-img">
                             <a class="dropdown-toggle nav-link arrow-none nav-user" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                                <img src="assets/images/users/user-4.jpg" alt="user" class="rounded-circle">
+                                <img src="assets/images/users/avatar01.png" alt="user" class="rounded-circle">
+                                {{$root.userData.username}}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
                                 <!-- item-->
-                                <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle"></i> Profile</a>
-                                <a class="dropdown-item" href="#"><i class="mdi mdi-wallet"></i> Wallet</a>
-                                <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
-                                <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline"></i> Lock screen</a>
+                                <a class="dropdown-item" href="/#/MyProfile"><i class="mdi mdi-account-circle"></i> Profil</a>
+                                <a class="dropdown-item hide" href="#"><i class="mdi mdi-wallet"></i> Wallet</a>
+                                <a class="dropdown-item hide" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings"></i> Settings</a>
+                                <a class="dropdown-item hide" href="#"><i class="mdi mdi-lock-open-outline"></i> Lock screen</a>
                                 <div class="dropdown-divider"></div>
-                                <a @click="$root.logoutPanel()" class="dropdown-item text-danger" href="#"><i class="mdi mdi-power text-danger"></i> Logout</a>
+                                <a @click="$root.logoutPanel()" class="dropdown-item text-danger" href="#"><i class="mdi mdi-power text-danger"></i> Çıkış</a>
                             </div>
                         </div>
                     </li>

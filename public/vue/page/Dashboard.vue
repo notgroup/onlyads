@@ -5,6 +5,8 @@
 <admin-dashboard v-if="$root.userData.role == 'admin'"></admin-dashboard>
 <default-dashboard v-if="$root.userData.role == 'root1'"></default-dashboard>
 <root-dashboard v-if="$root.userData.role == 'root'"></root-dashboard>
+<agency-dashboard v-if="$root.userData.role == 'agency'"></agency-dashboard>
+<agent-dashboard v-if="$root.userData.role == 'agent'"></agent-dashboard>
 </div>
 </template>
 
@@ -12,10 +14,12 @@
 var DefaultDashboard = httpVueLoader('/vue/components/dashboards/Default.vue');
 var RootDashboard = httpVueLoader('/vue/components/dashboards/Root.vue');
 var AdminDashboard = httpVueLoader('/vue/components/dashboards/Admin.vue');
+var AgencyDashboard = httpVueLoader('/vue/components/dashboards/Agency.vue');
 var ManagerDashboard = httpVueLoader('/vue/components/dashboards/Manager.vue');
+var AgentDashboard = httpVueLoader('/vue/components/dashboards/Agent.vue');
 
 module.exports = {
-    components:{AdminDashboard, DefaultDashboard, ManagerDashboard, RootDashboard},
+    components:{AdminDashboard, DefaultDashboard, ManagerDashboard, RootDashboard, AgencyDashboard, AgentDashboard},
     name: "Dashboard",
     data() {
         return {};

@@ -12,7 +12,34 @@ use Laravel\Lumen\Application;
 use Laravel\Lumen\Routing\UrlGenerator;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpFoundation\Cookie;
+use Illuminate\Support\Facades\DB;
+use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Exceptions\FacebookSDKException;
+use Illuminate\Support\Facades\Cache;
 
+if (!function_exists('fbApiInit')) {
+    function fbApiInit($bmId = 0)
+    {
+        $bmId = isset($_GET['bmId']) ? $_GET['bmId'] : $bmId;
+        if ($bmId) {
+            $tokens = DB::connection('facebook')->table('bm_accounts')->get()->keyBy('bm_id');
+            
+            
+            $access_token = $tokens[$bmId]->access_token;
+            $app_secret = $tokens[$bmId]->app_secret;
+            $app_id = $tokens[$bmId]->app_id;
+            $fb = new \Facebook\Facebook([
+              'app_id' => $app_id,
+              'app_secret' => $app_secret,
+              'default_graph_version' => 'v7.0',
+              'default_access_token' => $access_token,
+              //'persistent_data_handler' => 'session',
+              //'cookie' => TRUE, // optional
+            ]);
+            }
+
+    }
+}
 if (!function_exists('cargoDateFormat')) {
     function cargoDateFormat($stringDate)
     {
@@ -542,12 +569,13 @@ function custom_carbon_calculate_age($date)
 function getCurl($url = '', $headers = [], $post = 0, $filepath = 'content.txt')
 {
     $curl = curl_init();
+    curl_setopt($curl, CURLOPT_TIMEOUT, 360);
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     if ($post) {
-        curl_setopt($curl, CURLOPT_POST, $post);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, []);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
     }
     curl_setopt($curl, CURLOPT_USERAGENT, 'SeanPeterson');
     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -568,7 +596,7 @@ function getCurl($url = '', $headers = [], $post = 0, $filepath = 'content.txt')
 
     $filepath = date('Y_m_d_H_i') . '_' . $filepath;
 
-    //file_put_contents('logs/'.$filepath, $content);
+    file_put_contents('logs/'.$filepath, $content);
 
     return $content;
 }

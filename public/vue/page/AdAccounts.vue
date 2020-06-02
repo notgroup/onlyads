@@ -137,7 +137,7 @@
                                             <td>{{bs.insights ? bs.insights[0].unique_clicks : 0}}</td>
                                             <td>{{bs.insights ? parseFloat(bs.insights[0].cost_per_unique_click).toFixed(2) : 0}}</td>
                                             <td>{{bs.insights ? (_.indexBy(bs.insights[0].unique_actions, 'action_type').omni_purchase? _.indexBy(bs.insights[0].unique_actions, 'action_type').omni_purchase.value : 0) : 0}}</td>
-                                            <td>{{bs.insights ? (_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase? parseFloat(_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase.value).toFixed(2) : 0) : 0}}</td>
+                                            <td>{{bs.insights ? (_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase? parseFloat(_.indexBy(bs.insights[0].cost_per_unique_action_type, 'action_type').omni_purchase.value).toFixed(2) : parseFloat(bs.insights[0].spend).toFixed(2)) : 0}}</td>
                                             <td class="hide">0</td>
                                             <td :class="[!(_.pluck(bs.ads, 'effective_status').includes('ACTIVE')) ? 'bg-warning' : '']">
                                                 {{(bs.ads ? _.pluck(bs.ads, 'effective_status').join(',') : 'Yok')}}
@@ -337,7 +337,7 @@ function sortColumn(api, page = 'all', columnId = 0, init = 0) {
 
 }
 
-var todayDate = new Date().toLocaleDateString().split('.').reverse().join('-');
+var todayDate = () => new Date().toLocaleDateString().split('.').reverse().join('-');
 
 module.exports = {
     name: "AdAccounts",
@@ -347,8 +347,8 @@ module.exports = {
             bmAccount: {},
             hiddenAccounts: [],
             table: undefined,
-            filterDate: todayDate,
-            filterDateEnd: todayDate,
+            filterDate: todayDate(),
+            filterDateEnd: todayDate(),
             addNoteModal: 1,
             refreshing: true,
             notes: [],

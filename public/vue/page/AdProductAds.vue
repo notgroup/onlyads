@@ -53,14 +53,18 @@
                     <thead class="thead-default">
                         <tr>
                             <th  width="20%">Hesap Adı</th>
+                            <th>H.ID</th>
+                            <th>K.Sayısı</th>
+                            <th>ads_volume</th>
                             <th>Ürün</th>
                             <th>Ortak BM ID</th>
                             <th >Ortak Bm Adı</th>
+                            <th >Yetkiler</th>
                             <th width="1%">Index</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, itemi) in _.sortBy(items,'account_name')">
+                        <tr v-for="(item, itemi) in _.sortBy(items,'campaignLength')" v-if="item.content && item.content.permitted_tasks && item.content.permitted_tasks.includes('MANAGE') && 1 == 1">
                             <td :key="itemi">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" name="selected" :id="'customCheck'+itemi" @click="selecteds.includes(item.account_id) ? selecteds = _.without(selecteds, item.account_id) : selecteds.push(item.account_id)" :checked="selecteds.includes(item.account_id)">
@@ -68,9 +72,13 @@
                                 </div>
                             </td>
     
+                            <td>{{item.account_id}}</td>
+                            <td>{{item.content.campaigns ? item.content.campaigns.length : 0}}</td>
+                            <td>{{item.content.ads_volume ? item.content.ads_volume[0].ads_running_or_in_review_count : 0}}</td>
                             <td>{{item.product_id ? productsGroup[item.product_id].meta.name : ''}}</td>
                             <td>{{item.business_id}}</td>
                             <td>{{item.business_name}}</td>
+                            <td>{{item.content && item.content.permitted_tasks && item.content.permitted_tasks.includes('MANAGE') ? 'MANAGE' : 'ANALYZE'}}</td>
                             <td>{{itemi}}.</td>
                         </tr>
                     </tbody>
@@ -179,7 +187,8 @@ module.exports = {
             this.get(window.apiUrl + "/getAddAccounts/" + this.bmId, (res) => {
                 console.log(res);
                 this.items = res.map((item) => {
-                    item.account_id = Number(item.account_id)
+                    item.account_id = Number(item.account_id);
+                    item.campaignLength = item.content.campaigns ? item.content.campaigns.length : 0;
                     return item
                 })
             this.totalitems =  this.items;

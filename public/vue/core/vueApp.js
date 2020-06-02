@@ -9,6 +9,7 @@ var BmList = httpVueLoader('./vue/page/BmList.vue');
 var AdAccounts = httpVueLoader('./vue/page/AdAccounts.vue');
 var AdAccountDetail = httpVueLoader('./vue/page/AdAccountDetail.vue');
 var AdProductAds = httpVueLoader('./vue/page/AdProductAds.vue');
+var AdCostReport = httpVueLoader('./vue/page/AdCostReport.vue');
 
 
 /* LIST */
@@ -36,6 +37,12 @@ var ManagerReport = httpVueLoader('./vue/page/report/ManagerReport.vue');
 var ConfirmReport = httpVueLoader('./vue/page/report/ConfirmReport.vue');
 var ConfirmReportDetails = httpVueLoader('./vue/page/report/ConfirmReportDetails.vue');
 var CostReport = httpVueLoader('./vue/page/report/CostReport.vue');
+
+
+
+
+/* USERS */
+var MyProfile = httpVueLoader('./vue/page/user/MyProfile.vue');
 
 
 
@@ -80,6 +87,7 @@ var RefPrefix = httpVueLoader('./vue/page/RefPrefix.vue');
 var Category = httpVueLoader('./vue/page/category.vue');
 var Settings = httpVueLoader('./vue/page/Settings.vue');
 var Single = httpVueLoader('./vue/page/single.vue');
+var FormCreator = httpVueLoader('./vue/page/FormCreator.vue');
 
 
 var Notification = httpVueLoader('./vue/components/part/notification.vue')
@@ -215,6 +223,13 @@ Vue.mixin({
                 return true;
             } else {
                 window.location = '/login.html'
+            }
+        },
+        checkRole(roles=[], perm = 0) {
+            if (roles.includes(this.$root.userData.role)) {
+                return true;
+            } else {
+                return false
             }
         },
         /* API AREA */
@@ -375,6 +390,11 @@ var routes = [{
         component: LandingBuilder
     },
     {
+        path: '/FormCreator',
+        name: 'FormCreator',
+        component: FormCreator
+    },
+    {
         path: '/category',
         name: 'category',
         component: Category
@@ -398,6 +418,11 @@ var routes = [{
         path: '/Settings',
         name: 'Settings',
         component: Settings
+    },
+    {
+        path: '/MyProfile',
+        name: 'MyProfile',
+        component: MyProfile
     },
     {
         path: '/AccountingSettings',
@@ -468,6 +493,12 @@ var routes = [{
         props: true,
         name: 'AgentReport',
         component: AgentReport
+    },
+    {
+        path: '/AdCostReport',
+        props: true,
+        name: 'AdCostReport',
+        component: AdCostReport
     },
     {
         path: '/ManagerReport',

@@ -1,0 +1,60 @@
+{
+    "address": "zaviye mahallesi\r\nmerkez",
+    "adsource": "78",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36",
+    "city": "3369",
+    "client_ip": "176.40.227.56",
+    "country": "215",
+    "district": "670",
+    "domain_name": "https://notgroupv2.netlify.app/meshur-kilis-bali-macunu/success.html",
+    "finalPrice": 149,
+    "firstPrice": 149,
+    "firstUrl": "0",
+    "firstname": "Ali Veli Site",
+    "fullname": "Ali Veli Site",
+    "ip": "176.40.227.56",
+    "lastname": "",
+    "locale": "tr",
+    "payment_method": "55",
+    "phone_number": "05057313701",
+    "pixel": "0",
+    "product_id": [
+        "93"
+    ],
+    "products": {
+        "93": {
+            "content_id": 93,
+            "created_at": "2020-04-30T07:02:12.000000Z",
+            "creator_id": 1,
+            "entity_status": "1",
+            "entity_type_id": 4,
+            "meta": {
+                "cost": "10",
+                "ends_at": "2020-05-31",
+                "price": "149",
+                "price_normal": "149",
+                "price_sale": "149",
+                "product_group_id": 38,
+                "product_quantity": "1",
+                "sku": "kls3",
+                "starts_at": "2020-05-01",
+                "status": "active",
+                "tax_rate_id": "5",
+                "title": "Kilis Macunu 3 Adet",
+                "type": "simple",
+                "volumetric_weight": "1",
+                "weight": "1"
+            },
+            "parent_id": 0,
+            "updated_at": "2020-04-30T07:02:12.000000Z"
+        }
+    },
+    "redirect": "https://notgroupv2.netlify.app/meshur-kilis-bali-macunu/success.html",
+    "ref": "notgroupv2.netlify.app",
+    "referrerUrl": "0",
+    "shipmentCost": "15",
+    "status": "pending",
+    "success_url": "https://notgroupv2.netlify.app/meshur-kilis-bali-macunu/success.html",
+    "title": "Ali Veli Site Siparişi",
+    "town": "670"
+}
