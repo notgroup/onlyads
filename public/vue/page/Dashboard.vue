@@ -1,12 +1,7 @@
 <template>
 <div>
 
-<manager-dashboard v-if="$root.userData.role == 'manager'"></manager-dashboard>
-<admin-dashboard v-if="$root.userData.role == 'admin'"></admin-dashboard>
-<default-dashboard v-if="$root.userData.role == 'root1'"></default-dashboard>
-<root-dashboard v-if="$root.userData.role == 'root'"></root-dashboard>
-<agency-dashboard v-if="$root.userData.role == 'agency'"></agency-dashboard>
-<agent-dashboard v-if="$root.userData.role == 'agent'"></agent-dashboard>
+
 </div>
 </template>
 
@@ -25,7 +20,9 @@ module.exports = {
         return {};
     },
     computed: {},
-    mounted() {},
+    mounted() {
+        this.$router.push('/business-accounts')
+    },
     beforeCreate() {},
     created() {},
     methods: {},

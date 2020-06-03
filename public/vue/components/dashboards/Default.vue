@@ -8,7 +8,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-right">
-                        <li class="breadcrumb-item"><a href="javascript:void(0);">Stexo</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);">Admin</a></li>
                         <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
                 </div>
@@ -95,7 +95,7 @@
 
 
 
-  
+
 
         <!-- START ROW -->
         <div class="row">
@@ -122,8 +122,8 @@
                                         <td><span class="badge badge-success">Delivered</span></td>
                                         <td>$9,420,000</td>
 
-                          
-                          
+
+
                                         <td>15/1/2018</td>
 
                                         <td>
@@ -137,8 +137,8 @@
                                         <td><span class="badge badge-warning">Pending</span></td>
                                         <td>$3,120,000</td>
 
-                         
-                         
+
+
                                         <td>16/1/2019</td>
 
                                         <td>
@@ -147,7 +147,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                   
+
                                 </tbody>
                             </table>
                         </div>
@@ -178,8 +178,8 @@
                                         <td><span class="badge badge-success">Delivered</span></td>
                                         <td>$9,420,000</td>
 
-                          
-                          
+
+
                                         <td>15/1/2018</td>
 
                                         <td>
@@ -193,8 +193,8 @@
                                         <td><span class="badge badge-warning">Pending</span></td>
                                         <td>$3,120,000</td>
 
-                         
-                         
+
+
                                         <td>16/1/2019</td>
 
                                         <td>
@@ -203,7 +203,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                   
+
                                 </tbody>
                             </table>
                         </div>
@@ -237,8 +237,8 @@
                                         <td><span class="badge badge-success">Delivered</span></td>
                                         <td>$9,420,000</td>
 
-                          
-                          
+
+
                                         <td>15/1/2018</td>
 
                                         <td>
@@ -252,8 +252,8 @@
                                         <td><span class="badge badge-warning">Pending</span></td>
                                         <td>$3,120,000</td>
 
-                         
-                         
+
+
                                         <td>16/1/2019</td>
 
                                         <td>
@@ -262,7 +262,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                   
+
                                 </tbody>
                             </table>
                         </div>
@@ -293,8 +293,8 @@
                                         <td><span class="badge badge-success">Delivered</span></td>
                                         <td>$9,420,000</td>
 
-                          
-                          
+
+
                                         <td>15/1/2018</td>
 
                                         <td>
@@ -308,8 +308,8 @@
                                         <td><span class="badge badge-warning">Pending</span></td>
                                         <td>$3,120,000</td>
 
-                         
-                         
+
+
                                         <td>16/1/2019</td>
 
                                         <td>
@@ -318,7 +318,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                   
+
                                 </tbody>
                             </table>
                         </div>

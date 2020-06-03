@@ -5,7 +5,7 @@
             <div class="page-title-box">
                 <div class="row align-items-center">
                     <div class="col-sm-6">
-                        <h4 class="page-title">MyProfile</h4>
+                        <h4 class="page-title">{{$root.userData.username}}</h4>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-right">
@@ -21,7 +21,7 @@
             <div class="row">
 <div class="col-md-3"></div>
 <div class="col-md-9">
-{{$root.userData}}
+
 
 </div>
             </div>

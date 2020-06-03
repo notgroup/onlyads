@@ -38,10 +38,6 @@
 
                                 <td>
                                     <div class="btn-group btn-group">
-
-                                        <button @click="$router.push('/AdProductAds/' + bm.bm_id)" class="btn btn-primary waves-effect waves-light">
-                                            <i class="fas fa-arrows-alt-h"></i>
-                                        </button>
                                         <button @click="newBmModal(bm)" class="btn btn-primary waves-effect waves-light">
                                             <i class="fas fa-cog"></i>
                                         </button>

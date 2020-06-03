@@ -8,6 +8,12 @@ $router->get('/', function () use ($router) {
     //return '<a href="http://notgroupgithubio.test/yuz-kalkani-siperlik2/index.html?pixel=123456&ref=asd_12">Test</a>';
     return [];
 });
+
+$router->get('/cacheDelete', function (Request $request) {
+    Cache::flush();
+});
+
+
 $router->post('/addStockAction', function (Request $request) use ($router) {
 
     $contentAttr = [
@@ -23,14 +29,14 @@ $router->post('/addStockAction', function (Request $request) use ($router) {
 $router->post('/addPayAction', function (Request $request) use ($router) {
 
     $payAction = DB::connection('accounting')->table('payAction')->insert($request->all());
-   
+
     return response()->json($payAction);
 });
 $router->get('/getPayActions', function (Request $request) use ($router) {
 
     $payActions = DB::connection('accounting')->table('payAction')
     ->get()->toArray();
-   
+
     return response()->json($payActions);
 });
 $router->get('/getPayReports', function (Request $request) use ($router) {
@@ -43,14 +49,14 @@ $router->get('/getPayReports', function (Request $request) use ($router) {
         'spendType'
     ])
     ->get()->toArray();
-   
+
     return response()->json($payActions);
 });
 $router->get('/getAccountCard/{cardId}', function (Request $request, $cardId) use ($router) {
 
     $card = DB::connection('accounting')->table('accountCard')->find($cardId);
     $history = DB::connection('accounting')->table('payAction')->where('sourceId', $cardId)->get()->toArray();
-   
+
     return response()->json([
         'card' => $card,
         'history' => $history,
@@ -64,8 +70,8 @@ $router->post('/addAccountCard', function (Request $request) use ($router) {
     } else {
         $cardAction->insert($request->all());
     }
-    
-   
+
+
     return response()->json($request->all());
 });
 
@@ -211,9 +217,9 @@ $response = DB::table('contents as ct')
 ->selectRaw("cast(ct.created_at as DATE) day,
 cast(ct.meta->>'$.country' as unsigned) country,
 cast(ct1.meta->>'$.product_group_id' as unsigned) product_group_id,
-ct1.content_id product_id, 
-cast(ct.meta->>'$.adsource' as unsigned) adsource, 
-count(ct.content_id) ordersCount, 
+ct1.content_id product_id,
+cast(ct.meta->>'$.adsource' as unsigned) adsource,
+count(ct.content_id) ordersCount,
 sum(ct1.meta->>'$.product_quantity') productQuantity,
 sum(ct1.meta->>'$.shipment_cost') shipmentCost,
 sum(ct2.meta->>'$.cost') productCost,

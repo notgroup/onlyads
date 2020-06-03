@@ -395,7 +395,7 @@ $router->get('/topluIslem', function (Request $request) use ($router) {
 
 
          DB::connection('facebook')->table('adaccounts')->where('id', $adaccountArr->id)->update($updateArr);
-                
+
 
         }
 
@@ -403,7 +403,7 @@ $router->get('/topluIslem', function (Request $request) use ($router) {
     } else {
         $response = ['message' => 'bir hata var'];
     }
- 
+
 });
 
 
@@ -434,7 +434,7 @@ $router->get('/bm_accounts', function (Request $request) use ($router) {
 });
 $router->get('/getBmAcoount/{bmId}', function (Request $request, $bmId) use ($router) {
     $BmAccount                 = DB::connection('facebook')->table('bm_accounts')->where('bm_id', $bmId)->first();
-    $BmAccount->hiddenAccounts = $BmAccount->hiddenAccounts ? json_decode($BmAccount->hiddenAccounts, 1) : [];
+   // $BmAccount->hiddenAccounts = $BmAccount->hiddenAccounts ? json_decode($BmAccount->hiddenAccounts, 1) : [];
     return response()->json($BmAccount);
 
 });

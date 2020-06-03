@@ -1,5 +1,5 @@
 <template>
-  <div id="wrapper" v-if="this.$root.clientInit.productsGroup">
+  <div id="wrapper" v-if="this.$root.clientInit">
     <header-comp> </header-comp>
     <sidebar-comp> </sidebar-comp>
     <div class="content-page">

@@ -172,7 +172,7 @@ Vue.mixin({
             this.get(window.apiUrl + "/CargoTracking/" + order.content_id, (res) => {
                 window.open(res.url, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=300,width=800,height=600");
                 //this.currentCargoDetail = Object.assign(order, res);
-                //  
+                //
                 console.log(res)
 
             });
@@ -662,9 +662,9 @@ var vueApp = new Vue({
         })*/
 
         alertify.logPosition("bottom right");
-        this.$root.get(window.apiUrl + '/clientInit', (res) => {
+      /*  this.$root.get(window.apiUrl + '/clientInit', (res) => {
             this.$root.clientInit = res
-        })
+        })*/
         this.$root.userData = this.$root.getUserData()
     },
     methods: {}

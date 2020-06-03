@@ -39,7 +39,7 @@
                     </li>
 
                     <!-- notification -->
-                    <li class="dropdown notification-list list-inline-item">
+                    <li class="dropdown notification-list list-inline-item"  style="display:none!important;">
                         <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                             <i class="mdi mdi-bell-outline noti-icon"></i>
                             <span class="badge badge-pill badge-danger noti-icon-badge">0</span>
